@@ -1,26 +1,131 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="h-full bg-slate-50">
 <head>
-  <base target="_top">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SIMPEL - Pengadaan Alat dan Bahan</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-  <style>
-    body{font-family:'DM Sans',sans-serif;background:#f3f4f6;color:#1f2937}h1,h2,h3{font-family:'Space Grotesk',sans-serif}.header{background:#2C4C63}.panel{background:#fff;border-radius:12px;box-shadow:0 4px 12px rgba(15,23,42,.08)}.field{border:1px solid #d1d5db;border-radius:9px;padding:.65rem .8rem;width:100%;font-size:.875rem}.field:focus{outline:none;border-color:#0f766e;box-shadow:0 0 0 3px #0f766e22}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Pengadaan Logistik - SIMPEL BPVP Kendari 2026</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="simpel_auth.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-heading { font-family: 'Space Grotesk', sans-serif; }
+    </style>
 </head>
-<body class="min-h-screen">
-  <header class="header sticky top-0 z-20 px-4 py-3 text-white sm:px-8"><div class="mx-auto flex max-w-7xl items-center justify-between gap-4"><div class="flex items-center gap-3"><img src="https://bpvpkendari.kemnaker.go.id/storage/upload/setting/11749712002.png" alt="Logo Kemnaker" class="h-10 w-10 rounded-lg bg-white p-1"><div><p class="text-xs font-bold uppercase tracking-wider text-orange-200">SIMPEL BPVP Kendari</p><h1 class="text-lg font-bold">Pokja / Pejabat Pengadaan</h1></div></div><nav class="flex gap-2 text-xs font-semibold"><a class="rounded-lg bg-white/10 px-3 py-2 hover:bg-white/20" href="<?= ScriptApp.getService().getUrl() ?>?page=dashboard&year=<?= ACTIVE_YEAR ?>">Dashboard</a><a class="rounded-lg bg-orange-500 px-3 py-2" href="<?= ScriptApp.getService().getUrl() ?>?page=pengadaan&year=<?= ACTIVE_YEAR ?>">Pengadaan</a><a class="rounded-lg bg-white/10 px-3 py-2 hover:bg-white/20" href="<?= ScriptApp.getService().getUrl() ?>?page=keuangan&year=<?= ACTIVE_YEAR ?>">Keuangan</a></nav></div></header>
-  <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-8"><section class="rounded-xl bg-indigo-600 p-6 text-white shadow-lg"><p class="text-xs font-bold uppercase tracking-wider text-indigo-100">Rencana kebutuhan per batch</p><h2 class="mt-1 text-2xl font-bold">Alat dan Bahan Pelatihan</h2><p class="mt-2 text-sm text-indigo-100">Hubungkan kebutuhan setiap program dengan data Penyelenggara dan tampilkan statusnya di dashboard pimpinan.</p></section>
-    <section class="panel p-6"><div class="mb-5 flex items-center justify-between gap-3 border-b border-slate-100 pb-4"><div><h2 class="text-xl font-bold">Input Kebutuhan</h2><p class="text-sm text-gray-500">Satu baris untuk satu alat atau bahan pada program tertentu.</p></div><span class="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-800">Pokja</span></div><form id="procurement-form" class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"><div><label class="mb-1 block text-xs font-bold uppercase text-gray-600">Program / Batch</label><select id="program" class="field"><option>Pemasangan Sistim Integrasi Bangunan Cerdas 1 - Batch 1</option><option>Pengoperasian Mesin Bubut - Batch 2</option><option>Computer Operator Assistant - Batch 1</option></select></div><div><label class="mb-1 block text-xs font-bold uppercase text-gray-600">Jenis</label><select id="jenis" class="field"><option>Alat</option><option>Bahan</option><option>Jasa pendukung</option></select></div><div><label class="mb-1 block text-xs font-bold uppercase text-gray-600">Nama Alat / Bahan</label><input id="nama" required class="field" placeholder="Contoh: Mata bubut HSS"></div><div><label class="mb-1 block text-xs font-bold uppercase text-gray-600">Jumlah</label><input id="jumlah" type="number" min="1" required class="field" placeholder="10"></div><div><label class="mb-1 block text-xs font-bold uppercase text-gray-600">Satuan</label><input id="satuan" required class="field" placeholder="unit / set / rim"></div><div><label class="mb-1 block text-xs font-bold uppercase text-gray-600">Perkiraan Nilai</label><input id="nilai" type="number" min="0" class="field" placeholder="2500000"></div><div class="md:col-span-2 lg:col-span-3"><label class="mb-1 block text-xs font-bold uppercase text-gray-600">Catatan Spesifikasi</label><textarea id="catatan" class="field" rows="2" placeholder="Spesifikasi, merek, atau catatan teknis"></textarea></div><div class="flex justify-end md:col-span-2 lg:col-span-3"><button class="rounded-lg bg-teal-700 px-5 py-2.5 text-sm font-bold text-white hover:bg-teal-800" type="submit">Simpan Kebutuhan</button></div></form></section>
-    <section class="panel overflow-hidden"><div class="border-b border-slate-100 p-6"><h2 class="text-xl font-bold">Daftar Kebutuhan</h2><p class="text-sm text-gray-500">Status awal dapat diverifikasi dan diteruskan ke Keuangan.</p></div><div class="overflow-x-auto"><table class="min-w-full text-sm"><thead class="bg-sky-50 text-left text-xs uppercase text-gray-600"><tr><th class="px-4 py-3">Program</th><th class="px-4 py-3">Jenis</th><th class="px-4 py-3">Kebutuhan</th><th class="px-4 py-3">Jumlah</th><th class="px-4 py-3">Status</th></tr></thead><tbody id="items" class="divide-y divide-gray-100"></tbody></table></div></section>
-  </main>
-  <script>
-    const items=[{program:'Pemasangan Sistim Integrasi Bangunan Cerdas 1 - Batch 1',jenis:'Alat',nama:'Panel kontrol dan sensor',jumlah:'1 set',status:'Disetujui Pokja'},{program:'Pengoperasian Mesin Bubut - Batch 2',jenis:'Bahan',nama:'Oli mesin dan mata bubut',jumlah:'16 set',status:'Menunggu verifikasi'}];
-    function render(){document.getElementById('items').innerHTML=items.map(x=>`<tr><td class="px-4 py-3 font-semibold">${x.program}</td><td class="px-4 py-3">${x.jenis}</td><td class="px-4 py-3">${x.nama}</td><td class="px-4 py-3">${x.jumlah}</td><td class="px-4 py-3"><span class="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-800">${x.status}</span></td></tr>`).join('')}
-    document.getElementById('procurement-form').addEventListener('submit',e=>{e.preventDefault();items.unshift({program:program.value,jenis:jenis.value,nama:nama.value,jumlah:`${jumlah.value} ${satuan.value}`,status:'Menunggu verifikasi'});render();e.target.reset();});render();
-  </script>
+<body class="min-h-screen bg-slate-50 flex flex-col">
+
+    <!-- UNIFIED HEADER -->
+    <div id="simpel-unified-header"></div>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        
+        <!-- HEADER BAR -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+            <div>
+                <div class="flex items-center gap-2 text-xs font-semibold text-teal-600 mb-1">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                    <span>Logistik & Pengadaan Pelatihan</span>
+                </div>
+                <h1 class="text-xl sm:text-2xl font-bold font-heading text-slate-900">Data Pengadaan Bahan & Alat Praktek 2026</h1>
+                <p class="text-xs text-slate-500 mt-0.5">Daftar pengajuan kebutuhan bahan praktek, modul pembelajaran, alat peraga, dan APD keselamatan kerja.</p>
+            </div>
+
+            <div class="flex items-center gap-2.5">
+                <a href="detail_pengadaan.html" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition">
+                    <i class="fa-solid fa-calculator"></i>
+                    <span>Rincian Bahan & Harga Satuan</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- STATS -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-xs">
+                <span class="text-[10px] font-bold uppercase text-slate-400">Total Pengajuan</span>
+                <p class="text-xl font-extrabold text-slate-800 font-heading mt-1">18 Item</p>
+            </div>
+            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-xs">
+                <span class="text-[10px] font-bold uppercase text-blue-600">Estimasi Nilai</span>
+                <p class="text-xl font-extrabold text-blue-700 font-heading mt-1">Rp 124,5 Juta</p>
+            </div>
+            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-xs">
+                <span class="text-[10px] font-bold uppercase text-emerald-600">Pengadaan Selesai</span>
+                <p class="text-xl font-extrabold text-emerald-700 font-heading mt-1">14 Item</p>
+            </div>
+            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-xs">
+                <span class="text-[10px] font-bold uppercase text-amber-500">Dalam Proses</span>
+                <p class="text-xl font-extrabold text-amber-600 font-heading mt-1">4 Item</p>
+            </div>
+        </div>
+
+        <!-- TABLE -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-slate-600">
+                    <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+                        <tr>
+                            <th class="py-3.5 px-4 text-center">No</th>
+                            <th class="py-3.5 px-4">Program / Batch</th>
+                            <th class="py-3.5 px-4">Nama Alat / Bahan</th>
+                            <th class="py-3.5 px-4">Jenis</th>
+                            <th class="py-3.5 px-3 text-center">Jumlah</th>
+                            <th class="py-3.5 px-4 text-right">Nilai Estimasi (Rp)</th>
+                            <th class="py-3.5 px-4">Spesifikasi</th>
+                            <th class="py-3.5 px-4 text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3 px-4 text-center font-bold text-slate-400">1</td>
+                            <td class="py-3 px-4 font-bold text-slate-800">Junior Web Developer - Batch 1</td>
+                            <td class="py-3 px-4 font-semibold text-slate-700">Flashdisk 32GB & Modul SKKNI</td>
+                            <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-100 font-semibold text-[10px]">Bahan Praktek</span></td>
+                            <td class="py-3 px-3 text-center font-extrabold">16 Paket</td>
+                            <td class="py-3 px-4 text-right font-bold text-teal-800">Rp 3.200.000</td>
+                            <td class="py-3 px-4 text-slate-500">USB 3.2 Sandisk Ultra 32GB</td>
+                            <td class="py-3 px-4 text-center"><span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800">Selesai</span></td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3 px-4 text-center font-bold text-slate-400">2</td>
+                            <td class="py-3 px-4 font-bold text-slate-800">Pengelasan SMAW 3G - Batch 1</td>
+                            <td class="py-3 px-4 font-semibold text-slate-700">Elektroda E7018 & Plat Baja 10mm</td>
+                            <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-100 font-semibold text-[10px]">Bahan Praktek</span></td>
+                            <td class="py-3 px-3 text-center font-extrabold">32 Kotak</td>
+                            <td class="py-3 px-4 text-right font-bold text-teal-800">Rp 14.800.000</td>
+                            <td class="py-3 px-4 text-slate-500">Elektroda LB-52 Kobe Steel & Plat SS400</td>
+                            <td class="py-3 px-4 text-center"><span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800">Selesai</span></td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3 px-4 text-center font-bold text-slate-400">3</td>
+                            <td class="py-3 px-4 font-bold text-slate-800">Barista & Tata Hidang Kopi - Batch 1</td>
+                            <td class="py-3 px-4 font-semibold text-slate-700">Biji Kopi Arabika Toraja & Robusta Sultra</td>
+                            <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-100 font-semibold text-[10px]">Bahan Praktek</span></td>
+                            <td class="py-3 px-3 text-center font-extrabold">25 Kg</td>
+                            <td class="py-3 px-4 text-right font-bold text-teal-800">Rp 4.500.000</td>
+                            <td class="py-3 px-4 text-slate-500">Fresh roast medium roast kemasan valve</td>
+                            <td class="py-3 px-4 text-center"><span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800">Selesai</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
+        &copy; 2026 SIMPEL BPVP Kendari &bull; Logistik & Pengadaan Pelatihan
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            SimpelAuth.renderNavbar('pengadaan');
+        });
+    </script>
 </body>
 </html>

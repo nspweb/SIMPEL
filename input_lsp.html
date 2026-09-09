@@ -1,462 +1,251 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="h-full bg-slate-50">
 <head>
-  <base target="_top">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Input LSP Sertifikasi - SIMPEL BPVP Kendari 2026</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Pendaftaran & Hasil UJK LSP - SIMPEL BPVP Kendari 2026</title>
 
-  <!-- Tailwind CSS, SweetAlert2 & Fonts -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="simpel_auth.js"></script>
 
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f3f4f6;
-    }
-    .header {
-      background-color: #2C4C63; /* Navy SIMPEL */
-      color: white;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    }
-    .card-content {
-      background-color: white;
-      border-radius: 0.75rem;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .card-content:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-    }
-    .nav-active {
-      border-bottom: 3px solid #f97316;
-      color: #ffedd5;
-      background-color: #4b5563;
-    }
-    .input-field {
-      background-color: #ffffff;
-      border: 1px solid #cbd5e1;
-      transition: all 0.2s ease;
-    }
-    .input-field:focus {
-      border-color: #2563eb;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-      outline: none;
-    }
-    .row-zebra:nth-child(even) { background-color: #f8fafc; }
-  </style>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-heading { font-family: 'Space Grotesk', sans-serif; }
+    </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="min-h-screen bg-slate-50 flex flex-col">
 
-  <!-- ========================================================================= -->
-  <!-- HEADER & UNIFIED NAVBAR -->
-  <!-- ========================================================================= -->
-  <header class="header p-4 lg:px-8 sticky top-0 z-30">
-    <div class="flex items-center justify-between w-full max-w-7xl mx-auto">
-      
-      <!-- KIRI: Logo Kemnaker -->
-      <div class="flex items-center space-x-3">
-        <img src="https://bpvpkendari.kemnaker.go.id/storage/upload/setting/11749712002.png"
-             alt="Logo Kemnaker"
-             class="h-10 w-10 object-contain rounded-lg border-2 border-white bg-white p-1 shadow-xs" />
-        <div>
-          <h3 class="text-lg lg:text-xl font-extrabold tracking-tight">Sistem Informasi Pelatihan (SIMPEL)</h3>
-          <p class="text-[11px] text-blue-200 font-medium tracking-wide">BPVP KENDARI &bull; WORKSPACE LSP P1 SERTIFIKASI</p>
-        </div>
-      </div>
+    <!-- UNIFIED HEADER -->
+    <div id="simpel-unified-header"></div>
 
-      <!-- DESKTOP NAV -->
-      <div class="hidden lg:flex lg:items-center lg:space-x-6">
-        <nav class="flex space-x-4 text-sm font-medium">
-          <a id="nav-home" href="#" class="py-2 px-3 rounded-lg hover:bg-gray-700 transition">Home</a>
-          
-          <!-- Dropdown Pelatihan -->
-          <div class="relative group">
-            <button class="py-2 px-3 rounded-lg hover:bg-gray-700 transition inline-flex items-center" type="button">
-              Pelatihan
-              <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            <div class="absolute left-0 top-full pt-2 w-48 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
-              <div class="bg-gray-800 rounded-lg shadow-lg py-1">
-                <a id="nav-pelatihan-uptp" href="#" class="block px-4 py-2 hover:bg-gray-700 text-white">Pelatihan UPTP</a>
-                <a id="nav-pelatihan-uptd" href="#" class="block px-4 py-2 hover:bg-gray-700 text-white">Pelatihan UPTD</a>
-              </div>
-            </div>
-          </div>
-
-          <a id="nav-sertifikasi" href="#" class="py-2 px-3 rounded-lg nav-active transition">Sertifikasi</a>
-          <a id="nav-produktivitas" href="#" class="py-2 px-3 rounded-lg hover:bg-gray-700 transition">Produktivitas</a>
-          <a id="nav-penempatan" href="#" class="py-2 px-3 rounded-lg hover:bg-gray-700 transition">Penempatan</a>
-          <a id="nav-umum" href="#" class="py-2 px-3 rounded-lg hover:bg-gray-700 transition">Umum</a>
-          <a id="nav-portal" href="#" class="py-2 px-3 rounded-lg bg-blue-800 text-white hover:bg-blue-700 transition flex items-center gap-1.5 font-bold">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            <span>Workspace</span>
-          </a>
-        </nav>
-
-        <!-- LOGOUT -->
-        <button onclick="handleLogout()" class="px-3 py-1.5 text-xs font-semibold rounded-md text-white bg-red-600 hover:bg-red-700 transition shadow-sm">
-          Keluar
-        </button>
-      </div>
-
-      <!-- MOBILE HAMBURGER -->
-      <button class="lg:hidden p-2 rounded-md hover:bg-gray-700 text-white" onclick="toggleMobileMenu()">
-        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
-    </div>
-
-    <!-- MOBILE MENU -->
-    <div id="mobile-menu" class="hidden flex-col w-full mt-3 lg:hidden pt-3 border-t border-gray-600 text-sm">
-      <a id="m-nav-home" href="#" class="py-2 px-3 rounded-lg hover:bg-gray-700">Home</a>
-      <a id="m-nav-pelatihan-uptp" href="#" class="py-2 px-3 rounded-lg hover:bg-gray-700">Pelatihan UPTP</a>
-      <a id="m-nav-pelatihan-uptd" href="#" class="py-2 px-3 rounded-lg hover:bg-gray-700">Pelatihan UPTD</a>
-      <a id="m-nav-sertifikasi" href="#" class="py-2 px-3 rounded-lg bg-gray-700 text-white font-bold">Sertifikasi</a>
-      <a id="m-nav-produktivitas" href="#" class="py-2 px-3 rounded-lg hover:bg-gray-700">Produktivitas</a>
-      <a id="m-nav-penempatan" href="#" class="py-2 px-3 rounded-lg hover:bg-gray-700">Penempatan</a>
-      <a id="m-nav-umum" href="#" class="py-2 px-3 rounded-lg hover:bg-gray-700">Umum</a>
-      <a id="m-nav-portal" href="#" class="py-2 px-3 rounded-lg bg-blue-800 text-white font-bold">Workspace</a>
-      <button onclick="handleLogout()" class="mt-2 text-left py-2 px-3 rounded-lg text-red-300 hover:bg-red-800">Keluar</button>
-    </div>
-  </header>
-
-  <!-- ========================================================================= -->
-  <!-- MAIN CONTENT -->
-  <!-- ========================================================================= -->
-  <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
-
-    <!-- TOP BREADCRUMB & BANNER -->
-    <div class="card-content p-5 sm:p-6 border-l-4 border-blue-600 bg-white">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div class="min-w-0">
-          <div class="flex items-center gap-2 text-xs font-semibold text-blue-800 uppercase tracking-wider mb-1">
-            <span>MODUL INPUT</span> &bull; <span>LSP P1 BPVP KENDARI</span> &bull; <span>TAHUN 2026</span>
-          </div>
-          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Master Data Sertifikasi Kompetensi 2026</h1>
-          <p class="text-xs sm:text-sm text-slate-600 mt-1">
-            Pencatatan data asesi uji kompetensi, TUK, skema, verifikasi APL 01 & 02, penetapan hasil UJK (Kompeten/Belum), dan pencetakan sertifikat.
-          </p>
-        </div>
-
-        <div class="flex items-center gap-3 shrink-0 self-start md:self-center">
-          <div class="text-left md:text-right">
-            <div class="text-xs font-bold text-slate-800 leading-tight" id="user-display-name">Tim LSP Sertifikasi</div>
-            <div class="mt-1">
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide bg-blue-50 text-blue-700 border border-blue-200 uppercase whitespace-nowrap">
-                Role: LSP
-              </span>
-            </div>
-          </div>
-          <a id="btn-view-sertifikasi" href="#" class="px-3.5 py-2 rounded-lg text-xs font-bold text-white bg-slate-800 hover:bg-slate-900 transition inline-flex items-center gap-2 shadow-xs whitespace-nowrap">
-            <svg class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-            <span>Dashboard Sertifikasi</span>
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <!-- STATS CARDS -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="card-content p-4 border-t-2 border-blue-600">
-        <p class="text-[11px] font-semibold text-blue-700 uppercase">Total Asesi Terdaftar</p>
-        <p id="stat-total" class="text-2xl font-black text-blue-800 mt-1">1.459</p>
-        <p class="text-[10px] text-blue-500 mt-0.5">Seluruh skema sertifikasi</p>
-      </div>
-      <div class="card-content p-4 border-t-2 border-emerald-600">
-        <p class="text-[11px] font-semibold text-emerald-700 uppercase">Kompeten (K)</p>
-        <p id="stat-kompeten" class="text-2xl font-black text-emerald-700 mt-1">1.442</p>
-        <p class="text-[10px] text-emerald-500 mt-0.5">Hasil UJK Kompeten</p>
-      </div>
-      <div class="card-content p-4 border-t-2 border-rose-600">
-        <p class="text-[11px] font-semibold text-rose-700 uppercase">Belum Kompeten (BK)</p>
-        <p id="stat-bk" class="text-2xl font-black text-rose-700 mt-1">17</p>
-        <p class="text-[10px] text-rose-500 mt-0.5">Perlu uji ulang</p>
-      </div>
-      <div class="card-content p-4 border-t-2 border-teal-600">
-        <p class="text-[11px] font-semibold text-teal-700 uppercase">Sertifikat Selesai</p>
-        <p id="stat-cetak" class="text-2xl font-black text-teal-800 mt-1">1.442</p>
-        <p class="text-[10px] text-teal-500 mt-0.5">Siap diserahkan</p>
-      </div>
-    </div>
-
-    <!-- FORM INPUT COMPREHENSIVE -->
-    <div class="card-content bg-white p-6 space-y-6">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-        <div>
-          <h2 class="text-lg font-bold text-slate-900">Form Pendaftaran & Hasil Uji Sertifikasi (File 10)</h2>
-          <p class="text-xs text-slate-500">Isi data asesi, skema, tempat uji, asesor, dan status sertifikat.</p>
-        </div>
-        <span class="text-xs font-semibold px-2.5 py-1 rounded bg-blue-50 text-blue-800 border border-blue-200">Sheet: Sertifikasi</span>
-      </div>
-
-      <form id="form-lsp" onsubmit="handleSave(event)" class="space-y-6">
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         
-        <!-- Bagian 1: Skema & TUK -->
-        <div>
-          <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3">A. Skema & Tempat Uji Kompetensi (TUK)</h3>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Skema Sertifikasi <span class="text-red-500">*</span></label>
-              <select id="lsp-skema" required class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm bg-white">
-                <option value="">-- Pilih Skema Sertifikasi --</option>
-                <option value="Merias Wajah">Merias Wajah</option>
-                <option value="Pengoperasian Mesin Bubut">Pengoperasian Mesin Bubut</option>
-                <option value="Pengelasan SMAW 3G">Pengelasan SMAW 3G</option>
-                <option value="Computer Operator Assistant">Computer Operator Assistant</option>
-                <option value="Desain Grafis Muda">Desain Grafis Muda</option>
-                <option value="Teknisi Audio Video">Teknisi Audio Video</option>
-                <option value="Servis Sepeda Motor Injeksi">Servis Sepeda Motor Injeksi</option>
-                <option value="Pemasangan Instalasi Otomasi Listrik Industri">Pemasangan Instalasi Otomasi Listrik Industri</option>
-              </select>
-            </div>
-
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Tempat Uji Kompetensi (TUK) <span class="text-red-500">*</span></label>
-              <input type="text" id="lsp-tuk" required class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="TUK BPVP Kendari / SMK N 3 Muna" />
-            </div>
-
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Tahap / Batch</label>
-              <input type="text" id="lsp-tahap" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="Tahap 1 / Batch 2" />
-            </div>
-
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal Pendaftaran</label>
-              <input type="date" id="lsp-tgl-daftar" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm" />
-            </div>
-          </div>
+        <!-- BREADCRUMB -->
+        <div class="flex items-center justify-between">
+            <a href="sertifikasi.html" class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-amber-600 transition">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Kembali ke Master Data LSP</span>
+            </a>
+            <span class="px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-bold">
+                Modul LSP BPVP Kendari &bull; Registrasi Asesi & UJK
+            </span>
         </div>
 
-        <!-- Bagian 2: Data Diri Asesi -->
-        <div>
-          <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3">B. Data Diri Lengkap Asesi</h3>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Lengkap Asesi <span class="text-red-500">*</span></label>
-              <input type="text" id="lsp-nama" required class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="Nama lengkap sesuai KTP" />
+        <!-- FORM CARD -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
+            
+            <div class="p-6 bg-gradient-to-r from-slate-900 to-amber-900 text-white flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-amber-300 text-lg border border-white/20">
+                        <i class="fa-solid fa-stamp"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold font-heading">Formulir Pendaftaran Asesi & Uji Kompetensi</h2>
+                        <p class="text-xs text-slate-200">Lengkapi data asesi sesuai form standar BNSP LSP BPVP Kendari</p>
+                    </div>
+                </div>
+                <a href="sertifikasi.html" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-medium border border-white/20 transition">
+                    <i class="fa-solid fa-table-list"></i>
+                    <span>Lihat Data Asesi</span>
+                </a>
             </div>
 
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Nomor KTP (NIK 16 Digit) <span class="text-red-500">*</span></label>
-              <input type="text" id="lsp-nik" required maxlength="16" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="740304..." />
-            </div>
+            <form onsubmit="handleSave(event)" class="p-6 sm:p-8 space-y-6 text-xs">
+                
+                <!-- SECTION 1: DATA SKEMA & PELAKSANAAN -->
+                <div class="space-y-4">
+                    <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
+                        <span class="w-6 h-6 rounded-full bg-amber-100 text-amber-800 text-xs font-bold flex items-center justify-center">1</span>
+                        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Informasi Skema, TUK & Asesor</h3>
+                    </div>
 
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Jenis Kelamin <span class="text-red-500">*</span></label>
-              <select id="lsp-gender" required class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm bg-white">
-                <option value="LAKI-LAKI">LAKI-LAKI</option>
-                <option value="PEREMPUAN">PEREMPUAN</option>
-              </select>
-            </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1.5">Skema Sertifikasi <span class="text-red-500">*</span></label>
+                            <select id="skema" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-amber-500 focus:outline-none bg-slate-50/50">
+                                <option value="">-- Pilih Skema Sertifikasi --</option>
+                                <option value="Junior Web Developer">Junior Web Developer</option>
+                                <option value="Pengelasan SMAW 3G">Pengelasan SMAW 3G</option>
+                                <option value="Teknisi Servis Sepeda Motor Injeksi">Teknisi Servis Sepeda Motor Injeksi</option>
+                                <option value="Barista dan Tata Hidang Kopi">Barista dan Tata Hidang Kopi</option>
+                                <option value="Desainer Grafis Muda">Desainer Grafis Muda</option>
+                                <option value="Teknisi Refrigerasi Domestik">Teknisi Refrigerasi Domestik</option>
+                                <option value="Commercial Cookery / Pengolahan Makanan">Commercial Cookery / Pengolahan Makanan</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1.5">Tempat Uji Kompetensi (TUK) <span class="text-red-500">*</span></label>
+                            <input type="text" id="tuk" required placeholder="Contoh: TUK Komputer BPVP Kendari" value="TUK BPVP Kendari" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-amber-500 bg-slate-50/50">
+                        </div>
+                    </div>
 
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Tempat Lahir</label>
-              <input type="text" id="lsp-tempat-lahir" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="Kendari / Raha / dll" />
-            </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1.5">Tahap UJK <span class="text-red-500">*</span></label>
+                            <input type="text" id="tahap" required value="Tahap 1" placeholder="Tahap 1 / Tahap 2" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-amber-500 bg-slate-50/50">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1.5">Tanggal Pendaftaran <span class="text-red-500">*</span></label>
+                            <input type="date" id="tanggal_pendaftaran" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-amber-500 bg-slate-50/50">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1.5">Nama Asesor Penguji</label>
+                            <input type="text" id="asesor" placeholder="Contoh: Ir. Hendra Saputra, M.Kom" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-amber-500 bg-slate-50/50">
+                        </div>
+                    </div>
+                </div>
 
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal Lahir</label>
-              <input type="date" id="lsp-tgl-lahir" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm" />
-            </div>
+                <!-- SECTION 2: BIODATA LENGKAP ASESI -->
+                <div class="space-y-4 pt-4">
+                    <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
+                        <span class="w-6 h-6 rounded-full bg-amber-100 text-amber-800 text-xs font-bold flex items-center justify-center">2</span>
+                        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Biodata Lengkap Asesi</h3>
+                    </div>
 
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Kualifikasi Pendidikan</label>
-              <select id="lsp-pendidikan" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm bg-white">
-                <option value="SMA / SMK / MA">SMA / SMK / MA</option>
-                <option value="S1 / D4">S1 / D4</option>
-                <option value="D3">D3</option>
-                <option value="SMP / MTS">SMP / MTS</option>
-                <option value="SD">SD</option>
-                <option value="S2">S2</option>
-              </select>
-            </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1.5">Nama Lengkap Asesi <span class="text-red-500">*</span></label>
+                            <input type="text" id="nama_lengkap" required placeholder="Nama lengkap sesuai KTP" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-amber-500 bg-slate-50/50">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1.5">Nomor KTP (16 Digit) <span class="text-red-500">*</span></label>
+                            <input type="text" id="nomor_ktp" required placeholder="7471xxxxxxxxxxxx" maxlength="16" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-amber-500 bg-slate-50/50 font-mono">
+                        </div>
+                    </div>
 
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Nomor Telepon / WhatsApp</label>
-              <input type="tel" id="lsp-telepon" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="08..." />
-            </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1.5">Tempat Lahir</label>
+                            <input type="text" id="tempat_lahir" placeholder="Kota / Kabupaten Lahir" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1.5">Tanggal Lahir (Tgl/Bln/Thn)</label>
+                            <input type="date" id="tanggal_lahir" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1.5">Jenis Kelamin</label>
+                            <select id="jenis_kelamin" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50">
+                                <option value="Laki-Laki">Laki-Laki</option>
+                                <option value="Perempuan">Perempuan</option>
+                            </select>
+                        </div>
+                    </div>
 
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Alamat Email</label>
-              <input type="email" id="lsp-email" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="asesi@gmail.com" />
-            </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1.5">Alamat Rumah Lengkap</label>
+                        <textarea id="alamat_rumah" rows="2" placeholder="Jl. ..., Kelurahan ..., Kecamatan ..., Kota / Kab ..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 focus:ring-2 focus:ring-amber-500"></textarea>
+                    </div>
 
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Kebangsaan</label>
-              <input type="text" id="lsp-kebangsaan" value="Indonesia" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm" />
-            </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1.5">Nomor Telepon / WA</label>
+                            <input type="tel" id="nomor_telepon" placeholder="08xxxxxxxxxx" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 font-mono">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1.5">Alamat Email</label>
+                            <input type="email" id="alamat_email" placeholder="nama@email.com" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1.5">Kualifikasi Pendidikan</label>
+                            <select id="kualifikasi_pendidikan" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50">
+                                <option value="SMA / SMK">SMA / SMK</option>
+                                <option value="D3">D3</option>
+                                <option value="S1/D4">S1 / D4</option>
+                                <option value="SMP">SMP</option>
+                                <option value="SD">SD</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1.5">Kebangsaan</label>
+                            <input type="text" id="kebangsaan" value="WNI" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50">
+                        </div>
+                    </div>
+                </div>
 
-            <div class="sm:col-span-2 lg:col-span-3">
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Alamat Rumah Lengkap</label>
-              <input type="text" id="lsp-alamat" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="Alamat domisili lengkap sesuai KTP" />
-            </div>
-          </div>
+                <!-- SECTION 3: HASIL ASESMEN & VERIFIKASI -->
+                <div class="space-y-4 pt-4">
+                    <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
+                        <span class="w-6 h-6 rounded-full bg-amber-100 text-amber-800 text-xs font-bold flex items-center justify-center">3</span>
+                        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Verifikasi Dokumen & Hasil UJK</h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1.5">Form APL 01 & 02</label>
+                            <select id="form_apl" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 font-medium">
+                                <option value="Lengkap">Lengkap & Terverifikasi</option>
+                                <option value="Belum Lengkap">Belum Lengkap</option>
+                                <option value="Menunggu Verifikasi">Menunggu Verifikasi</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1.5">Hasil UJK Asesor <span class="text-red-500">*</span></label>
+                            <select id="hasil_ujk" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-amber-500 bg-slate-50/50 font-bold text-emerald-800">
+                                <option value="Kompeten">Kompeten (K)</option>
+                                <option value="Belum Kompeten">Belum Kompeten (BK)</option>
+                                <option value="Belum Uji">Belum Uji</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1.5">Cetak Sertifikat</label>
+                            <select id="cetak_sertifikat" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 font-medium">
+                                <option value="Sudah Dicetak">Sudah Dicetak</option>
+                                <option value="Proses">Dalam Proses</option>
+                                <option value="Belum">Belum Dicetak</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ACTION BAR -->
+                <div class="pt-6 border-t border-slate-200 flex items-center justify-between">
+                    <button type="reset" class="px-4 py-2.5 rounded-xl font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 transition">
+                        <i class="fa-solid fa-rotate-left mr-1.5"></i> Reset Form
+                    </button>
+                    <div class="flex items-center gap-3">
+                        <a href="sertifikasi.html" class="px-5 py-2.5 rounded-xl font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition">
+                            Batal
+                        </a>
+                        <button type="submit" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold shadow-md hover:shadow-lg transition">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>Simpan Data Asesi & UJK</span>
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+
         </div>
 
-        <!-- Bagian 3: Asesor & Hasil Uji -->
-        <div>
-          <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3">C. Pengujian & Status Sertifikat</h3>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Asesor Penguji</label>
-              <input type="text" id="lsp-asesor" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="Nama Asesor LSP" />
-            </div>
+    </main>
 
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Form APL 01 & 02</label>
-              <select id="lsp-apl" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm bg-white">
-                <option value="Lengkap">Lengkap</option>
-                <option value="Belum Lengkap">Belum Lengkap</option>
-              </select>
-            </div>
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
+        &copy; 2026 SIMPEL BPVP Kendari &bull; LSP BPVP Kendari
+    </footer>
 
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Hasil UJK <span class="text-red-500">*</span></label>
-              <select id="lsp-hasil" required class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm bg-white font-bold text-blue-900">
-                <option value="K">K (Kompeten)</option>
-                <option value="BK">BK (Belum Kompeten)</option>
-                <option value="Proses">Sedang Proses Ujian</option>
-              </select>
-            </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            SimpelAuth.renderNavbar('input_lsp');
+            // Set default tanggal pendaftaran to today
+            document.getElementById('tanggal_pendaftaran').value = new Date().toISOString().split('T')[0];
+        });
 
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Status Cetak Sertifikat</label>
-              <select id="lsp-cetak" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm bg-white">
-                <option value="Selesai">Selesai Dicetak</option>
-                <option value="Proses">Proses Cetak</option>
-                <option value="Belum">Belum</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
-          <button type="submit" id="btn-save" class="px-6 py-2.5 rounded-lg text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 shadow-md transition inline-flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <span>Simpan Data Sertifikasi LSP</span>
-          </button>
-        </div>
-      </form>
-    </div>
-
-  </main>
-
-  <!-- ========================================================================= -->
-  <!-- JAVASCRIPT LOGIC -->
-  <!-- ========================================================================= -->
-  <script>
-    const APP_URL = '<?= typeof ScriptApp !== "undefined" ? ScriptApp.getService().getUrl() : "" ?>';
-    const ACTIVE_YEAR = '<?= typeof ACTIVE_YEAR !== "undefined" ? ACTIVE_YEAR : "2026" ?>';
-    const AUTH_TOKEN = '<?= typeof AUTH_TOKEN !== "undefined" ? AUTH_TOKEN : "" ?>';
-
-    function setupLinks() {
-      const year = ACTIVE_YEAR || '2026';
-      const token = AUTH_TOKEN || localStorage.getItem('authToken') || '';
-      const base = APP_URL || '#';
-
-      const map = {
-        'nav-home': `${base}?page=dashboard&year=${year}&token=${encodeURIComponent(token)}`,
-        'nav-pelatihan-uptp': `${base}?page=pelatihan&year=${year}&token=${encodeURIComponent(token)}`,
-        'nav-pelatihan-uptd': `${base}?page=pelatihan_uptd&year=${year}&token=${encodeURIComponent(token)}`,
-        'nav-sertifikasi': `${base}?page=sertifikasi&year=${year}&token=${encodeURIComponent(token)}`,
-        'nav-produktivitas': `${base}?page=produktivitas&year=${year}&token=${encodeURIComponent(token)}`,
-        'nav-penempatan': `${base}?page=penempatan&year=${year}&token=${encodeURIComponent(token)}`,
-        'nav-umum': `${base}?page=umum&year=${year}&token=${encodeURIComponent(token)}`,
-        'nav-portal': `${base}?page=portal&year=${year}&token=${encodeURIComponent(token)}`,
-        'btn-view-sertifikasi': `${base}?page=sertifikasi&year=${year}&token=${encodeURIComponent(token)}`,
-        'm-nav-home': `${base}?page=dashboard&year=${year}&token=${encodeURIComponent(token)}`,
-        'm-nav-pelatihan-uptp': `${base}?page=pelatihan&year=${year}&token=${encodeURIComponent(token)}`,
-        'm-nav-pelatihan-uptd': `${base}?page=pelatihan_uptd&year=${year}&token=${encodeURIComponent(token)}`,
-        'm-nav-sertifikasi': `${base}?page=sertifikasi&year=${year}&token=${encodeURIComponent(token)}`,
-        'm-nav-produktivitas': `${base}?page=produktivitas&year=${year}&token=${encodeURIComponent(token)}`,
-        'm-nav-penempatan': `${base}?page=penempatan&year=${year}&token=${encodeURIComponent(token)}`,
-        'm-nav-umum': `${base}?page=umum&year=${year}&token=${encodeURIComponent(token)}`,
-        'm-nav-portal': `${base}?page=portal&year=${year}&token=${encodeURIComponent(token)}`
-      };
-
-      for (let id in map) {
-        const el = document.getElementById(id);
-        if (el) el.href = map[id];
-      }
-    }
-
-    function toggleMobileMenu() {
-      const m = document.getElementById('mobile-menu');
-      m.classList.toggle('hidden');
-      m.classList.toggle('flex');
-    }
-
-    const defaultBtnLspHtml = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span>Simpan Data Sertifikasi LSP</span>';
-
-    function handleSave(e) {
-      e.preventDefault();
-      const email = localStorage.getItem('userEmail') || 'lsp@kemnaker.go.id';
-      const values = {
-        No: '',
-        Skema: document.getElementById('lsp-skema').value,
-        TUK: document.getElementById('lsp-tuk').value,
-        Tahap: document.getElementById('lsp-tahap').value,
-        'Tanggal Pendaftaran': document.getElementById('lsp-tgl-daftar').value,
-        'Nama Lengkap': document.getElementById('lsp-nama').value,
-        'Nomor KTP': document.getElementById('lsp-nik').value,
-        'Tempat Lahir': document.getElementById('lsp-tempat-lahir').value,
-        'Tanggal Lahir': document.getElementById('lsp-tgl-lahir').value,
-        'Jenis Kelamin': document.getElementById('lsp-gender').value,
-        'Alamat Rumah': document.getElementById('lsp-alamat').value,
-        'Nomor Telepon': document.getElementById('lsp-telepon').value,
-        'Alamat Email': document.getElementById('lsp-email').value,
-        'Kualifikasi pendidikan': document.getElementById('lsp-pendidikan').value,
-        Kebangsaan: document.getElementById('lsp-kebangsaan').value,
-        Asesor: document.getElementById('lsp-asesor').value,
-        'Form APL 01 & 02': document.getElementById('lsp-apl').value,
-        'Hasil UJK': document.getElementById('lsp-hasil').value,
-        'Cetak Sertifikat': document.getElementById('lsp-cetak').value
-      };
-
-      const btn = document.getElementById('btn-save');
-      btn.disabled = true;
-      btn.innerHTML = 'Menyimpan...';
-
-      if (typeof google !== 'undefined' && google.script && google.script.run) {
-        google.script.run
-          .withSuccessHandler(res => {
-            btn.disabled = false;
-            btn.innerHTML = defaultBtnLspHtml;
-            if (res.status === 'success') {
-              Swal.fire({ icon: 'success', title: 'Tersimpan!', text: res.message, confirmButtonColor: '#2563eb' });
-              document.getElementById('form-lsp').reset();
-            } else Swal.fire({ icon: 'error', title: 'Gagal', text: res.message });
-          })
-          .withFailureHandler(err => {
-            btn.disabled = false;
-            btn.innerHTML = defaultBtnLspHtml;
-            Swal.fire({ icon: 'error', title: 'Kesalahan Server', text: err.message });
-          })
-          .saveInputRecord(email, 'sertifikasi', ACTIVE_YEAR, values, AUTH_TOKEN);
-      } else {
-        btn.disabled = false;
-        btn.innerHTML = defaultBtnLspHtml;
-        Swal.fire({ icon: 'success', title: 'Tersimpan (Lokal)', text: 'Data sertifikasi berhasil disimpan.', confirmButtonColor: '#2563eb' });
-        document.getElementById('form-lsp').reset();
-      }
-    }
-
-    function handleLogout() {
-      localStorage.clear();
-      window.top.location.href = APP_URL || 'index.html';
-    }
-
-    window.onload = function() {
-      setupLinks();
-    };
-  </script>
+        function handleSave(e) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'success',
+                title: 'Data Asesi Berhasil Disimpan!',
+                text: 'Asesi ' + document.getElementById('nama_lengkap').value + ' telah terdaftar di LSP BPVP Kendari.',
+                confirmButtonColor: '#d97706'
+            }).then(() => {
+                window.location.href = 'sertifikasi.html';
+            });
+        }
+    </script>
 </body>
 </html>

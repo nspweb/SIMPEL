@@ -163,6 +163,13 @@ function updateRecord_(sheetName, rowIndex, values) {
   return { status: 'success', message: 'Data berhasil diperbarui.', rowIndex: Number(rowIndex) };
 }
 
+function deleteRecord_(sheetName, rowIndex) {
+  var sheet = ensureHeaders_(sheetName);
+  if (!rowIndex || Number(rowIndex) < 2 || Number(rowIndex) > sheet.getLastRow()) throw new Error('Baris data tidak valid.');
+  sheet.deleteRow(Number(rowIndex));
+  return { status: 'success', message: 'Data berhasil dihapus.' };
+}
+
 function value_(object, names) {
   for (var i = 0; i < names.length; i++) {
     if (object[names[i]] !== undefined && object[names[i]] !== '') return object[names[i]];
@@ -423,6 +430,19 @@ function getPelatihanUptdStats(year) {
   };
 }
 
+function getProgramList(year) {
+  var records = sheetRecords_('program_pelatihan', year);
+  var programs = records.map(function (r) {
+    var nama = value_(r, ['PROGRAM PELATIHAN', 'Program Pelatihan', 'nama_program']);
+    var batch = value_(r, ['NO', 'Batch']) ? 'Batch ' + value_(r, ['NO', 'Batch']) : '';
+    var peserta = number_(value_(r, ['JUMLAH PESERTA PELATIHAN', 'Jumlah Peserta Pelatihan', 'TARGET PESERTA'])) || 16;
+    var kejuruan = value_(r, ['KEJURUAN', 'Kejuruan']);
+    var label = nama + (batch ? ' - ' + batch : '');
+    return { name: label, program: nama, batch: batch, peserta: peserta, kejuruan: kejuruan };
+  });
+  return { status: 'success', programs: programs };
+}
+
 function getPengadaan(year) {
   return { status: 'success', records: sheetRecords_('pengadaan', year) };
 }
@@ -434,6 +454,17 @@ function savePengadaan(email, year, data, token) {
   data.STATUS = data.STATUS || 'Menunggu verifikasi';
   data.createdAt = new Date();
   return appendRecord_('pengadaan', data);
+}
+
+function updatePengadaan(email, year, rowIndex, data, token) {
+  data = data || {};
+  data.TAHUN = year || CONFIG.ACTIVE_YEAR;
+  data.updatedAt = new Date();
+  return updateRecord_('pengadaan', rowIndex, data);
+}
+
+function deletePengadaan(email, year, rowIndex, token) {
+  return deleteRecord_('pengadaan', rowIndex);
 }
 
 function getPembayaran(year) {
@@ -448,8 +479,19 @@ function savePembayaran(email, year, data, token) {
   return appendRecord_('pembayaran', data);
 }
 
+function updatePembayaran(email, year, rowIndex, data, token) {
+  data = data || {};
+  data.TAHUN = year || CONFIG.ACTIVE_YEAR;
+  data.updatedAt = new Date();
+  return updateRecord_('pembayaran', rowIndex, data);
+}
+
 function updateStatusPembayaran(email, year, rowIndex, status, catatan, token) {
   return updateRecord_('pembayaran', rowIndex, { 'STATUS PEMBAYARAN': status, CATATAN: catatan || '', updatedAt: new Date(), TAHUN: year || CONFIG.ACTIVE_YEAR });
+}
+
+function deletePembayaran(email, year, rowIndex, token) {
+  return deleteRecord_('pembayaran', rowIndex);
 }
 
 function getPimpinanDashboardData(year) {

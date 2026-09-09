@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Rincian Pengadaan & Bahan - SIMPEL BPVP Kendari 2026</title>
+
+    <!-- Tailwind CSS & Google Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="simpel_auth.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-heading { font-family: 'Space Grotesk', sans-serif; }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-50 flex flex-col">
+
+    <!-- UNIFIED HEADER -->
+    <div id="simpel-unified-header"></div>
+
+    <!-- MAIN FULL-PAGE CONTAINER -->
+    <main class="flex-1 w-full px-4 sm:px-6 lg:px-10 py-6 sm:py-8 space-y-6">
+        
+        <!-- BREADCRUMB & TOP ACTIONS -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-2 text-xs text-slate-500 font-medium">
+                <a href="dashboard.html" class="text-teal-700 hover:text-teal-900 font-bold flex items-center gap-1">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Kembali ke Dashboard Pimpinan</span>
+                </a>
+                <span>&bull;</span>
+                <span class="text-slate-800 font-bold">Rincian Detail Pengadaan Bahan & Harga</span>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button onclick="window.print()" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold shadow-xs transition">
+                    <i class="fa-solid fa-print"></i>
+                    <span>Cetak Rincian</span>
+                </button>
+                <a href="pengadaan.html" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                    <span>Modul Pokja Pengadaan</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- HERO BANNER -->
+        <div class="bg-gradient-to-r from-slate-950 via-[#1A3344] to-[#2C4C63] rounded-3xl p-6 sm:p-8 text-white shadow-lg relative overflow-hidden border border-slate-800">
+            <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div class="space-y-2">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-bold border border-indigo-400/30">
+                        <i class="fa-solid fa-calculator"></i>
+                        <span>Audit Logistik & Rencana Anggaran Biaya (RAB) Bahan</span>
+                    </div>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold font-heading tracking-tight">
+                        Rincian Detail Kebutuhan Bahan & Harga per Program
+                    </h1>
+                    <p class="text-xs sm:text-sm text-slate-300 max-w-2xl">
+                        Daftar lengkap penyediaan seragam siswa, modul pelatihan, APD K3, bahan praktek workshop, dan alokasi uang saku per program kejuruan TA 2026.
+                    </p>
+                </div>
+
+                <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 text-right min-w-[220px]">
+                    <span class="text-[10px] uppercase font-bold text-slate-300 tracking-wider">Total Nilai Pengadaan Terdata:</span>
+                    <p class="text-2xl font-extrabold text-teal-300 font-heading" id="hero-total-nilai">Rp 88.300.000</p>
+                    <span class="text-[10px] text-slate-300">14 Item Bahan / Logistik</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUMMARY STAT CARDS -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Item Terverifikasi</span>
+                <h3 class="text-2xl font-extrabold text-slate-900 font-heading mt-1" id="stat-total-item">14 Item</h3>
+                <p class="text-[11px] text-slate-500 mt-1">Tersebar di 8 Paket Pelatihan</p>
+            </div>
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Penyediaan Seragam & APD</span>
+                <h3 class="text-2xl font-extrabold text-indigo-600 font-heading mt-1">100% Selesai</h3>
+                <p class="text-[11px] text-slate-500 mt-1">Wearpack, Kaos, Apron & Sepatu Safety</p>
+            </div>
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Penyediaan Bahan Praktek</span>
+                <h3 class="text-2xl font-extrabold text-teal-600 font-heading mt-1">Siap Workshop</h3>
+                <p class="text-[11px] text-slate-500 mt-1">Elektroda, Kain, Biji Kopi, Komponen</p>
+            </div>
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Alokasi Uang Saku Siswa</span>
+                <h3 class="text-2xl font-extrabold text-emerald-600 font-heading mt-1">Standar SBM PMK</h3>
+                <p class="text-[11px] text-slate-500 mt-1">Rp 30.000 / hari x kuota peserta</p>
+            </div>
+        </div>
+
+        <!-- FILTER & DATA TABLE CARD -->
+        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6">
+            
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                <div>
+                    <h3 class="text-base sm:text-lg font-bold font-heading text-slate-900">Tabel Rincian Bahan, Volume & Harga Satuan</h3>
+                    <p class="text-xs text-slate-500">Gunakan filter untuk memilah berdasarkan Batch, Program, atau Kategori Pengadaan</p>
+                </div>
+
+                <!-- Filters -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <select id="filter-batch" onchange="applyFilters()" class="px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-teal-500">
+                        <option value="all">Semua Batch</option>
+                        <option value="Batch 1">Batch 1</option>
+                        <option value="Batch 2">Batch 2</option>
+                        <option value="Batch 3">Batch 3</option>
+                    </select>
+
+                    <select id="filter-kategori" onchange="applyFilters()" class="px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-teal-500">
+                        <option value="all">Semua Kategori</option>
+                        <option value="Pakaian & Seragam">Pakaian & Seragam</option>
+                        <option value="Bahan Praktek">Bahan Praktek Workshop</option>
+                        <option value="Modul / ATK">Modul & ATK</option>
+                        <option value="Uang Saku Siswa">Uang Saku Siswa</option>
+                        <option value="Alat / Bahan Praktek">Alat Praktek</option>
+                    </select>
+
+                    <input type="text" id="search-input" onkeyup="applyFilters()" placeholder="Cari nama bahan/alat..." 
+                           class="px-3.5 py-2 rounded-xl text-xs border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-teal-500 min-w-[200px]">
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-slate-600">
+                    <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+                        <tr>
+                            <th class="py-3.5 px-4">No</th>
+                            <th class="py-3.5 px-4">Program Pelatihan & Batch</th>
+                            <th class="py-3.5 px-4">Nama Bahan / Alat / Logistik</th>
+                            <th class="py-3.5 px-4">Spesifikasi Detail</th>
+                            <th class="py-3.5 px-3 text-center">Volume / Qty</th>
+                            <th class="py-3.5 px-4 text-right">Harga Satuan (Rp)</th>
+                            <th class="py-3.5 px-4 text-right">Total Harga (Rp)</th>
+                            <th class="py-3.5 px-4">Rekanan / Vendor</th>
+                            <th class="py-3.5 px-4 text-center">Status Pokja</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100" id="procurement-tbody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                    <tfoot class="bg-slate-50 font-bold text-slate-800 border-t border-slate-200">
+                        <tr>
+                            <td colspan="6" class="py-3.5 px-4 text-right text-xs">Total Akumulasi Filter:</td>
+                            <td class="py-3.5 px-4 text-right text-sm text-teal-700 font-extrabold" id="table-total-sum">Rp 0</td>
+                            <td colspan="2"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 mt-auto">
+        &copy; 2026 <strong>SIMPEL BPVP Kendari</strong> &bull; Sistem Informasi Manajemen Pelatihan Vokasi
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            SimpelAuth.renderNavbar('detail_pengadaan');
+            renderProcurementTable(SIMPEL_DATA.procurements);
+        });
+
+        function formatRupiah(num) {
+            return 'Rp ' + Number(num).toLocaleString('id-ID');
+        }
+
+        function applyFilters() {
+            const batch = document.getElementById('filter-batch').value;
+            const kategori = document.getElementById('filter-kategori').value;
+            const query = document.getElementById('search-input').value.toLowerCase();
+
+            const filtered = SIMPEL_DATA.procurements.filter(item => {
+                const matchBatch = (batch === 'all' || item.batch === batch);
+                const matchKategori = (kategori === 'all' || item.kategori === kategori);
+                const matchQuery = (
+                    item.item_name.toLowerCase().includes(query) || 
+                    item.program.toLowerCase().includes(query) || 
+                    item.spesifikasi.toLowerCase().includes(query) ||
+                    item.rekanan.toLowerCase().includes(query)
+                );
+                return matchBatch && matchKategori && matchQuery;
+            });
+
+            renderProcurementTable(filtered);
+        }
+
+        function renderProcurementTable(data) {
+            const tbody = document.getElementById('procurement-tbody');
+            tbody.innerHTML = '';
+
+            let totalSum = 0;
+
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="py-8 text-center text-slate-400">Tidak ada data rincian bahan yang sesuai filter.</td></tr>`;
+                document.getElementById('table-total-sum').textContent = formatRupiah(0);
+                return;
+            }
+
+            data.forEach((item, index) => {
+                totalSum += item.total_harga;
+
+                let badgePokja = '';
+                if (item.status_pokja.includes('Lengkap') || item.status_pokja.includes('Terbayar')) {
+                    badgePokja = '<span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800"><i class="fa-solid fa-check mr-1"></i>' + item.status_pokja + '</span>';
+                } else {
+                    badgePokja = '<span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-amber-100 text-amber-800 animate-pulse">' + item.status_pokja + '</span>';
+                }
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50/80 transition';
+                tr.innerHTML = `
+                    <td class="py-3.5 px-4 font-semibold text-slate-500">${index + 1}</td>
+                    <td class="py-3.5 px-4">
+                        <p class="font-bold text-slate-900">${item.program}</p>
+                        <span class="text-[10px] font-semibold text-teal-700 bg-teal-50 px-2 py-0.5 rounded inline-block mt-0.5">${item.batch} &bull; ${item.kejuruan}</span>
+                    </td>
+                    <td class="py-3.5 px-4">
+                        <p class="font-bold text-slate-800">${item.item_name}</p>
+                        <span class="text-[10px] text-slate-400 font-medium">${item.kategori}</span>
+                    </td>
+                    <td class="py-3.5 px-4 text-slate-600 text-[11px] max-w-xs">
+                        ${item.spesifikasi}
+                    </td>
+                    <td class="py-3.5 px-3 text-center">
+                        <span class="font-extrabold text-slate-900 text-xs">${item.qty}</span>
+                        <span class="text-[10px] text-slate-500 block">${item.satuan}</span>
+                    </td>
+                    <td class="py-3.5 px-4 text-right font-semibold text-slate-700">
+                        ${formatRupiah(item.harga_satuan)}
+                    </td>
+                    <td class="py-3.5 px-4 text-right font-extrabold text-slate-900 text-xs">
+                        ${formatRupiah(item.total_harga)}
+                    </td>
+                    <td class="py-3.5 px-4 text-slate-600 text-[11px]">
+                        ${item.rekanan}
+                    </td>
+                    <td class="py-3.5 px-4 text-center">
+                        ${badgePokja}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('table-total-sum').textContent = formatRupiah(totalSum);
+            document.getElementById('hero-total-nilai').textContent = formatRupiah(totalSum);
+            document.getElementById('stat-total-item').textContent = data.length + ' Item';
+        }
+    </script>
+</body>
+</html>

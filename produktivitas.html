@@ -1,412 +1,226 @@
 <!DOCTYPE html>
-<html>
+<html lang="id" class="h-full bg-slate-50">
 <head>
-    <base target="_top">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Produktivitas - SIMPEL BPVP Kendari 2026</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="simpel_auth.js"></script>
+
     <style>
-    /* Styling Dasar */
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: #f3f4f6;
-        }
-        .header {
-            background-color: #2C4C63; /* Navy/Biru Tua */
-            color: white;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        .card-content {
-            background-color: white;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .card-content:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-        }
-        /* Style untuk tombol aktif di navigasi */
-        .nav-active {
-            border-bottom: 3px solid #f97316; /* Orange-500 untuk Pelatihan */
-            color: #ffedd5; /* Orange-100 */
-            background-color: #4b5563;
-        }
-        /* Style untuk Canvas Chart */
-        .chart-container {
-            position: relative;
-            height: 400px;
-            width: 100%;
-        }
-        /* Loading spinner */
-        .loading {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3b82f6;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        @media (max-width: 640px) {
-            .data-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+        body { font-family: 'Inter', sans-serif; }
+        .font-heading { font-family: 'Space Grotesk', sans-serif; }
     </style>
 </head>
-<body>
-    <div class="min-h-screen flex flex-col">
-        <!-- Header & Navigasi (Logo, Menu, dan Logout Sebaris di Desktop) -->
-        <header class="header p-4 lg:px-8 sticky top-0 z-20">
-            <div class="flex items-center justify-between w-full">
+<body class="min-h-screen bg-slate-50 flex flex-col">
 
-                <!-- KIRI: Logo & Nama Aplikasi -->
-                <div class="flex items-center space-x-3">
-                <img src="https://bpvpkendari.kemnaker.go.id/storage/upload/setting/11749712002.png"
-                    alt="Logo Kemnaker"
-                    class="h-10 w-10 object-contain rounded-lg border-2 border-white bg-white p-1"
-                />
-                <h3 class="text-xl lg:text-2xl font-extrabold tracking-tight">
-                    Sistem Informasi Pelatihan (SIMPEL)
-                </h3>
+    <!-- UNIFIED HEADER -->
+    <div id="simpel-unified-header"></div>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 w-full px-4 sm:px-6 lg:px-10 py-8 space-y-6">
+        
+        <!-- HEADER BAR -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-xs">
+            <div>
+                <div class="flex items-center gap-2 text-xs font-semibold text-emerald-600 mb-1">
+                    <i class="fa-solid fa-arrow-trend-up"></i>
+                    <span>Seksi Peningkatan Produktivitas & Bimbingan Konsultasi</span>
                 </div>
-
-                <!-- KANAN: Menu Navigasi + Logout (Desktop) -->
-                <div class="hidden lg:flex lg:items-center lg:space-x-6">
-                <nav class="flex space-x-6 text-base font-medium">
-                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=dashboard&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
-                    class="block px-4 py-2 hover:bg-gray-700 rounded-b-lg">
-                    Home
-                    </a>
-
-                    <!-- Dropdown Pelatihan -->
-                    <div class="relative group">
-                    <button type="button"
-                        class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-300 inline-flex items-center">
-                        Pelatihan
-                        <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                        </svg>
-                    </button>
-
-                    <div class="absolute left-0 top-full pt-2 w-48
-                                opacity-0 invisible
-                                group-hover:opacity-100 group-hover:visible
-                                transition-all duration-700 ease-in-out z-50">
-                        <div class="bg-gray-800 rounded-lg shadow-lg">
-                        <a href="<?= ScriptApp.getService().getUrl() ?>?page=pelatihan&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
-                            class="block px-4 py-2 hover:bg-gray-700 rounded-t-lg">
-                            Pelatihan UPTP
-                        </a>
-                        <a href="<?= ScriptApp.getService().getUrl() ?>?page=pelatihan_uptd&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
-                            class="block px-4 py-2 hover:bg-gray-700 rounded-b-lg">
-                            Pelatihan UPTD
-                        </a>
-                        </div>
-                    </div>
-                    </div>
-
-                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=sertifikasi&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
-                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
-                    Sertifikasi
-                    </a>
-
-                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=produktivitas&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
-                    class="block px-4 py-2 nav-active">
-                    Produktivitas
-                    </a>
-
-                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=penempatan&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
-                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
-                    Penempatan
-                    </a>
-                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=umum&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
-                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
-                    Umum
-                    </a>
-                </nav>
-
-                <button id="logout-btn" onclick="handleLogout()"
-                    class="px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-green-100 bg-green-700 hover:bg-green-800 transition duration-150 shadow-md">
-                    Logout
-                </button>
-                </div>
-
-                <!-- Tombol Hamburger Menu (Mobile) -->
-                <button id="menu-toggle" class="lg:hidden p-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-white"
-                onclick="toggleMobileMenu()" type="button">
-                <svg id="icon-open" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-                <svg id="icon-close" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-                </button>
+                <h1 class="text-xl sm:text-2xl font-bold font-heading text-slate-900">Data Peningkatan Produktivitas 2026</h1>
+                <p class="text-xs text-slate-500 mt-0.5">Rekapitulasi peserta pelatihan produktivitas reguler & Green Job, daftar perusahaan mitra binaan, serta capaian target & realisasi.</p>
             </div>
 
-            <!-- Menu Mobile -->
-            <div id="mobile-menu" class="hidden flex-col w-full mt-4 lg:hidden pt-4 border-t border-gray-600">
-                <nav class="flex flex-col space-y-2 text-base font-medium">
-                <a href="<?= ScriptApp.getService().getUrl() ?>?page=dashboard&year=<?= ACTIVE_YEAR ?>"
-                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
-                    Home
+            <div class="flex items-center gap-3">
+                <a href="input_produktivitas.html" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md hover:shadow-lg transition">
+                    <i class="fa-solid fa-plus-circle"></i>
+                    <span>Input Data Produktivitas</span>
                 </a>
-
-                <!-- Pelatihan (Mobile Dropdown / Expand) -->
-                <button type="button"
-                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150 inline-flex items-center justify-between"
-                    onclick="toggleMobilePelatihan()">
-                    <span>Pelatihan</span>
-                    <svg id="mobile-pelatihan-chevron" class="w-4 h-4 transition-transform duration-150" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </button>
-
-                <div id="mobile-pelatihan-submenu" class="hidden pl-3">
-                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=pelatihan&year=<?= ACTIVE_YEAR ?>"
-                    class="block py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
-                    Pelatihan UPTP
-                    </a>
-                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=pelatihan_uptd&year=<?= ACTIVE_YEAR ?>"
-                    class="block py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
-                    Pelatihan UPTD
-                    </a>
-                </div>
-
-                <a href="<?= ScriptApp.getService().getUrl() ?>?page=sertifikasi&year=<?= ACTIVE_YEAR ?>"
-                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
-                    Sertifikasi
-                </a>
-
-                <a href="<?= ScriptApp.getService().getUrl() ?>?page=produktivitas&year=<?= ACTIVE_YEAR ?>"
-                    class="py-2 px-3 rounded-lg nav-active transition duration-150">
-                    Produktivitas
-                </a>
-
-                <a href="<?= ScriptApp.getService().getUrl() ?>?page=penempatan&year=<?= ACTIVE_YEAR ?>"
-                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
-                    Penempatan
-                </a>
-                <a href="<?= ScriptApp.getService().getUrl() ?>?page=umum&year=<?= ACTIVE_YEAR ?>"
-                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
-                    Umum
-                </a>
-                </nav>
-
-                <div class="mt-4">
-                <button id="logout-btn-mobile" onclick="handleLogout()"
-                    class="w-full px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-green-100 bg-green-700 hover:bg-green-800 transition duration-150 shadow-md">
-                    Logout
-                </button>
-                </div>
             </div>
-        </header>
+        </div>
 
-
-        <main class="flex-grow p-4 lg:p-8 flex justify-center">
-            <div class="w-full max-w-7xl space-y-8">
-                
+        <!-- TOP 2-COLUMN GRID: TABEL 1 (PESERTA) & TABEL 3 (TARGET & REALISASI) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             
-                <!-- Banner Dashboard (DIJAGA SESUAI PERMINTAAN) -->
-                <div class="bg-indigo-600 p-6 rounded-lg text-white shadow-lg text-center sm:text-left">
-                    <p class="text-sm font-light">BALAI PELATIHAN VOKASI DAN PRODUKTIVITAS (BPVP) KENDARI</p>
-                    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold mt-1">
-                        DATA PESERTA PRODUKTIVITAS
-                    </h2>
-                    <p class="mt-3 text-sm sm:text-lg font-medium">
-                        Selamat datang di Portal SIMPEL <span id="year-label"></span> - A Nice Place to Grow.
-                    </p>
-                </div>
-
-                <!-- Indikator Loading -->
-                <div id="loading-indicator" class="text-center p-4" style="display: none;">
-                    <div class="loading"></div>
-                    <p class="text-gray-500 mt-2">Memuat data...</p>
-                </div>
-
-                <div id="ringkasan-stats" class="hidden space-y-8 animate-fadeIn"> 
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div class="card-content p-6 flex flex-col justify-center items-center lg:col-span-1 border-b-4 border-blue-300">
-                            <h3 class="text-xl font-bold text-gray-800">Total Peserta</h3>
-                            <span class="text-5xl font-extrabold text-blue-900" id="total-peserta">0</span>
-                            <p class="text-lg font-medium text-gray-500 mt-2">Total Peserta Produktivitas</p>
-                        </div>
-
-                        <!-- Laki-Laki dan Perempuan -->
-                        <div class="card-content p-6 lg:col-span-2">
-                            <h2 class="text-xl font-semibold text-gray-800 mb-4">Pelatihan Peningkatan Produktivitas</h2>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center">
-                                <div class="bg-indigo-50 p-4 rounded-lg">
-                                    <p class="text-4xl font-bold text-blue-900" id="laki-laki">0</p>
-                                    <p class="text-gray-600 mt-1">Pelatihan Peningkatan Produktivitas</p>
-                                </div>
-                                <div class="bg-indigo-50 p-4 rounded-lg">
-                                    <p class="text-4xl font-bold text-blue-900" id="perempuan">0</p>
-                                    <p class="text-gray-600 mt-1">Pelatihan Peningkatan Produktivitas Green Job</p>
-                                </div>
-                            </div>
+            <!-- 1. TABEL PESERTA PELATIHAN PRODUKTIVITAS -->
+            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-4">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-sm font-bold">1</div>
+                        <div>
+                            <h3 class="font-bold font-heading text-slate-900 text-sm">Tabel 1: Rekapitulasi Peserta Pelatihan</h3>
+                            <p class="text-[11px] text-slate-400">Komposisi peserta peningkatan produktivitas & green productivity</p>
                         </div>
                     </div>
+                    <span class="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold">Peserta Terdaftar</span>
+                </div>
 
-                    <div class="card-content p-6">
-                        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                            <!-- <span class="material-icons mr-2 text-green-500">assignment</span> -->
-                            Bimbingan Konsultansi
-                        </h2>
-
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full border border-gray-200 rounded-lg overflow-hidden">
-                            <thead class="bg-gray-100">
-                                <tr>
-                                <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">No</th>
-                                <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">Nama Perusahaan</th>
-                                <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">Alamat Perusahaan</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabel-bimbingan" class="divide-y divide-gray-200 bg-white">
-                                <tr>
-                                <td colspan="3" class="px-4 py-4 text-center text-gray-400">
-                                    Memuat data...
+                <div class="overflow-hidden rounded-2xl border border-slate-200">
+                    <table class="w-full text-left text-xs text-slate-700">
+                        <thead class="bg-slate-50 text-slate-500 font-bold border-b border-slate-200 uppercase tracking-wider text-[10px]">
+                            <tr>
+                                <th class="py-3 px-4">Peserta</th>
+                                <th class="py-3 px-4 text-center w-36">Jumlah</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 font-medium">
+                            <tr class="hover:bg-slate-50/80">
+                                <td class="py-3.5 px-4 font-bold text-slate-800 flex items-center gap-2">
+                                    <i class="fa-solid fa-chart-line text-emerald-600"></i>
+                                    <span>Pelatihan Peningkatan Produktivitas</span>
                                 </td>
-                                </tr>
-                            </tbody>
-                            </table>
-                        </div>
-                    </div>
-
+                                <td class="py-3.5 px-4 text-center font-extrabold text-slate-900 text-sm">185 Orang</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/80">
+                                <td class="py-3.5 px-4 font-bold text-emerald-800 flex items-center gap-2">
+                                    <i class="fa-solid fa-leaf text-teal-600"></i>
+                                    <span>Pelatihan Peningkatan Produktivitas Green Job</span>
+                                </td>
+                                <td class="py-3.5 px-4 text-center font-extrabold text-teal-700 text-sm">60 Orang</td>
+                            </tr>
+                        </tbody>
+                        <tfoot class="bg-emerald-50/60 font-bold text-emerald-900 border-t border-emerald-200">
+                            <tr>
+                                <td class="py-3.5 px-4 uppercase tracking-wider text-xs">Total Peserta:</td>
+                                <td class="py-3.5 px-4 text-center font-extrabold text-base text-emerald-800">245 Orang</td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
             </div>
-        </main>
-        <footer class="bg-gray-700 text-white p-4 text-center text-sm mt-auto z-10">
-            &copy; <span id="footer-year"></span> Sistem Informasi Pelatihan BPVP Kendari.
-        </footer>
+
+            <!-- 3. TABEL PRODUKTIVITAS (TARGET & REALISASI) -->
+            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-4">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-bold">3</div>
+                        <div>
+                            <h3 class="font-bold font-heading text-slate-900 text-sm">Tabel 3: Capaian Produktivitas (Target & Realisasi)</h3>
+                            <p class="text-[11px] text-slate-400">Realisasi program pembinaan & konsultasi tahun 2026</p>
+                        </div>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-full bg-teal-50 text-teal-700 text-[10px] font-bold">Capaian: 81.7%</span>
+                </div>
+
+                <div class="overflow-hidden rounded-2xl border border-slate-200">
+                    <table class="w-full text-left text-xs text-slate-700">
+                        <thead class="bg-slate-50 text-slate-500 font-bold border-b border-slate-200 uppercase tracking-wider text-[10px]">
+                            <tr>
+                                <th class="py-3 px-4">Produktivitas</th>
+                                <th class="py-3 px-4 text-center w-36">Jumlah</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 font-medium">
+                            <tr class="hover:bg-slate-50/80">
+                                <td class="py-3.5 px-4 font-bold text-slate-700 flex items-center gap-2">
+                                    <i class="fa-solid fa-bullseye text-amber-500"></i>
+                                    <span>Target</span>
+                                </td>
+                                <td class="py-3.5 px-4 text-center font-extrabold text-slate-800 text-sm">300 Orang</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/80 bg-teal-50/30">
+                                <td class="py-3.5 px-4 font-bold text-teal-800 flex items-center gap-2">
+                                    <i class="fa-solid fa-circle-check text-teal-600"></i>
+                                    <span>Realisasi</span>
+                                </td>
+                                <td class="py-3.5 px-4 text-center font-extrabold text-teal-700 text-sm">245 Orang</td>
+                            </tr>
+                        </tbody>
+                        <tfoot class="bg-slate-50 font-bold text-slate-800 border-t border-slate-200">
+                            <tr>
+                                <td class="py-3.5 px-4 uppercase tracking-wider text-xs">Persentase Capaian:</td>
+                                <td class="py-3.5 px-4 text-center font-extrabold text-emerald-700 text-sm">81.7%</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 2. TABEL DAFTAR PERUSAHAAN MITRA BINAAN -->
+        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center text-sm font-bold">2</div>
+                    <div>
+                        <h3 class="font-bold font-heading text-slate-900 text-sm">Tabel 2: Daftar Perusahaan / UMKM Binaan Produktivitas</h3>
+                        <p class="text-[11px] text-slate-400">Daftar industri dan UMKM yang mendapatkan pendampingan teknis 5S, Kaizen, & SIMPRO</p>
+                    </div>
+                </div>
+                <span class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold">10 Perusahaan Aktif</span>
+            </div>
+
+            <div class="overflow-x-auto rounded-2xl border border-slate-200">
+                <table class="w-full text-left text-xs text-slate-600">
+                    <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200 uppercase tracking-wider text-[10px]">
+                        <tr>
+                            <th class="py-3.5 px-4 text-center w-16">No</th>
+                            <th class="py-3.5 px-6">Nama Perusahaan</th>
+                            <th class="py-3.5 px-6">Alamat Perusahaan</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3.5 px-4 text-center font-bold text-slate-400">1</td>
+                            <td class="py-3.5 px-6 font-bold text-slate-900">CV Sumber Rezeki Sultra</td>
+                            <td class="py-3.5 px-6 text-slate-600">Jl. Brigjen Katamso No. 104, Baruga, Kota Kendari</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3.5 px-4 text-center font-bold text-slate-400">2</td>
+                            <td class="py-3.5 px-6 font-bold text-slate-900">UD Rotan Karya Mandiri</td>
+                            <td class="py-3.5 px-6 text-slate-600">Jl. Poros Lepo-lepo No. 45, Kendari</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3.5 px-4 text-center font-bold text-slate-400">3</td>
+                            <td class="py-3.5 px-6 font-bold text-slate-900">Asosiasi Bengkel Las Mandiri Kendari</td>
+                            <td class="py-3.5 px-6 text-slate-600">Kawasan Industri Mandonga, Kota Kendari</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3.5 px-4 text-center font-bold text-slate-400">4</td>
+                            <td class="py-3.5 px-6 font-bold text-slate-900">PT Sulawesi Cipta Agro</td>
+                            <td class="py-3.5 px-6 text-slate-600">Jl. D.I. Panjaitan No. 88, Wua-Wua, Kendari</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3.5 px-4 text-center font-bold text-slate-400">5</td>
+                            <td class="py-3.5 px-6 font-bold text-slate-900">Koperasi Tenun Songket Masagena</td>
+                            <td class="py-3.5 px-6 text-slate-600">Kawasan Sentra Tenun, Puuwatu, Kendari</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3.5 px-4 text-center font-bold text-slate-400">6</td>
+                            <td class="py-3.5 px-6 font-bold text-slate-900">CV Anoa Mandiri Perkasa</td>
+                            <td class="py-3.5 px-6 text-slate-600">Jl. Malaka No. 12, Anduonohu, Poasia, Kendari</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3.5 px-4 text-center font-bold text-slate-400">7</td>
+                            <td class="py-3.5 px-6 font-bold text-slate-900">PT Kopi Tolaki Sultra</td>
+                            <td class="py-3.5 px-6 text-slate-600">Jl. Sam Ratulangi No. 50, Kemaraya, Kendari</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3.5 px-4 text-center font-bold text-slate-400">8</td>
+                            <td class="py-3.5 px-6 font-bold text-slate-900">UD Bahari Sejahtera Kendari</td>
+                            <td class="py-3.5 px-6 text-slate-600">Kawasan Pelabuhan Perikanan Samudera Kendari</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 mt-auto">
+        &copy; 2026 <strong>SIMPEL BPVP Kendari</strong> &bull; Seksi Peningkatan Produktivitas
+    </footer>
 
     <script>
-    const APP_URL = '<?= ScriptApp.getService().getUrl() ?>';
-    const ACTIVE_YEAR = <?= ACTIVE_YEAR ?>; 
-
-    function toggleMobileMenu() {
-        const menu = document.getElementById('mobile-menu');
-        const iconOpen = document.getElementById('icon-open');
-        const iconClose = document.getElementById('icon-close');
-
-        menu.classList.toggle('hidden');
-        iconOpen.classList.toggle('hidden');
-        iconClose.classList.toggle('hidden');
-    }
-    function handleLogout() {
-        localStorage.removeItem('userEmail');
-        window.location.href = APP_URL + '?page=index&year=' + encodeURIComponent(ACTIVE_YEAR);
-    }
-
-
-    function loadData() {
-        const loading = document.getElementById('loading-indicator');
-        const stats   = document.getElementById('ringkasan-stats');
-
-        loading.style.display = 'block';
-        stats.classList.add('hidden');
-
-        google.script.run
-        .withSuccessHandler(function(data) {
-            if (data && data.status === 'success') {
-
-            document.getElementById('total-peserta').innerText =
-                data.totalPeserta.toLocaleString('id-ID');
-
-            document.getElementById('laki-laki').innerText =
-                data.lakiLaki.toLocaleString('id-ID');
-
-            document.getElementById('perempuan').innerText =
-                data.perempuan.toLocaleString('id-ID');
-
-            loading.style.display = 'none';
-            stats.classList.remove('hidden');
-
-            } else {
-            handleError(data?.message || 'Data tidak valid');
-            }
-        })
-        .withFailureHandler(function(err) {
-            handleError(err);
-        })
-        .getProduktivitasStats(ACTIVE_YEAR);
-    }
-
-    function loadBimbinganKonsultasi() {
-        google.script.run
-            .withSuccessHandler(function(res) {
-            const tbody = document.getElementById('tabel-bimbingan');
-
-            if (!res || res.status !== 'success') {
-                tbody.innerHTML = `
-                <tr>
-                    <td colspan="3" class="px-4 py-4 text-center text-red-500">
-                    Gagal memuat data
-                    </td>
-                </tr>`;
-                return;
-            }
-
-            if (res.data.length === 0) {
-                tbody.innerHTML = `
-                <tr>
-                    <td colspan="3" class="px-4 py-4 text-center text-gray-400">
-                    Tidak ada data
-                    </td>
-                </tr>`;
-                return;
-            }
-
-            tbody.innerHTML = '';
-            res.data.forEach(row => {
-                tbody.innerHTML += `
-                <tr class="hover:bg-gray-50">
-                    <td class="px-4 py-2 text-sm">${row.no}</td>
-                    <td class="px-4 py-2 text-sm font-medium">${row.nama}</td>
-                    <td class="px-4 py-2 text-sm text-gray-600">${row.alamat || '-'}</td>
-                </tr>
-                `;
-            });
-            })
-            .getBimbinganKonsultasi(ACTIVE_YEAR);
-        }
-
-
-    function handleError(err) {
-        console.error(err);
-        const loading = document.getElementById('loading-indicator');
-        loading.innerHTML =
-        '<p class="text-red-500">Gagal memuat data. Silakan refresh.</p>';
-    }
-
-    window.onload = function () {
-        loadData();               // score card
-        loadBimbinganKonsultasi(); // tabel
-    };
-
-    function handleLogout() {
-        localStorage.removeItem('userEmail');
-        window.location.href = APP_URL + '?page=index&year=' + encodeURIComponent(ACTIVE_YEAR);
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-            const footerYear = document.getElementById('footer-year');
-            if (footerYear && ACTIVE_YEAR) {
-                footerYear.textContent = ACTIVE_YEAR;
-            };
-            const y = document.getElementById('year-label');
-                if (y) y.textContent = ACTIVE_YEAR;
+        document.addEventListener('DOMContentLoaded', () => {
+            SimpelAuth.renderNavbar('produktivitas');
         });
     </script>
-
-  </body>
+</body>
 </html>

@@ -1,1248 +1,422 @@
 <!DOCTYPE html>
-<html>
+<html lang="id" class="h-full bg-slate-50">
 <head>
-    <base target="_top">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>Dashboard Pimpinan - SIMPEL BPVP Kendari 2026</title>
 
-    <!-- ========css========== -->
+    <!-- Tailwind CSS, Fonts & Charts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="simpel_auth.js"></script>
+
     <style>
-        /* Styling Dasar */
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: #f3f4f6;
-        }
-        .header {
-            background-color: #2C4C63; /* Navy/Biru Tua */
-            color: white;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        .card-content {
-            background-color: white;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .card-content:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-        }
-        /* Style untuk tombol aktif di navigasi */
-        .nav-active {
-            border-bottom: 3px solid #f97316; /* Orange-500 untuk Dashboard */
-            color: #ffedd5; /* Orange-100 */
-            background-color: #4b5563;
-        }
-        @media (max-width: 640px) {
-            .data-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        .loading {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3b82f6;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-        .chart-container {
-            position: relative;
-            height: 400px;
-            width: 100%;
-        }
-        .row-zebra:nth-child(even){ background:#fafafa; }
-        .progress-track { background: #e5e7eb; border-radius: 999px; height: 9px; overflow: hidden; }
-        .progress-fill { background: linear-gradient(90deg, #2C4C63, #0f766e); border-radius: inherit; height: 100%; transition: width .5s ease; }
-        .status-pill { border-radius: 999px; display: inline-flex; font-size: .7rem; font-weight: 700; padding: .25rem .6rem; white-space: nowrap; }
+        body { font-family: 'Inter', sans-serif; }
+        .font-heading { font-family: 'Space Grotesk', sans-serif; }
     </style>
 </head>
-<body>
-    <div class="min-h-screen flex flex-col">
-        <!-- Header & Navigasi (Logo, Menu, dan Logout Sebaris di Desktop) -->
-        <header class="header p-4 lg:px-8 sticky top-0 z-20">
-            <div class="flex items-center justify-between w-full">
+<body class="min-h-screen bg-slate-50 flex flex-col">
 
-                <!-- KIRI: Logo -->
-                <div class="flex items-center space-x-3">
-                <img src="https://bpvpkendari.kemnaker.go.id/storage/upload/setting/11749712002.png"
-                    alt="Logo Kemnaker"
-                    class="h-10 w-10 object-contain rounded-lg border-2 border-white bg-white p-1" />
-                <h3 class="text-xl lg:text-2xl font-extrabold tracking-tight">
-                    Sistem Informasi Pelatihan (SIMPEL)
-                </h3>
+    <!-- UNIFIED HEADER -->
+    <div id="simpel-unified-header"></div>
+
+    <!-- FULL PAGE CONTAINER -->
+    <main class="flex-1 w-full px-4 sm:px-6 lg:px-10 py-8 space-y-8">
+        
+        <!-- TOP EXECUTIVE HEADER -->
+        <div class="rounded-3xl bg-gradient-to-r from-slate-950 via-[#162D3D] to-[#1A3344] p-6 sm:p-10 text-white shadow-xl flex flex-col lg:flex-row lg:items-center justify-between gap-6 border border-white/10">
+            <div class="space-y-2">
+                <div class="flex items-center gap-2">
+                    <span class="px-3.5 py-1 rounded-full bg-purple-500/20 text-purple-300 text-xs font-bold border border-purple-400/30 flex items-center gap-1.5">
+                        <i class="fa-solid fa-crown text-[10px]"></i>
+                        <span>Executive Dashboard & Decision Support</span>
+                    </span>
+                    <span class="text-xs text-slate-400">&bull; Tahun Anggaran 2026</span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold font-heading text-white tracking-tight">
+                    Dashboard Pimpinan Balai Pelatihan Vokasi & Produktivitas
+                </h1>
+                <p class="text-xs sm:text-sm text-slate-200 max-w-3xl leading-relaxed">
+                    Monitoring komprehensif 4 pilar utama: Rekapitulasi Jenis Pelatihan, Capaian Target Kegiatan, Penyerapan Anggaran DIPA, serta Progress Mingguan & Status Tindak Lanjut (S-T).
+                </p>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <a href="detail_pengadaan.html" class="px-5 py-3 rounded-2xl bg-indigo-600/90 hover:bg-indigo-600 text-white text-xs font-bold transition flex items-center gap-2 shadow-lg border border-indigo-400/30">
+                    <i class="fa-solid fa-calculator text-sm"></i>
+                    <span>Rincian Bahan & Harga Satuan &rarr;</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- 4 KPI SUMMARY STATS -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Peserta Pelatihan</span>
+                    <h3 class="text-3xl font-extrabold text-slate-900 font-heading mt-1">1.280 Orang</h3>
+                    <p class="text-xs text-slate-500 mt-1">PBK, TMT, PBL & BLK UPTD</p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-teal-700 font-bold">
+                    <span>Target: 1.536 Orang</span>
+                    <span class="px-2 py-0.5 rounded-full bg-teal-50 text-[10px]">83.3% Tercapai</span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Realisasi Anggaran DIPA</span>
+                    <h3 class="text-3xl font-extrabold text-emerald-700 font-heading mt-1">Rp 18,77 M</h3>
+                    <p class="text-xs text-slate-500 mt-1">Pagu Total: Rp 23,76 Milyar</p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-emerald-700 font-bold">
+                    <span>Serapan DIPA</span>
+                    <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-[10px]">79.0% (Lancar)</span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Sertifikasi Kompetensi LSP</span>
+                    <h3 class="text-3xl font-extrabold text-amber-600 font-heading mt-1">1.140 Asesi</h3>
+                    <p class="text-xs text-slate-500 mt-1">Dinyatakan Kompeten (K)</p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-amber-700 font-bold">
+                    <span>Kelulusan UJK</span>
+                    <span class="px-2 py-0.5 rounded-full bg-amber-50 text-[10px]">91.2% Kompeten</span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Penyerapan Alumni (DUDI)</span>
+                    <h3 class="text-3xl font-extrabold text-blue-700 font-heading mt-1">87,5%</h3>
+                    <p class="text-xs text-slate-500 mt-1">84 dari 96 Alumni Bekerja/Wirausaha</p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-blue-700 font-bold">
+                    <span>62 Industri &bull; 22 UMKM</span>
+                    <span class="px-2 py-0.5 rounded-full bg-blue-50 text-[10px]">Sangat Tinggi</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4 MAIN EXECUTIVE VIEW TABS -->
+        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6">
+            
+            <!-- VIEW SELECTOR BUTTONS -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-purple-600">Executive Data Views</span>
+                    <h3 class="text-lg sm:text-xl font-bold font-heading text-slate-900" id="current-view-title">
+                        1. Data Jenis Pelatihan (Target vs Realisasi)
+                    </h3>
                 </div>
 
-                <!-- DESKTOP NAV -->
-                <div class="hidden lg:flex lg:items-center lg:space-x-6">
-                <nav class="flex space-x-6 text-base font-medium">
-
-                    <!-- HOME -->
-                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=dashboard&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
-                    class="py-2 px-3 rounded-lg nav-active transition duration-150">
-                    Home
-                    </a>
-
-                    <!-- DROPDOWN PELATIHAN -->
-                    <div class="relative group">
-                    <button class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-300 inline-flex items-center">
-                        Pelatihan
-                        <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M19 9l-7 7-7-7"/>
-                        </svg>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="switchView(1)" id="btn-view-1" class="view-btn px-4 py-2 rounded-xl text-xs font-bold bg-[#1A3344] text-white shadow-xs">
+                        1. Jenis Pelatihan
                     </button>
-
-                    <div class="absolute left-0 top-full pt-2 w-48 opacity-0 invisible
-                                group-hover:opacity-100 group-hover:visible
-                                transition-all duration-300 z-50">
-                        <div class="bg-gray-800 rounded-lg shadow-lg">
-                        <a href="<?= ScriptApp.getService().getUrl() ?>?page=pelatihan&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
-                            class="block px-4 py-2 hover:bg-gray-700 rounded-t-lg">
-                            Pelatihan UPTP
-                        </a>
-                        <a href="<?= ScriptApp.getService().getUrl() ?>?page=pelatihan_uptd&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
-                            class="block px-4 py-2 hover:bg-gray-700 rounded-b-lg">
-                            Pelatihan UPTD
-                        </a>
-                        </div>
-                    </div>
-                    </div>
-
-                    <!-- MENU LAIN -->
-                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=sertifikasi&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
-                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
-                    Sertifikasi
-                    </a>
-
-                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=produktivitas&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
-                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
-                    Produktivitas
-                    </a>
-
-                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=penempatan&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
-                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
-                    Penempatan
-                    </a>
-                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=umum&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
-                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
-                    Umum
-                    </a>
-                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=pengadaan&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
-                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
-                    Pengadaan
-                    </a>
-                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=keuangan&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
-                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
-                    Keuangan
-                    </a>
-                </nav>
-
-                <!-- LOGOUT -->
-                <button onclick="handleLogout()"
-                        class="px-3 py-1.5 text-sm font-medium rounded-md text-green-100
-                                bg-green-700 hover:bg-green-800 transition shadow-md">
-                    Logout
-                </button>
-                </div>
-
-                <!-- HAMBURGER -->
-                <button class="lg:hidden p-2 rounded-md hover:bg-gray-700"
-                        onclick="toggleMobileMenu()">
-                <svg id="icon-open" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-                <svg id="icon-close" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M6 18L18 6M6 6l12 12" />
-                </svg>
-                </button>
-            </div>
-
-            <!-- MOBILE MENU -->
-            <div id="mobile-menu" class="hidden flex-col w-full mt-4 lg:hidden pt-4 border-t border-gray-600">
-                <nav class="flex flex-col space-y-2 text-base font-medium">
-
-                <a href="<?= ScriptApp.getService().getUrl() ?>?page=dashboard&year=<?= ACTIVE_YEAR ?>"
-                    class="py-2 px-3 rounded-lg nav-active">
-                    Home
-                </a>
-
-                <button type="button"
-                        class="py-2 px-3 rounded-lg hover:bg-gray-700 flex justify-between items-center"
-                        onclick="toggleMobilePelatihan()">
-                    <span>Pelatihan</span>
-                    <svg id="mobile-pelatihan-chevron" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </button>
-
-                <div id="mobile-pelatihan-submenu" class="hidden pl-3">
-                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=pelatihan&year=<?= ACTIVE_YEAR ?>"
-                    class="block py-2 px-3 rounded-lg hover:bg-gray-700">
-                    Pelatihan UPTP
-                    </a>
-                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=pelatihan_uptd&year=<?= ACTIVE_YEAR ?>"                    
-                    class="block py-2 px-3 rounded-lg hover:bg-gray-700">
-                    Pelatihan UPTD
-                    </a>
-                </div>
-
-                <a href="<?= ScriptApp.getService().getUrl() ?>?page=sertifikasi&year=<?= ACTIVE_YEAR ?>"
-                    class="py-2 px-3 rounded-lg hover:bg-gray-700">
-                    Sertifikasi
-                </a>
-
-                <a href="<?= ScriptApp.getService().getUrl() ?>?page=produktivitas&year=<?= ACTIVE_YEAR ?>"
-                    class="py-2 px-3 rounded-lg hover:bg-gray-700">
-                    Produktivitas
-                </a>
-
-                <a href="<?= ScriptApp.getService().getUrl() ?>?page=penempatan&year=<?= ACTIVE_YEAR ?>"
-                    class="py-2 px-3 rounded-lg hover:bg-gray-700">
-                    Penempatan
-                </a>
-                <a href="<?= ScriptApp.getService().getUrl() ?>?page=umum&year=<?= ACTIVE_YEAR ?>"
-                    class="py-2 px-3 rounded-lg hover:bg-gray-700">
-                    Umum
-                </a>
-                </nav>
-
-                <div class="mt-4">
-                <button onclick="handleLogout()"
-                        class="w-full px-3 py-1.5 text-sm font-medium rounded-md
-                                text-green-100 bg-green-700 hover:bg-green-800 transition shadow-md">
-                    Logout
-                </button>
+                    <button onclick="switchView(2)" id="btn-view-2" class="view-btn px-4 py-2 rounded-xl text-xs font-bold bg-white text-slate-700 hover:bg-slate-100 border border-slate-200">
+                        2. Target Kegiatan
+                    </button>
+                    <button onclick="switchView(3)" id="btn-view-3" class="view-btn px-4 py-2 rounded-xl text-xs font-bold bg-white text-slate-700 hover:bg-slate-100 border border-slate-200">
+                        3. Realisasi Anggaran
+                    </button>
+                    <button onclick="switchView(4)" id="btn-view-4" class="view-btn px-4 py-2 rounded-xl text-xs font-bold bg-white text-slate-700 hover:bg-slate-100 border border-slate-200">
+                        4. Monitoring Mingguan (S-T)
+                    </button>
                 </div>
             </div>
-            </header>
 
-
-        <!-- Konten Utama Dashboard -->
-        <main class="flex-grow p-4 lg:p-8 flex justify-center">
-            <div class="w-full max-w-7xl space-y-8">                         
-                <!-- Banner Dashboard -->
-                <div class="bg-indigo-600 p-6 rounded-lg text-white shadow-lg text-center sm:text-left">
-                    <p class="text-sm font-light">KEMENTERIAN KETENAGAKERJAAN</p>
-                    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold mt-1">
-                        BALAI PELATIHAN VOKASI DAN PRODUKTIVITAS (BPVP) KENDARI
-                    </h2>
-                    <p class="mt-3 text-sm sm:text-lg font-medium">
-                        Selamat datang di Portal SIMPEL <span id="year-label"></span> - A Nice Place to Grow.
-                    </p>
+            <!-- VIEW 1: JENIS PELATIHAN (TARGET PELATIHAN VS REALISASI PELATIHAN) -->
+            <div id="view-panel-1" class="view-panel space-y-4">
+                <div class="overflow-x-auto rounded-2xl border border-slate-200">
+                    <table class="w-full text-left text-xs text-slate-600">
+                        <thead class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 uppercase tracking-wider text-[11px]">
+                            <tr>
+                                <th class="py-4 px-4 text-center w-16">No</th>
+                                <th class="py-4 px-6">Jenis Pelatihan</th>
+                                <th class="py-4 px-6 text-center">Target Pelatihan</th>
+                                <th class="py-4 px-6 text-center text-teal-700 bg-teal-50">Realisasi Pelatihan</th>
+                                <th class="py-4 px-6 text-center">% Capaian</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 font-medium">
+                            <tr class="hover:bg-slate-50/80">
+                                <td class="py-4 px-4 text-center font-bold text-slate-400">1</td>
+                                <td class="py-4 px-6 font-bold text-slate-900">Pelatihan Berbasis Kompetensi (PBK) Reguler UPTP</td>
+                                <td class="py-4 px-6 text-center font-semibold">48 Paket (768 Siswa)</td>
+                                <td class="py-4 px-6 text-center font-extrabold text-teal-800 bg-teal-50/40">40 Paket (640 Siswa)</td>
+                                <td class="py-4 px-6 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">83.3%</span></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/80">
+                                <td class="py-4 px-4 text-center font-bold text-slate-400">2</td>
+                                <td class="py-4 px-6 font-bold text-slate-900">Tailor Made Training (TMT) Kerjasama Mitra</td>
+                                <td class="py-4 px-6 text-center font-semibold">24 Paket (384 Siswa)</td>
+                                <td class="py-4 px-6 text-center font-extrabold text-teal-800 bg-teal-50/40">20 Paket (320 Siswa)</td>
+                                <td class="py-4 px-6 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">83.3%</span></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/80">
+                                <td class="py-4 px-4 text-center font-bold text-slate-400">3</td>
+                                <td class="py-4 px-6 font-bold text-slate-900">Pelatihan Berbasis Luar / Proyek (PBL) Komunitas</td>
+                                <td class="py-4 px-6 text-center font-semibold">12 Paket (192 Siswa)</td>
+                                <td class="py-4 px-6 text-center font-extrabold text-teal-800 bg-teal-50/40">10 Paket (160 Siswa)</td>
+                                <td class="py-4 px-6 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">83.3%</span></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/80">
+                                <td class="py-4 px-4 text-center font-bold text-slate-400">4</td>
+                                <td class="py-4 px-6 font-bold text-slate-900">Pelatihan Vokasi 5 BLK UPTD Binaan Wilayah Sultra</td>
+                                <td class="py-4 px-6 text-center font-semibold">12 Paket (192 Siswa)</td>
+                                <td class="py-4 px-6 text-center font-extrabold text-teal-800 bg-teal-50/40">10 Paket (160 Siswa)</td>
+                                <td class="py-4 px-6 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">83.3%</span></td>
+                            </tr>
+                        </tbody>
+                        <tfoot class="bg-slate-50 font-bold text-slate-900 border-t border-slate-200">
+                            <tr>
+                                <td colspan="2" class="py-4 px-6 text-right uppercase tracking-wider">Total Jenis Pelatihan:</td>
+                                <td class="py-4 px-6 text-center font-extrabold">96 Paket (1.536 Siswa)</td>
+                                <td class="py-4 px-6 text-center font-extrabold text-teal-800 bg-teal-100">80 Paket (1.280 Siswa)</td>
+                                <td class="py-4 px-6 text-center font-extrabold text-emerald-800">83.3%</td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
-
-                <!-- Indikator Loading -->
-                <div id="loading-indicator" class="text-center p-4 hidden">
-                    <div class="h-8 w-8 border-4 border-gray-200 border-t-indigo-600 rounded-full animate-spin mx-auto"></div>
-                    <p class="text-gray-500 mt-2">Memuat data...</p>
-                </div>
-
-
-                <div id="dashboard-content" class="hidden space-y-8">
-                <!-- semua card, tabel, chart dashboard kamu di sini -->
-                
-
-                    <!-- Bagian 1: Ringkasan Global (Pelatihan, Sertifikasi, Penempatan) -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">                   
-                        <!-- Score Card Peserta Pelatihan -->
-                        <div class="card-content p-5 border-b-4 border-blue-300">
-                            <h3 class="text-sm font-medium text-gray-500">Total Peserta Pelatihan (<span id="year-data"></span>)</h3>
-                            <div class="flex items-center gap-3 mt-1">
-                                <span class="material-icons text-blue-900 text-4xl">
-                                    groups
-                                </span>
-                                <p class="text-4xl font-bold text-blue-900" id="total-pelatihan">
-                                    0
-                                </p>
-                            </div>
-                        </div>
-
-                        <!-- Score Card Peserta Sertifikasi -->
-                        <div class="card-content p-5 border-b-4 border-blue-300">
-                            <h3 class="text-sm font-medium text-gray-500">Total Peserta Sertifikasi (UJK)</h3>
-                            <div class="flex items-center gap-3 mt-1">
-                            <span class="material-icons text-blue-900 text-3xl">
-                                verified
-                            </span>
-                            <p class="text-4xl font-bold text-blue-900 mt-1" id="total-sertifikasi">0</p>
-                            </div>
-                        </div>
-                        
-                        <!-- Score Card Penempatan Kerja -->
-                        <div class="card-content p-5 border-b-4 border-blue-300">
-                            <h3 class="text-sm font-medium text-gray-500">Alumni Ditempatkan Kerja</h3>
-                            <div class="flex items-center gap-3 mt-1">
-                            <span class="material-icons text-blue-900 text-3xl">
-                                work
-                            </span>
-                            <p class="text-4xl font-bold text-blue-900 mt-1" id="total-penempatan">0</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Ringkasan Pimpinan: batch, pembayaran, serta kebutuhan alat dan bahan -->
-                    <section class="grid grid-cols-1 xl:grid-cols-[1.35fr_.65fr] gap-6">
-                      <div class="card-content p-6">
-                        <div class="flex flex-wrap items-start justify-between gap-3 mb-5">
-                          <div>
-                            <p class="text-xs font-bold uppercase tracking-wider text-teal-700">Pantauan pimpinan</p>
-                            <h2 class="text-xl font-semibold text-gray-800">Progres Pelatihan per Batch</h2>
-                            <p class="text-sm text-gray-500 mt-1">Pelaksanaan, peserta, dan status pembayaran dalam satu tampilan.</p>
-                          </div>
-                          <a href="<?= ScriptApp.getService().getUrl() ?>?page=keuangan&year=<?= ACTIVE_YEAR ?>" class="text-xs font-bold text-teal-700 hover:text-teal-900">Buka keuangan &rarr;</a>
-                        </div>
-                        <div id="batch-progress-list" class="space-y-4"></div>
-                      </div>
-
-                      <div class="card-content p-6">
-                        <div class="flex items-start justify-between gap-3 mb-5">
-                          <div>
-                            <p class="text-xs font-bold uppercase tracking-wider text-orange-700">Pengadaan</p>
-                            <h2 class="text-xl font-semibold text-gray-800">Alat dan Bahan</h2>
-                          </div>
-                          <a href="<?= ScriptApp.getService().getUrl() ?>?page=pengadaan&year=<?= ACTIVE_YEAR ?>" class="text-xs font-bold text-orange-700 hover:text-orange-900">Kelola &rarr;</a>
-                        </div>
-                        <div id="procurement-summary" class="space-y-3"></div>
-                      </div>
-                    </section>
-
-                    <section class="card-content p-6">
-                      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-                        <div>
-                          <p class="text-xs font-bold uppercase tracking-wider text-indigo-700">Kesiapan anggaran</p>
-                          <h2 class="text-xl font-semibold text-gray-800">Status Pembayaran per Program</h2>
-                        </div>
-                        <span class="text-xs text-gray-500">Terhubung dengan data Penyelenggara, Pemberdayaan, dan Keuangan</span>
-                      </div>
-                      <div class="overflow-x-auto rounded-xl border border-gray-100">
-                        <table class="min-w-full text-sm">
-                          <thead class="bg-gradient-to-r from-sky-50 to-indigo-50 text-gray-700">
-                            <tr><th class="px-3 py-2 text-left">Program / Batch</th><th class="px-3 py-2 text-center">Tanggal Mulai</th><th class="px-3 py-2 text-center">Peserta</th><th class="px-3 py-2 text-center">Progres</th><th class="px-3 py-2 text-center">Pembayaran</th></tr>
-                          </thead>
-                          <tbody id="payment-status-table-body" class="divide-y divide-gray-100"></tbody>
-                        </table>
-                      </div>
-                    </section>
-
-                    
-
-                    <!-- Tabel Realisasi Anggaran PAGU-->
-                                    <!-- Tabel Realisasi Anggaran -->
-                    <!--  -->
-
-
-                    <!-- Tabel Target dan Realisasi Penyelenggaraan Pelatihan Vokasi -->
-                    <div class="card-content p-6 mt-6">
-                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Target dan Realisasi Penyelenggaraan Pelatihan Vokasi</h2>
-                        <div class="overflow-x-auto rounded-xl border border-gray-100 shadow-sm bg-white">
-                            <table class="min-w-full table-fixed text-sm">
-                                <thead class="bg-gradient-to-r from-sky-50 to-indigo-50">
-                                <tr class="text-gray-700">
-                                    <th class="w-1/3 px-3 py-2 text-center font-bold">Jenis Pelatihan</th>
-                                    <th class="w-1/3 px-3 py-2 text-center font-bold">Target Pelatihan</th>
-                                    <th class="w-1/3 px-3 py-2 text-center font-bold">Realisasi Pelatihan</th>
-                                </tr>
-                                </thead>
-                                <tbody id="pelatihan-table-body" class="divide-y divide-gray-100"></tbody>
-                            </table>
-                        </div>
-                    </div>
-
-
-                    <!-- Tabel Program Kegiatan  -->
-                    <div class="card-content p-6 mt-6">
-                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Kegiatan</h2>
-
-                        <div class="overflow-x-auto rounded-xl border border-gray-100 shadow-sm bg-white">
-                            <table class="min-w-full table-fixed text-sm">
-                            <thead class="bg-gradient-to-r from-sky-50 to-indigo-50">
-                                <tr class="text-gray-700">
-                                <th class="w-1/3 px-3 py-2 text-center font-bold">Program Pelatihan</th>
-                                <th class="w-1/3 px-3 py-2 text-center font-bold">Target</th>
-                                <th class="w-1/3 px-3 py-2 text-center font-bold">Realisasi</th>
-                                </tr>
-                            </thead>
-
-                            <tbody id="jenis-pelatihan-table-body" class="divide-y divide-gray-100"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-
             </div>
-        </main>
 
-        <footer class="bg-gray-700 text-white p-4 text-center text-sm mt-auto z-10">
-            &copy; <span id="footer-year"></span> Sistem Informasi Pelatihan BPVP Kendari.
-        </footer>
-    </div>
-<script>
-  const APP_URL = '<?= ScriptApp.getService().getUrl() ?>';
-  const ACTIVE_YEAR = <?= ACTIVE_YEAR ?>;
-
-  function formatNumber(num) {
-    if (num == null || isNaN(num)) return '-';
-    return Number(num).toLocaleString('id-ID');
-  }
-
-  function toggleMobileMenu() {
-    const menu = document.getElementById('mobile-menu');
-    const iconOpen = document.getElementById('icon-open');
-    const iconClose = document.getElementById('icon-close');
-
-    if (!menu || !iconOpen || !iconClose) return;
-
-    menu.classList.toggle('hidden');
-    iconOpen.classList.toggle('hidden');
-    iconClose.classList.toggle('hidden');
-  }
-
-  function toggleMobilePelatihan() {
-    const submenu = document.getElementById('mobile-pelatihan-submenu');
-    const chevron = document.getElementById('mobile-pelatihan-chevron');
-
-    if (!submenu || !chevron) return;
-
-    submenu.classList.toggle('hidden');
-    chevron.classList.toggle('rotate-180');
-  }
-
-  function handleLogout() {
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('selectedYear');
-    window.location.href = '<?= ScriptApp.getService().getUrl() ?>';
-  }
-
-  // =========================
-  // LOADING CONTROLLER (Counter)
-  // =========================
-  let pendingRequests = 0;
-
-    function showLoading() {
-        document.getElementById('loading-indicator')?.classList.remove('hidden');
-    }
-
-    function hideLoading() {
-        document.getElementById('loading-indicator')?.classList.add('hidden');
-    }
-
-  function hideLoadingIfDone() {
-    pendingRequests = Math.max(0, pendingRequests - 1);
-
-    if (pendingRequests === 0) {
-      const el = document.getElementById('loading-indicator');
-      if (el) el.style.display = 'none';
-
-      const content = document.getElementById('dashboard-content');
-      if (content) content.classList.remove('hidden');
-    }
-  }
-
-  function startRequest() {
-    if (pendingRequests === 0) {
-      showLoading();
-      const content = document.getElementById('dashboard-content');
-      if (content) content.classList.add('hidden');
-    }
-    pendingRequests += 1;
-  }
-
-  // =========================
-  // DASHBOARD DATA LOADER
-  // =========================
-  function loadDashboardData() {
-    const userEmail = localStorage.getItem('userEmail');
-
-    if (!userEmail) {
-      window.location.href = APP_URL + '?page=index';
-      return;
-    }
-
-    // --- Pelatihan ---
-    startRequest();
-    google.script.run
-      .withSuccessHandler(function (stats) {
-        try {
-          if (stats && typeof stats.totalPesertaGabungan !== 'undefined') {
-            const el = document.getElementById('total-pelatihan');
-            if (el) el.textContent = formatNumber(stats.totalPesertaGabungan);
-          }
-        } finally {
-          hideLoadingIfDone();
-        }
-      })
-      .withFailureHandler(function (err) {
-        console.error('Gagal mengambil data pelatihan:', err);
-        hideLoadingIfDone();
-      })
-      .getPelatihanStats(ACTIVE_YEAR);
-
-    // --- Sertifikasi ---
-    startRequest();
-    google.script.run
-      .withSuccessHandler(function (stats) {
-        try {
-          if (stats && stats.status === "success") {
-            const el = document.getElementById("total-sertifikasi");
-            if (el) el.textContent = Number(stats.totalPeserta || 0).toLocaleString('id-ID');
-          }
-        } finally {
-          hideLoadingIfDone();
-        }
-      })
-      .withFailureHandler(function (err) {
-        console.error("Gagal mengambil data sertifikasi:", err);
-        hideLoadingIfDone();
-      })
-      .getSertifikasiStats(ACTIVE_YEAR);
-
-    // --- Penempatan ---
-    startRequest();
-    google.script.run
-      .withSuccessHandler(function (stats) {
-        try {
-          if (stats && typeof stats.totalDitempatkan !== 'undefined') {
-            const el = document.getElementById('total-penempatan');
-            if (el) el.textContent = formatNumber(stats.totalDitempatkan);
-          }
-        } finally {
-          hideLoadingIfDone();
-        }
-      })
-      .withFailureHandler(function (err) {
-        console.error('Gagal mengambil data penempatan:', err);
-        hideLoadingIfDone();
-      })
-      .getPenempatanStats(ACTIVE_YEAR);
-
-    // --- Target dan Realisasi Penyelenggaraan Pelatihan Vokasi ---
-    startRequest();
-    google.script.run
-      .withSuccessHandler(function (stats) {
-        try {
-          console.log('Data Target/Realisasi Pelatihan:', stats);
-          renderPelatihanTable(stats);
-        } finally {
-          hideLoadingIfDone();
-        }
-      })
-      .withFailureHandler(function (err) {
-        console.error('Gagal mengambil data target/realisasi pelatihan:', err);
-        hideLoadingIfDone();
-      })
-      .getTargetRealisasiPelatihan(ACTIVE_YEAR);
-
-    // --- Target & Realisasi Program Kegiatan (Jenis Pelatihan) ---
-    startRequest();
-    google.script.run
-      .withSuccessHandler(function (stats) {
-        try {
-          console.log('Data Jenis Pelatihan:', stats);
-          renderJenisPelatihanTable(stats);
-        } finally {
-          hideLoadingIfDone();
-        }
-      })
-      .withFailureHandler(function (err) {
-        console.error('Gagal mengambil data Jenis Pelatihan:', err);
-        hideLoadingIfDone();
-      })
-      .getJenisPelatihanStats(ACTIVE_YEAR);
-
-    // --- Realisasi Anggaran (TABEL) ---
-    startRequest();
-    google.script.run
-      .withSuccessHandler(function (stats) {
-        try {
-          console.log('Data Realisasi Anggaran:', stats);
-          renderRealisasiAnggaranTable(stats?.rows || []);
-        } finally {
-          hideLoadingIfDone();
-        }
-      })
-      .withFailureHandler(function (err) {
-        console.error('Gagal mengambil data Realisasi Anggaran:', err);
-        hideLoadingIfDone();
-      })
-      .getRealisasiAnggaranDashboard(ACTIVE_YEAR);
-
-    // --- Chart Anggaran Kegiatan ---
-    loadAnggaranKegiatanChart();
-  }
-
-  // =========================
-  // UTIL + TABLE RENDER
-  // =========================
-  function escapeHtml(str) {
-    if (str === null || str === undefined) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  }
-
-  function persenBadgeClass(persenNum) {
-    if (persenNum >= 90) return 'bg-emerald-100 text-emerald-700 ring-emerald-200';
-    if (persenNum >= 75) return 'bg-blue-100 text-blue-700 ring-blue-200';
-    if (persenNum >= 50) return 'bg-amber-100 text-amber-700 ring-amber-200';
-    return 'bg-rose-100 text-rose-700 ring-rose-200';
-  }
-
-  function renderRealisasiAnggaranTable(rows) {
-    const tbody = document.getElementById('realisasi-anggaran-table-body');
-    if (!tbody) return;
-
-    if (!Array.isArray(rows) || rows.length === 0) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="3" class="px-4 py-6 text-center text-gray-500">
-            Tidak ada data realisasi anggaran.
-          </td>
-        </tr>`;
-      return;
-    }
-
-    let html = '';
-    for (let i = 0; i < rows.length; i++) {
-      const r = rows[i] || {};
-      const uraian = escapeHtml(r.uraian || '-');
-      const target = escapeHtml(r.target || '—');
-
-      const persenNum  = Number(r.persen100) || 0;          // angka 0–100
-      const persenText = escapeHtml(r.persenText || '0%');  // teks "94,04%"
-      const badgeCls   = persenBadgeClass(persenNum);
-
-      html += `
-        <tr class="${i % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-indigo-50/30 transition-colors">
-          <td class="px-3 py-2 truncate">
-            <span class="font-medium text-gray-800">${uraian}</span>
-          </td>
-          <td class="px-3 py-2 text-right font-semibold text-gray-900 tabular-nums">
-            ${target}
-          </td>
-          <td class="px-3 py-2 text-center">
-            <span class="inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold ring-1 ${badgeCls}">
-              ${persenText}
-            </span>
-          </td>
-        </tr>`;
-    }
-
-    tbody.innerHTML = html;
-  }
-
-  function renderPelatihanTable(data) {
-    const tableBody = document.getElementById('pelatihan-table-body');
-    if (!tableBody) return;
-
-    if (!data || data.status !== 'success' || !Array.isArray(data.rows)) {
-      console.error('Data pelatihan tidak valid:', data);
-      tableBody.innerHTML = `
-        <tr>
-          <td colspan="3" class="px-3 py-4 text-center text-gray-500">
-            Data pelatihan tidak tersedia.
-          </td>
-        </tr>`;
-      return;
-    }
-
-    let totalTarget = 0;
-    let totalRealisasi = 0;
-    let html = '';
-
-    data.rows.forEach((r, idx) => {
-      const target = Number(r.target) || 0;
-      const realisasi = Number(r.realisasi) || 0;
-
-      totalTarget += target;
-      totalRealisasi += realisasi;
-
-      html += `
-        <tr class="${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-indigo-50/30 transition-colors">
-          <td class="px-3 py-2 text-center truncate">
-            <span class="font-medium text-gray-800">${escapeHtml(r.kejuruan || '')}</span>
-          </td>
-          <td class="px-3 py-2 text-center font-semibold text-gray-900 tabular-nums whitespace-nowrap">
-            ${formatNumber(target)}
-          </td>
-          <td class="px-3 py-2 text-center font-semibold text-gray-900 tabular-nums whitespace-nowrap">
-            ${formatNumber(realisasi)}
-          </td>
-        </tr>`;
-    });
-
-    html += `
-      <tr class="bg-gray-100 border-t border-gray-200">
-        <td class="px-3 py-2 font-bold text-gray-900">TOTAL</td>
-        <td class="px-3 py-2 text-center font-bold text-gray-900 tabular-nums whitespace-nowrap">
-          ${formatNumber(totalTarget)}
-        </td>
-        <td class="px-3 py-2 text-center font-bold text-gray-900 tabular-nums whitespace-nowrap">
-          ${formatNumber(totalRealisasi)}
-        </td>
-      </tr>`;
-
-    tableBody.innerHTML = html;
-  }
-
-  function renderJenisPelatihanTable(data) {
-    const tableBody = document.getElementById('jenis-pelatihan-table-body');
-    if (!tableBody) return;
-
-    if (!data || data.status !== 'success' || !Array.isArray(data.rows)) {
-      console.error('Data Jenis Pelatihan tidak valid:', data);
-      tableBody.innerHTML = `
-        <tr>
-          <td colspan="3" class="px-3 py-4 text-center text-gray-500">
-            Data kegiatan tidak tersedia.
-          </td>
-        </tr>`;
-      return;
-    }
-
-    let html = '';
-    let totalTarget = 0;
-    let totalRealisasi = 0;
-
-    data.rows.forEach((r, idx) => {
-      const target = Number(r.target) || 0;
-      const realisasi = Number(r.realisasi) || 0;
-
-      totalTarget += target;
-      totalRealisasi += realisasi;
-
-      html += `
-        <tr class="${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-indigo-50/30 transition-colors">
-          <td class="px-3 py-2 text-center truncate">
-            <span class="font-medium text-gray-800">${escapeHtml(r.jenis || '')}</span>
-          </td>
-          <td class="px-3 py-2 text-center font-semibold text-gray-900 tabular-nums whitespace-nowrap">
-            ${formatNumber(target)}
-          </td>
-          <td class="px-3 py-2 text-center font-semibold text-gray-900 tabular-nums whitespace-nowrap">
-            ${formatNumber(realisasi)}
-          </td>
-        </tr>`;
-    });
-
-    // html += `
-    //   <tr class="bg-gray-100 border-t border-gray-200">
-    //     <td class="px-3 py-2 font-bold text-gray-900">TOTAL</td>
-    //     <td class="px-3 py-2 text-right font-bold text-gray-900 tabular-nums whitespace-nowrap">
-    //       ${formatNumber(totalTarget)}
-    //     </td>
-    //     <td class="px-3 py-2 text-right font-bold text-gray-900 tabular-nums whitespace-nowrap">
-    //       ${formatNumber(totalRealisasi)}
-    //     </td>
-    //   </tr>`;
-
-    tableBody.innerHTML = html;
-  }
-
-  const pimpinanSampleData = {
-    batches: [
-      { program: 'Pemasangan Sistim Integrasi Bangunan Cerdas 1', batch: 'Batch 1', mulai: '22 Juni 2026', peserta: 16, progress: 100, payment: 'Terbayar', kebutuhan: 'Panel kontrol, kabel, sensor' },
-      { program: 'Pengoperasian Mesin Bubut', batch: 'Batch 2', mulai: '29 Juni 2026', peserta: 16, progress: 72, payment: 'Diproses', kebutuhan: 'Mata bubut, oli, alat ukur' },
-      { program: 'Computer Operator Assistant', batch: 'Batch 1', mulai: '06 Juli 2026', peserta: 16, progress: 38, payment: 'Belum diajukan', kebutuhan: 'Modul praktik, tinta, kertas' }
-    ],
-    procurement: [
-      { label: 'Sudah disetujui Pokja', value: 12, tone: 'bg-emerald-100 text-emerald-800' },
-      { label: 'Menunggu verifikasi', value: 5, tone: 'bg-amber-100 text-amber-800' },
-      { label: 'Belum dibuat', value: 3, tone: 'bg-rose-100 text-rose-800' }
-    ]
-  };
-
-  function paymentClass(status) {
-    if (status === 'Terbayar') return 'bg-emerald-100 text-emerald-800';
-    if (status === 'Diproses') return 'bg-amber-100 text-amber-800';
-    return 'bg-rose-100 text-rose-800';
-  }
-
-  function renderPimpinanPanels(data) {
-    const batches = Array.isArray(data?.batches) ? data.batches : pimpinanSampleData.batches;
-    const procurement = Array.isArray(data?.procurement) ? data.procurement : pimpinanSampleData.procurement;
-    const batchList = document.getElementById('batch-progress-list');
-    const paymentTable = document.getElementById('payment-status-table-body');
-    const procurementSummary = document.getElementById('procurement-summary');
-
-    if (batchList) {
-      batchList.innerHTML = batches.length ? batches.map(item => {
-        const progress = Math.max(0, Math.min(100, Number(item.progress) || 0));
-        return `<article class="rounded-xl border border-gray-100 bg-gray-50 p-4">
-          <div class="flex flex-wrap items-start justify-between gap-2">
-            <div><h3 class="font-bold text-gray-800">${escapeHtml(item.program || '-')}</h3><p class="text-xs text-gray-500">${escapeHtml(item.batch || '-')} &middot; Mulai ${escapeHtml(item.mulai || '-')}</p></div>
-            <span class="status-pill ${paymentClass(item.payment)}">${escapeHtml(item.payment || 'Belum ada status')}</span>
-          </div>
-          <div class="mt-3 flex items-center gap-3"><div class="progress-track flex-1"><div class="progress-fill" style="width:${progress}%"></div></div><span class="text-xs font-bold text-gray-700">${progress}%</span></div>
-          <div class="mt-2 flex flex-wrap justify-between gap-2 text-xs text-gray-500"><span>${formatNumber(item.peserta)} peserta</span><span>Kebutuhan: ${escapeHtml(item.kebutuhan || 'Belum diinput')}</span></div>
-        </article>`;
-      }).join('') : '<p class="text-sm text-gray-500">Belum ada data batch.</p>';
-    }
-
-    if (paymentTable) {
-      paymentTable.innerHTML = batches.length ? batches.map(item => {
-        const progress = Math.max(0, Math.min(100, Number(item.progress) || 0));
-        return `<tr class="row-zebra"><td class="px-3 py-3 font-semibold text-gray-800">${escapeHtml(item.program || '-')}<span class="block text-xs font-normal text-gray-500">${escapeHtml(item.batch || '-')}</span></td><td class="px-3 py-3 text-center">${escapeHtml(item.mulai || '-')}</td><td class="px-3 py-3 text-center font-semibold">${formatNumber(item.peserta)}</td><td class="px-3 py-3 text-center"><span class="font-bold">${progress}%</span></td><td class="px-3 py-3 text-center"><span class="status-pill ${paymentClass(item.payment)}">${escapeHtml(item.payment || '-')}</span></td></tr>`;
-      }).join('') : '<tr><td colspan="5" class="px-3 py-5 text-center text-gray-500">Belum ada data pembayaran.</td></tr>';
-    }
-
-    if (procurementSummary) {
-      procurementSummary.innerHTML = procurement.map(item => `<div class="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 px-3 py-3"><span class="text-sm text-gray-700">${escapeHtml(item.label || '-')}</span><span class="status-pill ${escapeHtml(item.tone || 'bg-gray-100 text-gray-700')}">${formatNumber(item.value)}</span></div>`).join('');
-    }
-  }
-
-  function loadPimpinanPanels() {
-    renderPimpinanPanels(pimpinanSampleData);
-    if (typeof google === 'undefined' || !google.script || !google.script.run || typeof google.script.run.getPimpinanDashboardData !== 'function') return;
-    google.script.run.withSuccessHandler(function (data) {
-      if (data && data.status === 'success') renderPimpinanPanels(data);
-    }).withFailureHandler(function (err) {
-      console.warn('Data pimpinan belum tersedia:', err);
-    }).getPimpinanDashboardData(ACTIVE_YEAR);
-  }
-
-  // =========================
-  // CHART
-  // =========================
-  function splitLabelTo3Lines(label) {
-    if (!label) return ['', '', ''];
-    const words = String(label).split(' ');
-    const lines = ['', '', ''];
-    let current = 0;
-
-    words.forEach(word => {
-      if ((lines[current] + ' ' + word).trim().length > 25 && current < 2) current++;
-      lines[current] += (lines[current] ? ' ' : '') + word;
-    });
-
-    return lines.slice(0, 3);
-  }
-
-  function shortRupiah(v) {
-  const n = Number(v || 0);
-  if (!n) return '';
-  if (n >= 1_000_000_000) return 'Rp ' + (n / 1_000_000_000).toFixed(1).replace('.', ',') + ' M';
-  if (n >= 1_000_000)     return 'Rp ' + (n / 1_000_000).toFixed(1).replace('.', ',') + ' Jt';
-  return 'Rp ' + n.toLocaleString('id-ID');
-}
-
-function truncate(str, max = 16) {
-  const s = String(str || '');
-  return s.length > max ? s.slice(0, max - 1) + '…' : s;
-}
-
-function renderAnggaranChart(stats) {
-  if (!stats || stats.status !== 'success' || !Array.isArray(stats.rows)) {
-    console.error('Data Kegiatan Pelatihan tidak valid:', stats);
-    return;
-  }
-
-  const canvas = document.getElementById('chart-anggaran');
-  if (!canvas) {
-    console.error('Elemen canvas chart-anggaran tidak ditemukan');
-    return;
-  }
-
-  const parentW = canvas.parentElement?.clientWidth || canvas.clientWidth || 800;
-  const isSmall = parentW < 640;  // breakpoint mobile
-
-  const labelsRaw = stats.rows.map(r => String(r.kegiatan || ''));
-  const targetValues = stats.rows.map(r => Number(r.target || 0));
-  const realisasiValues = stats.rows.map(r => Number(r.realisasi || 0));
-
-  // ✅ Label X: layar besar pakai multiline, layar kecil pakai truncate
-  const labelsFinal = isSmall
-    ? labelsRaw.map(l => truncate(l, 18))
-    : labelsRaw.map(l => splitLabelTo3Lines(l));
-
-  const ctx = canvas.getContext('2d');
-  if (window.anggaranChart) window.anggaranChart.destroy();
-
-  window.anggaranChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: labelsFinal,
-      datasets: [
-        {
-          label: 'Target',
-          data: targetValues,
-          backgroundColor: 'rgba(153,183,246)',
-          borderColor: '#99b7f6',
-          borderWidth: 1,
-          borderRadius: 4,
-          categoryPercentage: isSmall ? 0.8 : 0.7,
-          barPercentage: isSmall ? 0.9 : 0.8
-        },
-        {
-          label: 'Realisasi',
-          data: realisasiValues,
-          backgroundColor: 'rgba(79,70,229)',
-          borderColor: '#4f46e5',
-          borderWidth: 1,
-          borderRadius: 4,
-          categoryPercentage: isSmall ? 0.8 : 0.7,
-          barPercentage: isSmall ? 0.9 : 0.8
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-
-      // ✅ tambah padding bawah kalau label diputar
-      layout: {
-        padding: {
-          top: 30,
-          bottom: isSmall ? 70 : 40,
-          left: 10,
-          right: 10
-        }
-      },
-
-      scales: {
-        x: {
-          stacked: false,
-          grid: { display: false, drawBorder: false },
-          ticks: {
-            autoSkip: isSmall,              // ✅ layar kecil: skip otomatis
-            maxTicksLimit: isSmall ? 6 : 999,
-            maxRotation: isSmall ? 45 : 0,  // ✅ layar kecil: putar
-            minRotation: isSmall ? 45 : 0,
-            font: { size: isSmall ? 10 : 11 }
-          }
-        },
-        y: {
-          stacked: false,
-          beginAtZero: true,
-          grace: '20%',
-          grid: { display: false, drawBorder: false },
-          ticks: {
-            callback: function (value) {
-              return shortRupiah(value);
+            <!-- VIEW 2: KEGIATAN (KEGIATAN | TARGET | REALISASI) -->
+            <div id="view-panel-2" class="view-panel hidden space-y-4">
+                <div class="overflow-x-auto rounded-2xl border border-slate-200">
+                    <table class="w-full text-left text-xs text-slate-600">
+                        <thead class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 uppercase tracking-wider text-[11px]">
+                            <tr>
+                                <th class="py-4 px-4 text-center w-16">No</th>
+                                <th class="py-4 px-6">Kegiatan</th>
+                                <th class="py-4 px-6 text-center">Target</th>
+                                <th class="py-4 px-6 text-center text-blue-700 bg-blue-50">Realisasi</th>
+                                <th class="py-4 px-6 text-center">% Capaian</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 font-medium">
+                            <tr class="hover:bg-slate-50/80">
+                                <td class="py-4 px-4 text-center font-bold text-slate-400">1</td>
+                                <td class="py-4 px-6 font-bold text-slate-900">Penyelenggaraan Pelatihan Vokasi Institusional (PBK, TMT, PBL)</td>
+                                <td class="py-4 px-6 text-center font-semibold">1.344 Orang</td>
+                                <td class="py-4 px-6 text-center font-extrabold text-blue-800 bg-blue-50/40">1.120 Orang</td>
+                                <td class="py-4 px-6 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">83.3%</span></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/80">
+                                <td class="py-4 px-4 text-center font-bold text-slate-400">2</td>
+                                <td class="py-4 px-6 font-bold text-slate-900">Uji Kompetensi & Sertifikasi BNSP oleh LSP BPVP Kendari</td>
+                                <td class="py-4 px-6 text-center font-semibold">1.250 Asesi</td>
+                                <td class="py-4 px-6 text-center font-extrabold text-blue-800 bg-blue-50/40">1.140 Asesi</td>
+                                <td class="py-4 px-6 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">91.2%</span></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/80">
+                                <td class="py-4 px-4 text-center font-bold text-slate-400">3</td>
+                                <td class="py-4 px-6 font-bold text-slate-900">Bimbingan & Konsultasi Peningkatan Produktivitas UMKM</td>
+                                <td class="py-4 px-6 text-center font-semibold">300 Orang</td>
+                                <td class="py-4 px-6 text-center font-extrabold text-blue-800 bg-blue-50/40">245 Orang</td>
+                                <td class="py-4 px-6 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">81.7%</span></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/80">
+                                <td class="py-4 px-4 text-center font-bold text-slate-400">4</td>
+                                <td class="py-4 px-6 font-bold text-slate-900">Fasilitasi & Pendampingan Penempatan Alumni ke DUDI</td>
+                                <td class="py-4 px-6 text-center font-semibold">1.000 Orang</td>
+                                <td class="py-4 px-6 text-center font-extrabold text-blue-800 bg-blue-50/40">875 Orang</td>
+                                <td class="py-4 px-6 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">87.5%</span></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/80">
+                                <td class="py-4 px-4 text-center font-bold text-slate-400">5</td>
+                                <td class="py-4 px-6 font-bold text-slate-900">Pembinaan & Pelatihan Wilayah 5 BLK UPTD Daerah</td>
+                                <td class="py-4 px-6 text-center font-semibold">192 Orang</td>
+                                <td class="py-4 px-6 text-center font-extrabold text-blue-800 bg-blue-50/40">160 Orang</td>
+                                <td class="py-4 px-6 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">83.3%</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- VIEW 3: REALISASI ANGGARAN (REALISASI ANGGARAN | REALISASI ANGGARAN | PERSEN) -->
+            <div id="view-panel-3" class="view-panel hidden space-y-4">
+                <div class="overflow-x-auto rounded-2xl border border-slate-200">
+                    <table class="w-full text-left text-xs text-slate-600">
+                        <thead class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 uppercase tracking-wider text-[11px]">
+                            <tr>
+                                <th class="py-4 px-4 text-center w-16">No</th>
+                                <th class="py-4 px-6">Program / Kegiatan Anggaran</th>
+                                <th class="py-4 px-6 text-right">Target / Pagu Anggaran (Rp)</th>
+                                <th class="py-4 px-6 text-right text-emerald-700 bg-emerald-50">Realisasi Anggaran (Rp)</th>
+                                <th class="py-4 px-6 text-center text-emerald-800 bg-emerald-100/60">PERSEN</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 font-medium font-mono">
+                            <tr class="hover:bg-slate-50/80 font-sans">
+                                <td class="py-4 px-4 text-center font-bold text-slate-400">1</td>
+                                <td class="py-4 px-6 font-bold text-slate-900">Penyelenggaraan Pelatihan Vokasi PBK, TMT & PBL</td>
+                                <td class="py-4 px-6 text-right font-semibold font-mono">Rp 12.850.000.000</td>
+                                <td class="py-4 px-6 text-right font-extrabold text-emerald-700 bg-emerald-50/40 font-mono">Rp 10.408.500.000</td>
+                                <td class="py-4 px-6 text-center font-sans"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">81.0%</span></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/80 font-sans">
+                                <td class="py-4 px-4 text-center font-bold text-slate-400">2</td>
+                                <td class="py-4 px-6 font-bold text-slate-900">Pengadaan Bahan Praktek, Seragam, APD & Modul (Pokja)</td>
+                                <td class="py-4 px-6 text-right font-semibold font-mono">Rp 4.920.000.000</td>
+                                <td class="py-4 px-6 text-right font-extrabold text-emerald-700 bg-emerald-50/40 font-mono">Rp 4.182.000.000</td>
+                                <td class="py-4 px-6 text-center font-sans"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">85.0%</span></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/80 font-sans">
+                                <td class="py-4 px-4 text-center font-bold text-slate-400">3</td>
+                                <td class="py-4 px-6 font-bold text-slate-900">Pelaksanaan Uji Kompetensi & Sertifikasi BNSP (LSP)</td>
+                                <td class="py-4 px-6 text-right font-semibold font-mono">Rp 1.850.000.000</td>
+                                <td class="py-4 px-6 text-right font-extrabold text-emerald-700 bg-emerald-50/40 font-mono">Rp 1.443.000.000</td>
+                                <td class="py-4 px-6 text-center font-sans"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">78.0%</span></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/80 font-sans">
+                                <td class="py-4 px-4 text-center font-bold text-slate-400">4</td>
+                                <td class="py-4 px-6 font-bold text-slate-900">Program Bimbingan & Konsultasi Produktivitas Industri</td>
+                                <td class="py-4 px-6 text-right font-semibold font-mono">Rp 980.000.000</td>
+                                <td class="py-4 px-6 text-right font-extrabold text-emerald-700 bg-emerald-50/40 font-mono">Rp 735.000.000</td>
+                                <td class="py-4 px-6 text-center font-sans"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">75.0%</span></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/80 font-sans">
+                                <td class="py-4 px-4 text-center font-bold text-slate-400">5</td>
+                                <td class="py-4 px-6 font-bold text-slate-900">Bantuan Pelatihan & Pembinaan 5 BLK UPTD Daerah</td>
+                                <td class="py-4 px-6 text-right font-semibold font-mono">Rp 1.660.000.000</td>
+                                <td class="py-4 px-6 text-right font-extrabold text-emerald-700 bg-emerald-50/40 font-mono">Rp 1.294.800.000</td>
+                                <td class="py-4 px-6 text-center font-sans"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">78.0%</span></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/80 font-sans">
+                                <td class="py-4 px-4 text-center font-bold text-slate-400">6</td>
+                                <td class="py-4 px-6 font-bold text-slate-900">Layanan Umum, Tata Usaha & Operasional Balai</td>
+                                <td class="py-4 px-6 text-right font-semibold font-mono">Rp 1.500.000.000</td>
+                                <td class="py-4 px-6 text-right font-extrabold text-emerald-700 bg-emerald-50/40 font-mono">Rp 1.008.000.000</td>
+                                <td class="py-4 px-6 text-center font-sans"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">67.2%</span></td>
+                            </tr>
+                        </tbody>
+                        <tfoot class="bg-slate-50 font-bold text-slate-900 border-t border-slate-200 font-mono text-xs">
+                            <tr class="font-sans">
+                                <td colspan="2" class="py-4 px-6 text-right uppercase tracking-wider">Total Realisasi DIPA 2026:</td>
+                                <td class="py-4 px-6 text-right font-extrabold font-mono text-slate-900">Rp 23.760.000.000</td>
+                                <td class="py-4 px-6 text-right font-extrabold font-mono text-emerald-700 bg-emerald-100">Rp 18.771.300.000</td>
+                                <td class="py-4 px-6 text-center font-extrabold text-emerald-800 bg-emerald-200/60 font-sans">79.0%</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <!-- VIEW 4: MONITORING MINGGUAN (KEGIATAN | TARGET | REALISASI | MINGGU LALU | MINGGU INI | S-T) -->
+            <div id="view-panel-4" class="view-panel hidden space-y-4">
+                <div class="overflow-x-auto rounded-2xl border border-slate-200">
+                    <table class="w-full text-left text-xs text-slate-600">
+                        <thead class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 uppercase tracking-wider text-[11px]">
+                            <tr>
+                                <th class="py-4 px-3 text-center w-12">No</th>
+                                <th class="py-4 px-5">Kegiatan</th>
+                                <th class="py-4 px-4 text-center">Target</th>
+                                <th class="py-4 px-4 text-center text-teal-800 bg-teal-50">Realisasi</th>
+                                <th class="py-4 px-4 text-center">Minggu Lalu</th>
+                                <th class="py-4 px-4 text-center text-blue-800 bg-blue-50">Minggu Ini</th>
+                                <th class="py-4 px-5 text-center">S-T (Status / Tindak Lanjut)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 font-medium">
+                            <tr class="hover:bg-slate-50/80">
+                                <td class="py-4 px-3 text-center font-bold text-slate-400">1</td>
+                                <td class="py-4 px-5 font-bold text-slate-900">Pelatihan Junior Web Developer (Batch 1)</td>
+                                <td class="py-4 px-4 text-center">16 Peserta</td>
+                                <td class="py-4 px-4 text-center font-bold text-teal-700 bg-teal-50/40">16 Peserta</td>
+                                <td class="py-4 px-4 text-center">Modul 4 & API</td>
+                                <td class="py-4 px-4 text-center font-bold text-blue-700 bg-blue-50/40">Ujian Proyek Akhir</td>
+                                <td class="py-4 px-5 text-center"><span class="px-3 py-1 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800">Selesai &bull; Siap UJK LSP</span></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/80">
+                                <td class="py-4 px-3 text-center font-bold text-slate-400">2</td>
+                                <td class="py-4 px-5 font-bold text-slate-900">Pelatihan Pengelasan SMAW 3G (Batch 1)</td>
+                                <td class="py-4 px-4 text-center">16 Peserta</td>
+                                <td class="py-4 px-4 text-center font-bold text-teal-700 bg-teal-50/40">16 Peserta</td>
+                                <td class="py-4 px-4 text-center">Praktek Posisi 2G</td>
+                                <td class="py-4 px-4 text-center font-bold text-blue-700 bg-blue-50/40">Praktek Posisi 3G</td>
+                                <td class="py-4 px-5 text-center"><span class="px-3 py-1 rounded-full text-[10px] font-extrabold bg-blue-100 text-blue-800">Sedang Berjalan (80%)</span></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/80">
+                                <td class="py-4 px-3 text-center font-bold text-slate-400">3</td>
+                                <td class="py-4 px-5 font-bold text-slate-900">Teknisi Servis Sepeda Motor (TMT Batch 1)</td>
+                                <td class="py-4 px-4 text-center">16 Peserta</td>
+                                <td class="py-4 px-4 text-center font-bold text-teal-700 bg-teal-50/40">16 Peserta</td>
+                                <td class="py-4 px-4 text-center">Sistem Kelistrikan</td>
+                                <td class="py-4 px-4 text-center font-bold text-blue-700 bg-blue-50/40">Troubleshooting Injeksi</td>
+                                <td class="py-4 px-5 text-center"><span class="px-3 py-1 rounded-full text-[10px] font-extrabold bg-blue-100 text-blue-800">Sedang Berjalan (65%)</span></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/80">
+                                <td class="py-4 px-3 text-center font-bold text-slate-400">4</td>
+                                <td class="py-4 px-5 font-bold text-slate-900">Barista & Tata Hidang Kopi (Batch 1)</td>
+                                <td class="py-4 px-4 text-center">16 Peserta</td>
+                                <td class="py-4 px-4 text-center font-bold text-teal-700 bg-teal-50/40">16 Peserta</td>
+                                <td class="py-4 px-4 text-center">Espresso Extraction</td>
+                                <td class="py-4 px-4 text-center font-bold text-blue-700 bg-blue-50/40">Latte Art & Service</td>
+                                <td class="py-4 px-5 text-center"><span class="px-3 py-1 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800">Selesai &bull; Siap Sertifikasi</span></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/80">
+                                <td class="py-4 px-3 text-center font-bold text-slate-400">5</td>
+                                <td class="py-4 px-5 font-bold text-slate-900">Menjahit Busana Wanita (PBL Batch 1)</td>
+                                <td class="py-4 px-4 text-center">16 Peserta</td>
+                                <td class="py-4 px-4 text-center font-bold text-teal-700 bg-teal-50/40">16 Peserta</td>
+                                <td class="py-4 px-4 text-center">Pemotongan Pola</td>
+                                <td class="py-4 px-4 text-center font-bold text-blue-700 bg-blue-50/40">Finishing & Obras</td>
+                                <td class="py-4 px-5 text-center"><span class="px-3 py-1 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-800">Menunggu Verifikasi Bahan Tambahan</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 mt-auto">
+        &copy; 2026 <strong>SIMPEL BPVP Kendari</strong> &bull; Executive Monitoring System
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            SimpelAuth.renderNavbar('dashboard');
+        });
+
+        function switchView(viewId) {
+            // Hide all view panels
+            for (let i = 1; i <= 4; i++) {
+                const panel = document.getElementById('view-panel-' + i);
+                const btn = document.getElementById('btn-view-' + i);
+                if (panel) panel.classList.add('hidden');
+                if (btn) {
+                    btn.className = "view-btn px-4 py-2 rounded-xl text-xs font-bold bg-white text-slate-700 hover:bg-slate-100 border border-slate-200";
+                }
             }
-          }
-        }
-      },
 
-      plugins: {
-        legend: { position: 'top', labels: { padding: 8 } },
-
-        // ✅ tooltip tampilkan nama kegiatan FULL walaupun label dipotong
-        tooltip: {
-          callbacks: {
-            title: function(items) {
-              const i = items?.[0]?.dataIndex ?? 0;
-              return labelsRaw[i] || '';
-            },
-            label: function(context) {
-              const v = context.parsed?.y ?? 0;
-              return `${context.dataset.label}: ${Number(v).toLocaleString('id-ID', {
-                style: 'currency', currency: 'IDR', maximumFractionDigits: 0
-              })}`;
+            // Show selected view
+            const selectedPanel = document.getElementById('view-panel-' + viewId);
+            const selectedBtn = document.getElementById('btn-view-' + viewId);
+            if (selectedPanel) selectedPanel.classList.remove('hidden');
+            if (selectedBtn) {
+                selectedBtn.className = "view-btn px-4 py-2 rounded-xl text-xs font-bold bg-[#1A3344] text-white shadow-xs";
             }
-          }
-        },
 
-        datalabels: {
-          // ✅ layar kecil: matikan datalabel biar gak numpuk
-          display: function(ctx) {
-            return ctx.chart.width >= 700; // hanya tampil kalau cukup lebar
-          },
-          anchor: 'end',
-          align: 'top',
-          offset: 2,
-          color: '#808080',
-          font: { weight: 'bold', size: 11 },
-          clamp: true,
-          formatter: v => v ? shortRupiah(v) : ''
+            // Update title
+            const titles = {
+                1: '1. Data Jenis Pelatihan (Target vs Realisasi)',
+                2: '2. Capaian Target Kegiatan Pelatihan & Sertifikasi',
+                3: '3. Realisasi Anggaran DIPA & Serapan Keuangan',
+                4: '4. Monitoring Progress Mingguan & Status Tindak Lanjut (S-T)'
+            };
+            document.getElementById('current-view-title').innerText = titles[viewId] || '';
         }
-      },
-
-      // ✅ biar update saat resize
-      onResize: function(chart) {
-        const w = chart.canvas.parentElement?.clientWidth || chart.width;
-        const smallNow = w < 640;
-
-        chart.options.scales.x.ticks.autoSkip = smallNow;
-        chart.options.scales.x.ticks.maxTicksLimit = smallNow ? 6 : 999;
-        chart.options.scales.x.ticks.maxRotation = smallNow ? 45 : 0;
-        chart.options.scales.x.ticks.minRotation = smallNow ? 45 : 0;
-        chart.options.layout.padding.bottom = smallNow ? 70 : 40;
-
-        chart.data.labels = smallNow
-          ? labelsRaw.map(l => truncate(l, 18))
-          : labelsRaw.map(l => splitLabelTo3Lines(l));
-
-        chart.update('none');
-      }
-    },
-    plugins: [ChartDataLabels]
-  });
-}
-
-
-  function loadAnggaranKegiatanChart() {
-    startRequest();
-    google.script.run
-      .withSuccessHandler(function (stats) {
-        try {
-          renderAnggaranChart(stats);
-        } finally {
-          hideLoadingIfDone();
-        }
-      })
-      .withFailureHandler(function (err) {
-        console.error('Gagal mengambil data Kegiatan Pelatihan:', err);
-        hideLoadingIfDone();
-      })
-      .getKegiatanPelatihanStats(ACTIVE_YEAR);
-  }
-
-  // =========================
-  // INIT
-  // =========================
-  document.addEventListener('DOMContentLoaded', function () {
-    const authToken = '<?= AUTH_TOKEN ?>';
-    document.querySelectorAll('a[href*="?page="]').forEach(function (link) {
-      if (!link.href.includes('token=')) {
-        link.href += '&token=' + encodeURIComponent(authToken);
-      }
-    });
-    const y = document.getElementById('year-label');
-    if (y) y.textContent = ACTIVE_YEAR;
-
-    const cy = document.getElementById('year-data');
-    if (cy) cy.textContent = ACTIVE_YEAR;
-
-    const fy = document.getElementById('footer-year');
-    if (fy) fy.textContent = ACTIVE_YEAR;
-  });
-
-  window.onload = function () {
-    loadPimpinanPanels();
-    loadDashboardData();
-  };
-</script>
-
-
+    </script>
 </body>
 </html>
-        
-
-        <!-- // ------ BAR CHART ANGGARAN KEGIATAN
-        // function splitLabelTo3Lines(label) {
-        //     if (!label) return ['', '', ''];
-        //     const words = label.split(' ');
-        //     const lines = ['', '', ''];
-        //     let current = 0;
-
-        //     words.forEach(word => {
-        //         if ((lines[current] + ' ' + word).trim().length > 25 && current < 2) {
-        //             current++;
-        //         }
-        //         lines[current] += (lines[current] ? ' ' : '') + word;
-        //     });
-
-        //     return lines.slice(0, 3);
-        // }
-
-        // function renderAnggaranChart(stats) {
-        //     if (!stats || stats.status !== 'success' || !Array.isArray(stats.labels)) {
-        //         console.error('Data Realisasi Anggaran tidak valid:', stats);
-        //         return;
-        //     }
-
-        //     const canvas = document.getElementById('chart-anggaran');
-        //     if (!canvas) {
-        //         console.error('Elemen canvas chart-anggaran tidak ditemukan');
-        //         return;
-        //     }
-
-        //     const ctx = canvas.getContext('2d');
-
-        //     if (window.anggaranChart) {
-        //         window.anggaranChart.destroy();
-        //     }
-
-        //     // ====== LABEL MENJADI 3 BARIS HORIZONTAL ======
-        //     const multilineLabels = stats.labels.map(l => splitLabelTo3Lines(l));
-
-        //     window.anggaranChart = new Chart(ctx, {
-        //         type: 'bar',
-        //         data: {
-        //             labels: multilineLabels,
-        //             datasets: [
-        //                 {
-        //                     label: 'Target',
-        //                     data: stats.targetValues,
-        //                     borderWidth: 1,
-        //                     backgroundColor: 'rgba(153,183,246)', // NAVY MED
-        //                     borderColor: '#99b7f6',
-        //                     borderWidth: 1,
-        //                     borderRadius: 4,
-        //                 },
-        //                 {
-        //                     label: 'Realisasi',
-        //                     data: stats.realisasiValues,
-        //                     borderWidth: 1,
-        //                     backgroundColor: 'rgba(79,70,229)',    // NAVY MED
-        //                     borderColor: '#4f46e5', 
-        //                     borderWidth: 1,
-        //                     borderRadius: 4,
-        //                 }
-        //             ]
-        //         },
-        //         options: {
-        //             responsive: true,
-        //             maintainAspectRatio: false,
-        //             layout: {
-        //                 padding: {
-        //                     top: 40,    // 🔥 dorong seluruh chart ke bawah
-        //                     bottom: 40,
-        //                     left: 20,
-        //                     right: 20
-        //                 }
-        //             },
-        //             scales: {
-        //                 x: {
-        //                     grid: {
-        //                         display: false,
-        //                         drawBorder: false
-        //                     },
-        //                     ticks: {
-        //                         autoSkip: false,
-        //                         maxRotation: 0,  // horizontal
-        //                         minRotation: 0,
-        //                         font: {
-        //                             size: 11
-        //                         }
-        //                     }
-        //                 },
-        //                 y: {
-        //                     beginAtZero: true,
-        //                     grace: '25%',
-        //                     // max: 100,
-        //                     grid: {
-        //                         display: false,
-        //                         drawBorder: false
-        //                     },
-        //                     ticks: {
-        //                     // format angka di sumbu Y jadi Rupiah
-        //                     callback: function(value) {
-        //                         return value.toLocaleString('id-ID', {
-        //                             style: 'currency',
-        //                             currency: 'IDR',
-        //                             maximumFractionDigits: 0
-        //                         });                  
-        //                     }
-        //                 }
-        //             }
-        //             },
-        //             plugins: {
-        //                 legend: {
-        //                     position: 'top',
-        //                     labels: {
-        //                         padding: 8 // ✅ jarak legend ke chart (naikkan 16–32)
-        //                     }
-        //                 },
-        //                 datalabels: {
-        //                     display: true,
-        //                     anchor: 'end',
-        //                     align: 'top',
-        //                     offset: 2,
-        //                     color: '#808080',
-        //                     font: {
-        //                         weight: 'bold',
-        //                         size: 12
-        //                     },
-        //                     clamp: true,
-        //                     formatter: v => v
-        //                     ? v.toLocaleString('id-ID', {
-        //                         style: 'currency',
-        //                         currency: 'IDR',
-        //                         minimumFractionDigits: 0
-        //                     })
-        //                     : ''
-        //                 }
-        //             }
-        //         },
-        //         plugins: [ChartDataLabels]
-        //     });
-        // } -->
-
-                <!-- /**
-        * Memuat data pegawai (divisi & gender) dari Google Apps Script,
-        * lalu menggambar chart menggunakan Chart.js.
-        */
-        // function loadPegawaiCharts() {
-        //     google.script.run
-        //         .withSuccessHandler(renderPegawaiCharts)
-        //         .withFailureHandler(function(err) {
-        //             console.error('Gagal mengambil data pegawai:', err);
-        //         })
-        //         .getPegawaiStats();
-        // }
-
-        // /**
-        //  * Menerima data dari getPegawaiStats() lalu menggambar chart
-        //  */
-        // function renderPegawaiCharts(stats) {
-
-        //         // ==================== CHART DIVISI (BAR) ====================
-
-        //         const ctxDivisi = document.getElementById('chart-divisi').getContext('2d');
-        //         new Chart(ctxDivisi, {
-        //             type: 'bar',
-        //             data: {
-        //                 labels: stats.divisiLabels,
-        //                 datasets: [{
-        //                     label: 'Jumlah Pegawai',
-        //                     data: stats.divisiValues,
-        //                     borderWidth: 1
-        //                 }]
-        //             },
-        //             options: {
-        //                 responsive: true,
-        //                 maintainAspectRatio: false,
-        //                 scales: {
-        //                     y: { beginAtZero: true }
-        //                 }
-        //             }
-        //         });
-
-        //         // ==================== CHART GENDER (PIE) ====================
-
-        //         const ctxGender = document.getElementById('chart-gender').getContext('2d');
-        //         new Chart(ctxGender, {
-        //             type: 'pie',
-        //             data: {
-        //                 labels: stats.genderLabels,
-        //                 datasets: [{
-        //                     data: stats.genderValues,
-        //                     borderWidth: 1
-        //                 }]
-        //             },
-        //             options: {
-        //                 responsive: true,
-        //                 maintainAspectRatio: false,
-        //                 plugins: { legend: { position: 'bottom' } }
-        //             }
-        //         });
-        //     } -->
-
-    
-        
-
-

@@ -1,1367 +1,161 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="h-full bg-slate-50">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Pelatihan UPTP - SIMPEL BPVP Kendari 2026</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-piechart-outlabels"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="simpel_auth.js"></script>
+
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
-        }
-        .header {
-            background-color: #2C4C63;
-            color: white;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        .card-content {
-            background-color: white;
-            border-radius: 0.75rem;
-            box-shadow:
-                0 4px 6px -1px rgba(0, 0, 0, 0.1),
-                0 2px 4px -2px rgba(0, 0, 0, 0.06);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .card-content:hover {
-            transform: translateY(-2px);
-            box-shadow:
-                0 10px 15px -3px rgba(0, 0, 0, 0.1),
-                0 4px 6px -4px rgba(0, 0, 0, 0.05);
-        }
-        .nav-active {
-            border-bottom: 3px solid #f97316;
-            color: #ffedd5;
-            background-color: #4b5563;
-        }
-        .chart-container {
-            position: relative;
-            height: 400px;
-            width: 100%;
-        }
-        .chart-card {
-        overflow: hidden;           /* mencegah keluar card */
-        }
-        .chart-wrap {
-        position: relative;
-        width: 100%;
-        height: 320px;              /* atur sesuai kebutuhan */
-        }
-        .chart-wrap canvas {
-        width: 100% !important;
-        height: 100% !important;
-        }
-        .pendidikan-wrap{
-        display:flex;
-        gap:24px;
-        align-items:center;
-        width:100%;
-        height:320px; /* sesuaikan */
-        }
-        .pendidikan-chart{
-        flex: 1 1 auto;
-        min-width: 260px;
-        height: 100%;
-        position: relative;
-        }
-        .pendidikan-legend{
-        flex: 0 0 220px;          /* lebih sempit */
-        display:flex;
-        flex-direction:column;
-        gap:8px;                 /* jarak antar item diperkecil */
-        }
-        .legend-item{
-        display:flex;
-        align-items:center;
-        justify-content:space-between;
-        gap:6px;                 /* jarak kiri-kanan diperkecil */
-        }
-        .legend-left{
-        display:flex;
-        align-items:center;
-        gap:8px;                 /* jarak bullet ke teks */
-        }
-        .legend-swatch{
-        width:14px;              /* sedikit lebih kecil */
-        height:8px;
-        border-radius:6px;
-        }
-        .legend-label{
-        font-size:13px;
-        font-weight:500;
-        }
-        .legend-pill{
-        font-size:12px;
-        font-weight:700;
-        padding:4px 8px;         /* PENTING: ini yang bikin badge lebih dekat */
-        border-radius:999px;
-        min-width:48px;          /* optional: seragamkan lebar */
-        text-align:center;
-        }
-        .legend-item.is-hidden{
-        opacity:.45;
-        }
-        .loading {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3b82f6;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        body { font-family: 'Inter', sans-serif; }
+        .font-heading { font-family: 'Space Grotesk', sans-serif; }
     </style>
 </head>
-<body>
-    <div class="min-h-screen flex flex-col">
-        <!-- Header & Navigasi -->
-        <header class="header p-4 lg:px-8 sticky top-0 z-20">
-            <div class="flex items-center justify-between w-full">
-                <!-- KIRI: Logo & Nama -->
-                <div class="flex items-center space-x-3">
-                <img
-                    src="https://bpvpkendari.kemnaker.go.id/storage/upload/setting/11749712002.png"
-                    alt="Logo Kemnaker"
-                    class="h-10 w-10 object-contain rounded-lg border-2 border-white bg-white p-1"
-                />
-                <h3 class="text-xl lg:text-2xl font-extrabold tracking-tight">
-                    Sistem Informasi Pelatihan (SIMPEL)
-                </h3>
+<body class="min-h-screen bg-slate-50 flex flex-col">
+
+    <!-- UNIFIED HEADER -->
+    <div id="simpel-unified-header"></div>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        
+        <!-- HEADER BAR -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+            <div>
+                <div class="flex items-center gap-2 text-xs font-semibold text-teal-600 mb-1">
+                    <i class="fa-solid fa-building-columns"></i>
+                    <span>Kelembagaan BPVP Kendari</span>
                 </div>
-
-                <!-- KANAN: Menu + Logout (Desktop) -->
-                <div class="hidden lg:flex lg:items-center lg:space-x-6">
-                <nav class="flex space-x-6 text-base font-medium">
-                    <a
-                    href="<?= ScriptApp.getService().getUrl() ?>?page=dashboard&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
-                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150"
-                    >
-                    Home
-                    </a>
-
-                    <!-- Dropdown Pelatihan -->
-                    <div class="relative group">
-                    <button
-                        class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-300 inline-flex items-center"
-                        type="button"
-                    >
-                        Pelatihan
-                        <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </button>
-
-                    <div
-                        class="absolute left-0 top-full pt-2 w-48 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-700 ease-in-out z-50"
-                    >
-                        <div class="bg-gray-800 rounded-lg shadow-lg">
-                        <a
-                            href="<?= ScriptApp.getService().getUrl() ?>?page=pelatihan&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
-                            class="block px-4 py-2 nav-active rounded-t-lg"
-                        >
-                            Pelatihan UPTP
-                        </a>
-                        <a
-                            href="<?= ScriptApp.getService().getUrl() ?>?page=pelatihan_uptd&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
-                            class="block px-4 py-2 hover:bg-gray-700 rounded-b-lg"
-                        >
-                            Pelatihan UPTD
-                        </a>
-                        </div>
-                    </div>
-                    </div>
-
-                    <a
-                    href="<?= ScriptApp.getService().getUrl() ?>?page=sertifikasi&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
-                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150"
-                    >
-                    Sertifikasi
-                    </a>
-
-                    <a
-                    href="<?= ScriptApp.getService().getUrl() ?>?page=produktivitas&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
-                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150"
-                    >
-                    Produktivitas
-                    </a>
-
-                    <a
-                    href="<?= ScriptApp.getService().getUrl() ?>?page=penempatan&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
-                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150"
-                    >
-                    Penempatan
-                    </a>
-                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=umum&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
-                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
-                    Umum
-                    </a>
-                </nav>
-
-                <button
-                    id="logout-btn"
-                    onclick="handleLogout()"
-                    class="px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-green-100 bg-green-700 hover:bg-green-800 transition duration-150 shadow-md"
-                >
-                    Logout
-                </button>
-                </div>
-
-                <!-- Hamburger (Mobile) -->
-                <button
-                id="menu-toggle"
-                class="lg:hidden p-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-white"
-                onclick="toggleMobileMenu()"
-                type="button"
-                >
-                <svg id="icon-open" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-                <svg id="icon-close" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-                </button>
+                <h1 class="text-xl sm:text-2xl font-bold font-heading text-slate-900">Data Master Program Pelatihan UPTP 2026</h1>
+                <p class="text-xs text-slate-500 mt-0.5">Daftar paket pelatihan berbasis kompetensi (PBK), kuota peserta, dan rasio kelulusan.</p>
             </div>
 
-            <!-- Menu Mobile -->
-            <div id="mobile-menu" class="hidden flex-col w-full mt-4 lg:hidden pt-4 border-t border-gray-600">
-                <nav class="flex flex-col space-y-2 text-base font-medium">
-                <a
-                    href="<?= ScriptApp.getService().getUrl() ?>?page=dashboard&year=<?= ACTIVE_YEAR ?>"
-                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150"
-                >
-                    Home
+            <div class="flex items-center gap-2.5">
+                <a href="input_penyelenggara.html" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-xs transition">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Tambah Program</span>
                 </a>
-
-                <!-- Pelatihan (Mobile Dropdown) -->
-                <button
-                    type="button"
-                    class="py-2 px-3 rounded-lg nav-active transition duration-150 inline-flex items-center justify-between"
-                    onclick="toggleMobilePelatihan()"
-                >
-                    <span>Pelatihan</span>
-                    <svg
-                    id="mobile-pelatihan-chevron"
-                    class="w-4 h-4 transition-transform duration-150"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    >
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </button>
-
-                <div id="mobile-pelatihan-submenu" class="hidden pl-3">
-                    <a
-                    href="<?= ScriptApp.getService().getUrl() ?>?page=pelatihan&year=<?= ACTIVE_YEAR ?>"
-                    class="block py-2 px-3 rounded-lg nav-active"
-                    >
-                    Pelatihan UPTP
-                    </a>
-                    <a
-                    href="<?= ScriptApp.getService().getUrl() ?>?page=pelatihan_uptd&year=<?= ACTIVE_YEAR ?>"
-                    class="block py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150"
-                    >
-                    Pelatihan UPTD
-                    </a>
-                </div>
-
-                <a
-                    href="<?= ScriptApp.getService().getUrl() ?>?page=sertifikasi&year=<?= ACTIVE_YEAR ?>"
-                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150"
-                >
-                    Sertifikasi
-                </a>
-
-                <a
-                    href="<?= ScriptApp.getService().getUrl() ?>?page=produktivitas&year=<?= ACTIVE_YEAR ?>"
-                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150"
-                >
-                    Produktivitas
-                </a>
-
-                <a
-                    href="<?= ScriptApp.getService().getUrl() ?>?page=penempatan&year=<?= ACTIVE_YEAR ?>"
-                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150"
-                >
-                    Penempatan
-                </a>
-                <a href="<?= ScriptApp.getService().getUrl() ?>?page=umum&year=<?= ACTIVE_YEAR ?>"
-                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
-                    Umum
-                </a>
-                </nav>
-
-                <!-- Logout Mobile -->
-                <div class="mt-4">
-                <button
-                    id="logout-btn-mobile"
-                    onclick="handleLogout()"
-                    class="w-full px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-green-100 bg-green-700 hover:bg-green-800 transition duration-150 shadow-md"
-                >
-                    Logout
-                </button>
-                </div>
             </div>
-            </header>
+        </div>
 
-
-        <!-- Konten Utama -->
-        <main class="flex-grow p-4 lg:p-8 flex justify-center">
-            <div class="w-full max-w-7xl space-y-8">
-                <!-- Banner -->
-                <div class="bg-indigo-600 p-6 rounded-lg text-white shadow-lg text-center sm:text-left">
-                    <p class="text-sm font-light">BALAI PELATIHAN VOKASI DAN PRODUKTIVITAS (BPVP) KENDARI</p>
-                    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold mt-1">
-                        DATA PESERTA PELATIHAN UPTP
-                    </h2>
-                    <p class="mt-3 text-sm sm:text-lg font-medium">
-                        Selamat datang di Portal SIMPEL <span id="year-label"></span> - A Nice Place to Grow.
-                    </p>
-                </div>
-
-                <!-- Loading -->
-                <div id="loading-indicator" class="text-center p-4" style="display: none;">
-                    <div class="loading"></div>
-                    <p class="text-gray-500 mt-2">Memuat data...</p>
-                </div>
-
-                <!-- Statistik -->
-                <div id="ringkasan-stats" class="space-y-8" style="display: none;">
-
-                    <!-- Total + Gender -->
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div class="card-content p-6 flex flex-col justify-center items-center lg:col-span-1 border-b-4 border-blue-300">
-                            <h3 class="text-xl font-bold text-gray-800">Total Peserta</h3>
-                            <span class="text-5xl font-extrabold text-blue-900" id="total-peserta">0</span>
-                            <p class="text-lg font-medium text-gray-500 mt-2">Total Peserta Pelatihan</p>
-                        </div>
-
-                        <!-- Status Gender -->
-                        <div class="card-content p-6 lg:col-span-2">
-                            <h2 class="text-xl font-semibold text-gray-800 mb-4">Laki-Laki dan Perempuan</h2>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center">
-                                <div class="bg-indigo-50 p-4 rounded-lg">
-                                    <p class="text-4xl font-bold text-blue-900" id="laki-laki">0</p>                    
-                                    <p class="text-gray-600 mt-1">Laki-laki</p>
-                                </div>
-                                <div class="bg-indigo-50 p-4 rounded-lg">
-                                    <p class="text-4xl font-bold text-blue-900" id="perempuan">0</p>
-                                    <p class="text-gray-600 mt-1">Perempuan</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Status Kelulusan -->
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div class="card-content p-6 lg:col-span-2">
-                            <h2 class="text-xl font-semibold text-gray-800 mb-4">Status Kelulusan Pelatihan</h2>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center">
-                            <div class="bg-indigo-50 p-4 rounded-lg">
-                                <p class="text-3xl font-bold text-blue-900" id="lulus-count">0</p>
-                                <p class="text-gray-600 mt-1">Lulus</p>
-                            </div>
-                            <div class="bg-indigo-50 p-4 rounded-lg">
-                                <p class="text-3xl font-bold text-blue-900" id="tidak-lulus-count">0</p>
-                                <p class="text-gray-600 mt-1">Tidak Lulus</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Disabilitas -->
-                    <div class="card-content p-6 flex flex-col justify-center items-center lg:col-span-1 border-b-4 border-blue-300">
-                        <span class="text-3xl font-extrabold text-blue-900" id="peserta-disabilitas">0</span>
-                        <p class="text-base font-medium text-gray-600 mt-1 tracking-wide">Peserta Disabilitas</p>
-                    </div>
-                </div>
-
-                    <!-- Distribusi Peserta Berdasarkan Kegiatan -->
-                    <!-- <div class="card-content p-6">
-                        <h2 class="text-xl font-semibold text-gray-800 mb-4">
-                            Distribusi Peserta Berdasarkan Kegiatan
-                        </h2>
-                        <div class="chart-container">
-                            <canvas id="kegiatanChart"></canvas>
-                        </div>
-                    </div> -->
-
-
-                    
-         
-                <div class="grid grid-cols-1 gap-6">
-                    <!-- Chart Kabupaten & Bulan -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <!-- Chart Kabupaten -->
-                        <div class="card bg-white shadow rounded-lg">
-                            <div class="p-6">
-                                <h2 class="text-xl font-semibold text-gray-800 mb-4">
-                                    Jumlah Peserta berdasarkan Kabupaten/Kota
-                                </h2>
-                                <div class="chart-container">
-                                    <canvas id="kabupatenChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Line Chart Peserta per Bulan -->
-                        <div class="card-content p-6">
-                            <h2 class="text-lg font-semibold text-slate-800">
-                                Jumlah Peserta Berdasarkan Kejuruan
-                            </h2>
-                            <!-- ukuran tinggi fix -->
-                            <div class="mt-4 h-80">
-                                <canvas id="kejuruanChart"></canvas>
-                            </div>
-                        </div>
-                        
-
-                    </div>
-
-                    <!-- Bar Chart Usia & Pendidikan -->
-                    <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <!-- Bar chart Usia -->
-                        <div class="card bg-white shadow rounded-lg">
-                            <div class="p-6">
-                                <h2 class="text-xl font-semibold text-gray-800 mb-4">
-                                    Jumlah Peserta berdasarkan Usia
-                                </h2>
-                                <div class="chart-container">
-                                    <canvas id="usiaChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Pie Chart Pendidikan -->
-                        <div class="card-content p-6">
-                            <h2 class="text-xl font-semibold text-gray-800 mb-4">
-                                Distribusi Peserta Berdasarkan Pendidikan
-                            </h2>
-                            <div class="pendidikan-wrap">
-                                <div class="pendidikan-chart">
-                                    <canvas id="pendidikanChart"></canvas>
-                                </div>
-                                <div id="pendidikanLegend" class="pendidikan-legend"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Chart Kejuruan -->
-                    <div class="bg-white rounded-xl shadow p-4 mb-6">
-                            <h2 class="text-xl font-semibold text-gray-800 mb-4">
-                                Jumlah Peserta per Bulan 
-                            </h2>
-                            <div class="chart-container">
-                                <canvas id="pesertaBulananChart"></canvas>
-                            </div>
-                            
-                        </div>
-                    </div>
-
-                    <!-- Table Program and Peserta -->
-                    <div class="card-content p-6 bg-white rounded-xl shadow-sm border border-gray-100">
-                        <h2 class="text-xl font-semibold text-gray-800 mb-4">
-                            Jumlah Peserta Berdasarkan Program
-                        </h2>
-
-                        <div class="overflow-hidden rounded-lg border border-gray-200">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gradient-to-r from-sky-50 to-indigo-50">
-                                    <tr>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold tracking-wider text-gray-600 ">
-                                            Program
-                                        </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold tracking-wider text-gray-600 ">
-                                            Mulai Pelatihan
-                                        </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold tracking-wider text-gray-600 ">
-                                            Selesai Pelatihan
-                                        </th>
-                                        <th class="px-4 py-3 text-right text-xs font-semibold tracking-wider text-gray-600 ">
-                                            Laki-laki
-                                        </th>
-                                        <th class="px-4 py-3 text-right text-xs font-semibold tracking-wider text-gray-600 ">
-                                            Perempuan
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody id="program-table-body" class="divide-y divide-gray-100 bg-white">
-                                    <!-- Rows akan di-render via JS -->
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- Pagination -->
-                        <div class="flex items-center justify-center gap-4 mt-4">
-                            <button id="program-prev-page"
-                                    class="px-4 py-2 text-sm font-medium rounded-full bg-indigo-500 text-white
-                                        hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-400
-                                        disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed
-                                        transition-colors">
-                                Prev
-                            </button>
-
-                            <span id="program-page-info" class="text-sm text-gray-600"></span>
-
-                            <button id="program-next-page"
-                                    class="px-4 py-2 text-sm font-medium rounded-full bg-indigo-500 text-white
-                                        hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-400
-                                        disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed
-                                        transition-colors">
-                                Next
-                            </button>
-                        </div>
-                    </div>
+        <!-- STATS -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-xs">
+                <span class="text-[10px] font-bold uppercase text-slate-400">Total Program</span>
+                <p class="text-xl font-extrabold text-slate-800 font-heading mt-1">9 Paket</p>
             </div>
-        </main>
+            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-xs">
+                <span class="text-[10px] font-bold uppercase text-blue-500">Total Peserta</span>
+                <p class="text-xl font-extrabold text-blue-700 font-heading mt-1">112 Orang</p>
+            </div>
+            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-xs">
+                <span class="text-[10px] font-bold uppercase text-emerald-500">Lulus Ujian</span>
+                <p class="text-xl font-extrabold text-emerald-700 font-heading mt-1">79 Orang</p>
+            </div>
+            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-xs">
+                <span class="text-[10px] font-bold uppercase text-amber-500">Sedang Berjalan</span>
+                <p class="text-xl font-extrabold text-amber-700 font-heading mt-1">3 Kelas</p>
+            </div>
+        </div>
 
-    <!-- Footer -->
-        <footer class="bg-gray-700 text-white p-4 text-center text-sm mt-auto z-10">
-            &copy; <span id="footer-year"></span> Sistem Informasi Pelatihan BPVP Kendari.
-        </footer>
-    </div>
+        <!-- TABLE -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-slate-600">
+                    <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+                        <tr>
+                            <th class="py-3.5 px-4 text-center">No</th>
+                            <th class="py-3.5 px-4">Program Pelatihan</th>
+                            <th class="py-3.5 px-4">Kejuruan</th>
+                            <th class="py-3.5 px-3 text-center">Peserta</th>
+                            <th class="py-3.5 px-3 text-center">L / P</th>
+                            <th class="py-3.5 px-4 text-center">Jadwal Kelas</th>
+                            <th class="py-3.5 px-3 text-center">Lulus</th>
+                            <th class="py-3.5 px-4 text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3 px-4 text-center font-bold text-slate-400">1</td>
+                            <td class="py-3 px-4 font-bold text-slate-800">Junior Web Developer - Batch 1</td>
+                            <td class="py-3 px-4 font-semibold text-slate-700">Teknologi Informasi & Komunikasi</td>
+                            <td class="py-3 px-3 text-center font-extrabold text-slate-800">16</td>
+                            <td class="py-3 px-3 text-center"><span class="text-blue-600 font-bold">9</span> / <span class="text-pink-600 font-bold">7</span></td>
+                            <td class="py-3 px-4 text-center text-slate-500">02 Feb - 20 Mar 2026</td>
+                            <td class="py-3 px-3 text-center font-bold text-emerald-600">16 Lulus</td>
+                            <td class="py-3 px-4 text-center"><span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800">Selesai</span></td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3 px-4 text-center font-bold text-slate-400">2</td>
+                            <td class="py-3 px-4 font-bold text-slate-800">Pengelasan SMAW 3G - Batch 1</td>
+                            <td class="py-3 px-4 font-semibold text-slate-700">Teknik Manufaktur (Las)</td>
+                            <td class="py-3 px-3 text-center font-extrabold text-slate-800">16</td>
+                            <td class="py-3 px-3 text-center"><span class="text-blue-600 font-bold">15</span> / <span class="text-pink-600 font-bold">1</span></td>
+                            <td class="py-3 px-4 text-center text-slate-500">05 Feb - 28 Mar 2026</td>
+                            <td class="py-3 px-3 text-center font-bold text-emerald-600">15 Lulus</td>
+                            <td class="py-3 px-4 text-center"><span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800">Selesai</span></td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3 px-4 text-center font-bold text-slate-400">3</td>
+                            <td class="py-3 px-4 font-bold text-slate-800">Teknisi Servis Sepeda Motor - Batch 1</td>
+                            <td class="py-3 px-4 font-semibold text-slate-700">Teknik Otomotif</td>
+                            <td class="py-3 px-3 text-center font-extrabold text-slate-800">16</td>
+                            <td class="py-3 px-3 text-center"><span class="text-blue-600 font-bold">14</span> / <span class="text-pink-600 font-bold">2</span></td>
+                            <td class="py-3 px-4 text-center text-slate-500">23 Feb - 10 Apr 2026</td>
+                            <td class="py-3 px-3 text-center font-bold text-emerald-600">16 Lulus</td>
+                            <td class="py-3 px-4 text-center"><span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800">Selesai</span></td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3 px-4 text-center font-bold text-slate-400">4</td>
+                            <td class="py-3 px-4 font-bold text-slate-800">Barista & Tata Hidang Kopi - Batch 1</td>
+                            <td class="py-3 px-4 font-semibold text-slate-700">Pariwisata & Perhotelan</td>
+                            <td class="py-3 px-3 text-center font-extrabold text-slate-800">16</td>
+                            <td class="py-3 px-3 text-center"><span class="text-blue-600 font-bold">7</span> / <span class="text-pink-600 font-bold">9</span></td>
+                            <td class="py-3 px-4 text-center text-slate-500">20 Apr - 30 Mei 2026</td>
+                            <td class="py-3 px-3 text-center font-bold text-emerald-600">16 Lulus</td>
+                            <td class="py-3 px-4 text-center"><span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800">Selesai</span></td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3 px-4 text-center font-bold text-slate-400">5</td>
+                            <td class="py-3 px-4 font-bold text-slate-800">Menjahit Pakaian Pria & Wanita - Batch 1</td>
+                            <td class="py-3 px-4 font-semibold text-slate-700">Garmen Apparel</td>
+                            <td class="py-3 px-3 text-center font-extrabold text-slate-800">16</td>
+                            <td class="py-3 px-3 text-center"><span class="text-blue-600 font-bold">2</span> / <span class="text-pink-600 font-bold">14</span></td>
+                            <td class="py-3 px-4 text-center text-slate-500">18 Mei - 04 Jul 2026</td>
+                            <td class="py-3 px-3 text-center font-bold text-slate-400">-</td>
+                            <td class="py-3 px-4 text-center"><span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-blue-100 text-blue-800 animate-pulse">Berjalan</span></td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3 px-4 text-center font-bold text-slate-400">6</td>
+                            <td class="py-3 px-4 font-bold text-slate-800">Desainer Grafis Muda - Batch 2</td>
+                            <td class="py-3 px-4 font-semibold text-slate-700">Teknologi Informasi & Komunikasi</td>
+                            <td class="py-3 px-3 text-center font-extrabold text-slate-800">16</td>
+                            <td class="py-3 px-3 text-center"><span class="text-blue-600 font-bold">8</span> / <span class="text-pink-600 font-bold">8</span></td>
+                            <td class="py-3 px-4 text-center text-slate-500">15 Jun - 31 Jul 2026</td>
+                            <td class="py-3 px-3 text-center font-bold text-slate-400">-</td>
+                            <td class="py-3 px-4 text-center"><span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-blue-100 text-blue-800 animate-pulse">Berjalan</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
+        &copy; 2026 SIMPEL BPVP Kendari &bull; Master Data Pelatihan UPTP
+    </footer>
 
     <script>
-               
-        const APP_URL = '<?= ScriptApp.getService().getUrl() ?>';
-        const ACTIVE_YEAR = <?= ACTIVE_YEAR ?>;
-
-        // inisialisasi warna
-        const NAVY_SOLID = '#1E3A8A';
-        const NAVY_MED = 'rgba(30, 58, 138, 0.75)';
-        const NAVY_LIGHT = 'rgba(30, 58, 138, 0.45)';
-        const NAVY_VERY_LIGHT = 'rgba(30, 58, 138, 0.25)';
-        const NAVY_FAINT = 'rgba(30, 58, 138, 0.15)';
-
-
-        let pendidikanChartInstance;
-        let kejuruanChartInstance;
-        let usiaChartInstance;
-        let kabupatenChartInstance; 
-        // let kegiatanChartInstance;
-
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobile-menu');
-            const iconOpen = document.getElementById('icon-open');
-            const iconClose = document.getElementById('icon-close');
-
-            menu.classList.toggle('hidden');
-            iconOpen.classList.toggle('hidden');
-            iconClose.classList.toggle('hidden');
-        }
-        function toggleMobilePelatihan() {
-            const submenu = document.getElementById('mobile-pelatihan-submenu');
-            const chevron = document.getElementById('mobile-pelatihan-chevron');
-
-            if (!submenu || !chevron) return;
-
-            submenu.classList.toggle('hidden');
-            chevron.classList.toggle('rotate-180');
-        }
-
-        function handleLogout() {
-            localStorage.removeItem('userEmail');
-            window.location.href = APP_URL + '?page=index&year=' + encodeURIComponent(ACTIVE_YEAR);
-        }
-
-        function loadPelatihanData() {
-            const userEmail = localStorage.getItem('userEmail');
-
-            if (!userEmail) {
-                window.location.href = APP_URL + '?page=index';
-                return;
-            }
-
-            document.getElementById('loading-indicator').style.display = 'block';
-            document.getElementById('ringkasan-stats').style.display = 'none';
-
-            google.script.run
-                .withSuccessHandler(renderPelatihanData)
-                .withFailureHandler(handleError)
-                .getPelatihanStats(ACTIVE_YEAR);
-        }
-
-        // ===== Plugin: tampilkan "Total: xxx" di samping legend (kanan) =====
-        const legendTotalTextPlugin = {
-            id: 'legendTotalText',
-            afterDraw(chart, args, opts) {
-                const total = (opts?.total ?? null);
-                if (total === null || total === undefined) return;
-
-                const legend = chart.legend;
-                if (!legend) return;
-
-                const { ctx } = chart;
-                ctx.save();
-
-                const text = `Total: ${new Intl.NumberFormat('id-ID').format(total)}`;
-
-                ctx.font = (opts?.font) || '700 12px Inter, sans-serif';
-                ctx.fillStyle = (opts?.color) || '#334155';
-                ctx.textBaseline = 'middle';
-                ctx.textAlign = 'right';
-
-                // Posisi: sejajar legend (kanan)
-                const paddingRight = opts?.paddingRight ?? 10;
-                const x = chart.chartArea.right;            // sisi kanan area chart
-                const y = legend.top + legend.height / 2;   // tengah legend
-
-                ctx.fillText(text, x - paddingRight, y);
-
-                ctx.restore();
-            }
-        };
-
-        // Plugin kustom untuk menggambar garis dari donut ke label
-        // const donutLeaderLinePlugin = {
-        //   id: 'donutLeaderLines',
-        //   afterDraw(chart, args, options) {
-        //     const { ctx } = chart;
-        //     const meta = chart.getDatasetMeta(0);
-        //     const dataset = chart.data.datasets[0];
-
-        //     if (!meta || !dataset) return;
-
-        //     ctx.save();
-        //     ctx.strokeStyle = options.color || '#9ca3af';   // warna garis
-        //     ctx.lineWidth = options.lineWidth || 1;
-
-        //     meta.data.forEach((arc, index) => {
-        //       const value = dataset.data[index];
-        //       if (!value) return;
-
-        //       // sudut tengah slice
-        //       const angle = (arc.startAngle + arc.endAngle) / 2;
-        //       const x = arc.x;
-        //       const y = arc.y;
-        //       const rOuter = arc.outerRadius;
-
-        //       const extra = options.extraRadius || 18;      // panjang tambahan keluar donut
-
-        //       const startX = x + Math.cos(angle) * rOuter;
-        //       const startY = y + Math.sin(angle) * rOuter;
-
-        //       const endX = x + Math.cos(angle) * (rOuter + extra);
-        //       const endY = y + Math.sin(angle) * (rOuter + extra);
-
-        //       ctx.beginPath();
-        //       ctx.moveTo(startX, startY);
-        //       ctx.lineTo(endX, endY);
-        //       ctx.stroke();
-        //     });
-
-        //     ctx.restore();
-        //   }
-        // };
-
-            // ===== Plugin: tampilkan "Total: xxx" di pojok kanan atas chartArea (untuk doughnut legend html) =====
-        // ===== Plugin: "Total: xxx" di pojok kanan atas (kanan card) =====
-        const cornerTotalTextPlugin = {
-            id: 'cornerTotalText',
-            afterDraw(chart, args, opts) {
-                const total = opts?.total;
-                if (total === null || total === undefined) return;
-
-                const { ctx } = chart;
-                const text = `Total: ${new Intl.NumberFormat('id-ID').format(total)}`;
-
-                ctx.save();
-                ctx.font = opts?.font || '700 12px Inter, sans-serif';
-                ctx.fillStyle = opts?.color || '#334155';
-                ctx.textBaseline = 'top';
-                ctx.textAlign = 'right';
-
-                const paddingRight = opts?.paddingRight ?? 16;
-                const paddingTop = opts?.paddingTop ?? 8;
-
-                // 🔥 pakai chart.width (paling stabil untuk "kanan")
-                const x = chart.width - paddingRight;
-                const y = paddingTop;
-
-                ctx.fillText(text, x, y);
-                ctx.restore();
-            }
-        };
-
-
-
-        //  ---- Pie Chart Pendidikan ----
-        function renderPendidikanChart(data) {
-            const canvas = document.getElementById('pendidikanChart');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-
-            const legendEl = document.getElementById('pendidikanLegend');
-
-            const labels = data?.pendidikanLabels ?? ['Sarjana','D3','SMA/SMK','SMP','SD'];
-            const valuesRaw = data?.pendidikanValues ?? [];
-            const values = valuesRaw.map(v => Number(v) || 0);
-
-            const totalPendidikan = values.reduce((a,b)=>a+b,0); // ✅ ini yang kamu butuhkan
-
-            const bgColors = ['#1E63E6', '#3a7aff', '#5D94FF', '#84AFFF', '#A9c9FF', '#cfe2ff'];
-            const fmt = (n) => new Intl.NumberFormat('id-ID').format(n);
-
-            const htmlLegendPlugin = {
-                id: 'htmlLegend',
-                afterUpdate(chart) {
-                const ds = chart.data.datasets[0];
-                const dataArr = (ds.data || []).map(n => Number(n) || 0);
-                const total = dataArr.reduce((a, b) => a + b, 0);
-                const n = Math.min(chart.data.labels.length, dataArr.length);
-
-                if (!legendEl) return; // ✅ jaga-jaga
-                legendEl.innerHTML = '';
-
-                for (let i = 0; i < n; i++) {
-                    const label = chart.data.labels[i];
-                    const v = dataArr[i];
-                    const pct = total ? ((v / total) * 100).toFixed(1) : '0.0';
-
-                    const item = document.createElement('div');
-                    item.className = 'legend-item' + (chart.getDataVisibility(i) ? '' : ' is-hidden');
-
-                    const left = document.createElement('div');
-                    left.className = 'legend-left';
-
-                    const swatch = document.createElement('span');
-                    swatch.className = 'legend-swatch';
-                    swatch.style.background = bgColors[i] || '#111827';
-
-                    const text = document.createElement('span');
-                    text.className = 'legend-label';
-                    text.textContent = label;
-
-                    const pill = document.createElement('span');
-                    pill.className = 'legend-pill';
-                    pill.style.background = bgColors[i] || '#111827';
-                    pill.textContent = fmt(v);
-
-                    left.appendChild(swatch);
-                    left.appendChild(text);
-
-                    item.appendChild(left);
-                    item.appendChild(pill);
-
-                    item.addEventListener('click', () => {
-                    chart.toggleDataVisibility(i);
-                    chart.update();
-                    });
-
-                    legendEl.appendChild(item);
-                }
-                }
-            };
-
-            if (pendidikanChartInstance) pendidikanChartInstance.destroy();
-
-            pendidikanChartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                labels,
-                datasets: [{
-                    data: values,
-                    backgroundColor: bgColors,
-                    borderWidth: 1,
-                    spacing: 7
-                }]
-                },
-                options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '45%',
-                radius: '85%',
-                layout: { padding: { top: 16, bottom: 16, left: 16, right: 16 } },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                    callbacks: {
-                        label: (ctx) => {
-                        const v = Number(ctx.raw) || 0;
-                        const total = ctx.dataset.data.reduce((a,b)=>a+(Number(b)||0),0);
-                        const pct = total ? ((v/total)*100).toFixed(1) : '0.0';
-                        return `${ctx.label}: ${fmt(v)} (${pct}%)`;
-                        }
-                    }
-                    },
-                    datalabels: { display: false },
-
-                    // ✅ total pojok kanan seperti bar chart
-                    cornerTotalText: {
-                    total: totalPendidikan,
-                    paddingRight: 6,
-                    paddingTop: 6,
-                    color: '#334155',
-                    font: '700 12px Inter, sans-serif'
-                    }
-                }
-                },
-                plugins: [htmlLegendPlugin, cornerTotalTextPlugin]
-            });
-        }
-
-
-        // -------- Peserta Bulanan Chart -----------
-        function renderPesertaBulananChart(stats) {
-            const canvas = document.getElementById('pesertaBulananChart');
-            if (!canvas) return;
-
-            const ctx = canvas.getContext('2d');
-
-            const bulan  = stats.bulanLabels || [];
-            const jumlah = (stats.pesertaBulananValues || []).map(v => Number(v) || 0);
-
-            const totalPeserta = jumlah.reduce((a, b) => a + b, 0);
-
-            if (typeof pesertaBulananChartInstance !== 'undefined' && pesertaBulananChartInstance) {
-                pesertaBulananChartInstance.destroy();
-            }
-
-            pesertaBulananChartInstance = new Chart(ctx, {
-                type: 'bar',
-                plugins: [ChartDataLabels, legendTotalTextPlugin],
-                data: {
-                labels: bulan,
-                    datasets: [{
-                        label: 'Jumlah Peserta',
-                        data: jumlah,
-                        borderColor: 'rgba(153, 183, 246)',
-                        backgroundColor: '#99b7f6',
-                        borderRadius: 6,
-                        barThickness: 30
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                            align: 'center'
-                        },
-                        // ===== Total di samping legend =====
-                        legendTotalText: {
-                            total: totalPeserta,
-                            paddingRight: 8,
-                            color: '#334155',
-                            font: '700 12px Inter, sans-serif'
-                        },
-
-                        datalabels: {
-                            anchor: 'end',
-                            align: 'top',
-                            color: '#4b5b6e',
-                            font: { weight: 'bold', size: 12 },
-                            formatter: value => Number(value).toLocaleString('id-ID')
-                        }
-                    },
-
-                    scales: {
-                        x: {
-                            grid: { display: false },
-                            ticks: {
-                                autoSkip: false,
-                                maxRotation: 45,
-                                font: { size: 11 }
-                            }
-                        },
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: 'transparent' },
-                            ticks: { precision: 0 }
-                        }
-                    }
-                }
-            });
-        }
-
-        // ------------ BAR CHART USIA ---------------------
-       function renderUsiaChart(stats) {
-            const canvas = document.getElementById('usiaChart');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-
-            // Pastikan nilai numerik
-            const labels = stats.usiaLabels || [];
-            const values = (stats.usiaValues || []).map(v => Number(v) || 0);
-
-            // Hitung total
-            const totalPeserta = values.reduce((a, b) => a + b, 0);
-
-            if (usiaChartInstance) usiaChartInstance.destroy();
-
-            usiaChartInstance = new Chart(ctx, {
-                type: 'bar',
-                plugins: [ChartDataLabels, legendTotalTextPlugin], // <-- tambahkan plugin di sini
-                data: {
-                    labels,
-                    datasets: [{
-                        label: 'Jumlah Peserta',
-                        data: values,
-                        borderColor: 'rgba(104, 152, 255)',
-                        backgroundColor: '#6898ff',
-                        borderWidth: 2,
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    plugins: {
-                        legend: {
-                            position: 'top'
-                        },
-
-                        // ===== Total di samping legend =====
-                        legendTotalText: {
-                            total: totalPeserta,
-                            paddingRight: 8,
-                            color: '#334155',
-                            font: '700 12px Inter, sans-serif'
-                        },
-
-                        datalabels: {
-                            anchor: 'end',
-                            align: 'top',
-                            color: '#4b5b6e',
-                            font: { weight: 'bold', size: 12 },
-                            formatter: value => Number(value).toLocaleString('id-ID')
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: 'transparent' },
-                            ticks: { precision: 0 }
-                        },
-                        x: { grid: { display: false } }
-                    }
-                }
-            });
-        }       
-
-        // --------- Kabupaten Chart ------------------
-        function renderKabupatenChart(stats) {
-            const canvas = document.getElementById('kabupatenChart');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-
-            if (kabupatenChartInstance) kabupatenChartInstance.destroy();
-
-            // ===== SORTING DATA DARI TERBESAR KE TERKECIL =====
-            const labelsRaw = stats.kabupatenLabels || [];
-            const valuesRaw = stats.kabupatenValues || [];
-
-            const combined = labelsRaw.map((label, i) => ({
-                label,
-                value: Number(valuesRaw[i]) || 0
-            }));
-
-            combined.sort((a, b) => b.value - a.value); // SORT DESCENDING
-
-            const sortedLabels = combined.map(o => o.label);
-            const sortedValues = combined.map(o => o.value);
-
-            // Hitung total
-            const totalPeserta = sortedValues.reduce((sum, val) => sum + (Number(val) || 0), 0);
-
-            kabupatenChartInstance = new Chart(ctx, {
-                type: 'bar',
-                plugins: [ChartDataLabels, legendTotalTextPlugin], // <-- tambahkan plugin
-                data: {
-                    labels: sortedLabels,
-                    datasets: [{
-                        label: 'Jumlah Peserta',
-                        data: sortedValues,
-                        borderColor: 'rgba(104, 152, 255)',
-                        backgroundColor: '#6898ff',
-                        borderWidth: 1,
-                        borderRadius: 4,
-                        maxBarThickness: 40
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: {
-                                font: { size: 12, weight: 'bold' },
-                                color: '#1e293b',
-                                usePointStyle: false,
-                                generateLabels: function(chart) {
-                                    const datasets = chart.data.datasets;
-                                    return datasets.map((dataset, i) => ({
-                                        text: dataset.label,
-                                        fillStyle: dataset.backgroundColor,
-                                        strokeStyle: dataset.borderColor,
-                                        lineWidth: 0,
-                                        hidden: false,
-                                        index: i,
-                                        pointStyle: 'rect'
-                                    }));
-                                }   
-                            }
-                        },
-                        // ===== Total di samping legend =====
-                        legendTotalText: {
-                            total: totalPeserta,
-                            paddingRight: 8,
-                            color: '#334155',
-                            font: '700 12px Inter, sans-serif'
-                        },
-
-                        datalabels: {
-                            anchor: 'end',
-                            align: 'right',
-                            color: '#4b5b6e',
-                            font: { weight: 'bold', size: 10 },
-                            formatter: (v) => Number(v).toLocaleString('id-ID')
-                        },
-
-                        tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
-                            padding: 10,
-                            callbacks: {
-                                label: (ctx) => `Jumlah Peserta: ${Number(ctx.raw).toLocaleString('id-ID')}`
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            grid: { color: 'transparent' },
-                            ticks: { precision: 0 }
-                        },
-                        y: {
-                            grid: { display: false },
-                            ticks: {
-                                autoSkip: false,
-                                font: { size: 11 }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // ------- Kejuruan Bar ---------
-        //  ---------- Sort dari terbesar ---------
-        function sortKejuruanData(data) {
-            const combined = data.kejuruanLabels.map((label, i) => ({
-                label,
-                value: data.kejuruanValues[i]
-            }));
-
-            // Urutkan dari terbesar ke kecil
-            combined.sort((a, b) => b.value - a.value);
-
-            return {
-                labels: combined.map(o => o.label),
-                values: combined.map(o => o.value)
-            };
-        }
-        // ---Split Lebel agar tetap sesuai bar ---
-        function splitLabelTwoLines(label) {
-            if (!label) return label;
-            const words = label.split(' ');
-            if (words.length <= 2) return label;   // kalau pendek, tetap 1 baris
-
-            // metode baris otomatis: separuh kata atas dan bawah
-            const mid = Math.ceil(words.length / 2);
-            const line1 = words.slice(0, mid).join(' ');
-            const line2 = words.slice(mid).join(' ');
-            return [line1, line2];  // MULTILINE
-        }
-
-        // --------- BAR KEJURUAN
-        function renderKejuruanChart(data) {
-            const canvas = document.getElementById('kejuruanChart');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-
-            if (kejuruanChartInstance) kejuruanChartInstance.destroy();
-
-            // ======== SORTING DATA ========
-            const sorted = sortKejuruanData(data);
-
-            // Pastikan values numerik
-            const values = (sorted.values || []).map(v => Number(v) || 0);
-
-            // Hitung total
-            const totalPeserta = values.reduce((a, b) => a + b, 0);
-
-            // ======== MULTILINE LABELS (2 BARIS) ========
-            const multilineLabels = (sorted.labels || []).map(label => splitLabelTwoLines(label));
-
-            kejuruanChartInstance = new Chart(ctx, {
-                type: 'bar',
-                plugins: [ChartDataLabels, legendTotalTextPlugin], // <-- tambahkan plugin
-                data: {
-                    labels: multilineLabels,
-                    datasets: [{
-                        label: 'Jumlah Peserta',
-                        data: values,
-                        borderColor: 'rgba(153, 183, 246)',
-                        backgroundColor: '#99b7f6',
-                        borderRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    indexAxis: 'y',
-                    plugins: {
-                        legend: {
-                            position: 'top'
-                        },
-
-                        // ===== Total di samping legend =====
-                        legendTotalText: {
-                            total: totalPeserta,
-                            paddingRight: 8,
-                            color: '#334155',
-                            font: '700 12px Inter, sans-serif'
-                        },
-
-                        datalabels: {
-                            anchor: 'end',
-                            align: 'right',
-                            color: '#4b5b6e',
-                            font: { weight: 'bold', size: 12 },
-                            formatter: value => Number(value).toLocaleString('id-ID')
-                        }
-                    },
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            grid: { color: 'transparent' },
-                            ticks: { precision: 0 }
-                        },
-                        y: {
-                            grid: { display: false },
-                            ticks: {
-                                autoSkip: false,
-                                maxRotation: 0,
-                                minRotation: 0,
-                                font: { size: 11 }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // ==== inisialisasi agar tampilan tabel 10 baris ====
-        // ==== inisialisasi agar tampilan tabel 10 baris ====
-        const PROGRAM_ROWS_PER_PAGE = 10;
-
-        let programPaginationState = {
-            data: null,
-            currentPage: 1,
-            rowsPerPage: PROGRAM_ROWS_PER_PAGE,
-        };
-
-        function formatDateSafely(raw) {
-            if (!raw) return '';
-            const d = new Date(raw);
-            if (isNaN(d.getTime())) return '';
-            return d.toLocaleDateString('id-ID');
-        }
-
-        // ================= PAGINATION CONTROL =================
-        function updateProgramPaginationControls() {
-            const prevBtn = document.getElementById('program-prev-page');
-            const nextBtn = document.getElementById('program-next-page');
-            const pageInfo = document.getElementById('program-page-info');
-
-            if (!Array.isArray(programPaginationState.data)) {
-                if (prevBtn) prevBtn.disabled = true;
-                if (nextBtn) nextBtn.disabled = true;
-                if (pageInfo) pageInfo.textContent = '';
-                return;
-            }
-
-            const totalItems = programPaginationState.data.length;
-            const totalPages = Math.ceil(totalItems / programPaginationState.rowsPerPage) || 1;
-            const currentPage = programPaginationState.currentPage;
-
-            if (pageInfo) {
-                pageInfo.textContent = `Halaman ${currentPage} dari ${totalPages}`;
-            }
-
-            if (prevBtn) prevBtn.disabled = currentPage <= 1;
-            if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
-        }
-
-        // ============= TABEL PELATIHAN PER PROGRAM ===========
-        function renderProgramTable(data, page = 1) {
-            const tableBody = document.getElementById('program-table-body');
-            if (!tableBody || !Array.isArray(data.programLabels)) return;
-
-            // === GABUNGKAN DATA ===
-            let combinedData = data.programLabels.map((program, index) => ({
-                program,
-                mulai: data.mulaiValues?.[index],
-                selesai: data.selesaiValues?.[index],
-                laki: Number(data.lakiLakiValues?.[index] ?? 0),
-                perempuan: Number(data.perempuanValues?.[index] ?? 0)
-            }));
-
-            // === SORT BERDASARKAN TANGGAL MULAI (TERBARU DI ATAS) ===
-            combinedData.sort((a, b) => {
-                const dateA = a.mulai ? new Date(a.mulai).getTime() : 0;
-                const dateB = b.mulai ? new Date(b.mulai).getTime() : 0;
-                return dateB - dateA;
-            });
-
-            programPaginationState.data = combinedData;
-            programPaginationState.currentPage = page;
-
-            const { rowsPerPage } = programPaginationState;
-            const startIndex = (page - 1) * rowsPerPage;
-            const endIndex = startIndex + rowsPerPage;
-
-            tableBody.innerHTML = '';
-
-            for (let i = startIndex; i < endIndex && i < combinedData.length; i++) {
-                const item = combinedData[i];
-
-                const row = document.createElement('tr');
-                row.className = 'hover:bg-sky-50 transition-colors';
-
-                row.innerHTML = `
-                    <td class="px-4 py-2 text-sm text-gray-800">${item.program}</td>
-                    <td class="px-4 py-2 text-sm text-gray-700">${formatDateSafely(item.mulai)}</td>
-                    <td class="px-4 py-2 text-sm text-gray-700">${formatDateSafely(item.selesai)}</td>
-                    <td class="px-4 py-2 text-sm text-gray-700 text-right">${item.laki.toLocaleString('id-ID')}</td>
-                    <td class="px-4 py-2 text-sm text-gray-700 text-right">${item.perempuan.toLocaleString('id-ID')}</td>
-                `;
-
-                tableBody.appendChild(row);
-            }
-
-            updateProgramPaginationControls();
-        }
-
-        // ================= EVENT BUTTON =================
         document.addEventListener('DOMContentLoaded', () => {
-            const prevBtn = document.getElementById('program-prev-page');
-            const nextBtn = document.getElementById('program-next-page');
-
-            if (prevBtn) {
-                prevBtn.addEventListener('click', () => {
-                    if (!programPaginationState.data) return;
-
-                    if (programPaginationState.currentPage > 1) {
-                        renderProgramTable(
-                            {
-                                programLabels: programPaginationState.data.map(d => d.program),
-                                mulaiValues: programPaginationState.data.map(d => d.mulai),
-                                selesaiValues: programPaginationState.data.map(d => d.selesai),
-                                lakiLakiValues: programPaginationState.data.map(d => d.laki),
-                                perempuanValues: programPaginationState.data.map(d => d.perempuan),
-                            },
-                            programPaginationState.currentPage - 1
-                        );
-                    }
-                });
-            }
-
-            if (nextBtn) {
-                nextBtn.addEventListener('click', () => {
-                    if (!programPaginationState.data) return;
-
-                    const totalItems = programPaginationState.data.length;
-                    const totalPages = Math.ceil(totalItems / programPaginationState.rowsPerPage);
-
-                    if (programPaginationState.currentPage < totalPages) {
-                        renderProgramTable(
-                            {
-                                programLabels: programPaginationState.data.map(d => d.program),
-                                mulaiValues: programPaginationState.data.map(d => d.mulai),
-                                selesaiValues: programPaginationState.data.map(d => d.selesai),
-                                lakiLakiValues: programPaginationState.data.map(d => d.laki),
-                                perempuanValues: programPaginationState.data.map(d => d.perempuan),
-                            },
-                            programPaginationState.currentPage + 1
-                        );
-                    }
-                });
-            }
+            SimpelAuth.renderNavbar('pelatihan');
         });
-
-        // =====================================================
-        // ====== RENDER SEMUA DATA ========
-        // =====================================================
-        function renderPelatihanData(data) {
-            document.getElementById('loading-indicator').style.display = 'none';
-
-            if (data.status === 'error') {
-                const ringkasan = document.getElementById('ringkasan-stats');
-                ringkasan.style.display = 'block';
-                ringkasan.innerHTML =
-                    '<div class="text-center p-8 bg-red-100 text-red-700 rounded-lg">Gagal memuat data pelatihan. Error: ' +
-                    (data.message || 'Tidak diketahui') + '</div>';
-                console.error('Error dari Apps Script:', data.message);
-                return;
-            }
-
-            document.getElementById('ringkasan-stats').style.display = 'block';
-
-            document.getElementById('total-peserta').textContent =
-                (data.totalPeserta || 0).toLocaleString('id-ID');
-            document.getElementById('laki-laki').textContent =
-                (data.lakiLaki || 0).toLocaleString('id-ID');
-            document.getElementById('perempuan').textContent =
-                (data.perempuan || 0).toLocaleString('id-ID');
-
-            // Score card kelulusan
-            document.getElementById('lulus-count').textContent =
-                (data.lulus || 0).toLocaleString('id-ID');
-            document.getElementById('tidak-lulus-count').textContent =
-                (data.tidakLulus || 0).toLocaleString('id-ID');
-            document.getElementById('peserta-disabilitas').textContent =
-                (data.disabilitas || 0).toLocaleString('id-ID');
-
-            // renderKegiatanChart(data);
-            renderPendidikanChart(data);
-            renderKejuruanChart(data);
-            renderProgramTable(data);
-            renderPesertaBulananChart(data);
-            renderUsiaChart(data);
-            renderKabupatenChart(data);
-
-        }
-
-        function handleError(error) {
-            document.getElementById('loading-indicator').style.display = 'none';
-            const ringkasan = document.getElementById('ringkasan-stats');
-            ringkasan.style.display = 'block';
-            ringkasan.innerHTML =
-                '<div class="text-center p-8 bg-red-100 text-red-700 rounded-lg">Gagal memuat data dari Spreadsheet. Error: ' +
-                error.message + '</div>';
-            console.error('Error saat memanggil Apps Script:', error);
-        }
-
-        document.addEventListener('DOMContentLoaded', loadPelatihanData);
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const footerYear = document.getElementById('footer-year');
-            if (footerYear && ACTIVE_YEAR) {
-                footerYear.textContent = ACTIVE_YEAR;
-            };
-            const y = document.getElementById('year-label');
-                if (y) y.textContent = ACTIVE_YEAR;
-        });
-
     </script>
 </body>
 </html>
