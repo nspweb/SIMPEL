@@ -57,6 +57,9 @@
             width: 100%;
         }
         .row-zebra:nth-child(even){ background:#fafafa; }
+        .progress-track { background: #e5e7eb; border-radius: 999px; height: 9px; overflow: hidden; }
+        .progress-fill { background: linear-gradient(90deg, #2C4C63, #0f766e); border-radius: inherit; height: 100%; transition: width .5s ease; }
+        .status-pill { border-radius: 999px; display: inline-flex; font-size: .7rem; font-weight: 700; padding: .25rem .6rem; white-space: nowrap; }
     </style>
 </head>
 <body>
@@ -129,6 +132,14 @@
                     <a href="<?= ScriptApp.getService().getUrl() ?>?page=umum&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
                     class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
                     Umum
+                    </a>
+                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=pengadaan&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
+                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                    Pengadaan
+                    </a>
+                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=keuangan&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
+                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                    Keuangan
                     </a>
                 </nav>
 
@@ -277,6 +288,50 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Ringkasan Pimpinan: batch, pembayaran, serta kebutuhan alat dan bahan -->
+                    <section class="grid grid-cols-1 xl:grid-cols-[1.35fr_.65fr] gap-6">
+                      <div class="card-content p-6">
+                        <div class="flex flex-wrap items-start justify-between gap-3 mb-5">
+                          <div>
+                            <p class="text-xs font-bold uppercase tracking-wider text-teal-700">Pantauan pimpinan</p>
+                            <h2 class="text-xl font-semibold text-gray-800">Progres Pelatihan per Batch</h2>
+                            <p class="text-sm text-gray-500 mt-1">Pelaksanaan, peserta, dan status pembayaran dalam satu tampilan.</p>
+                          </div>
+                          <a href="<?= ScriptApp.getService().getUrl() ?>?page=keuangan&year=<?= ACTIVE_YEAR ?>" class="text-xs font-bold text-teal-700 hover:text-teal-900">Buka keuangan &rarr;</a>
+                        </div>
+                        <div id="batch-progress-list" class="space-y-4"></div>
+                      </div>
+
+                      <div class="card-content p-6">
+                        <div class="flex items-start justify-between gap-3 mb-5">
+                          <div>
+                            <p class="text-xs font-bold uppercase tracking-wider text-orange-700">Pengadaan</p>
+                            <h2 class="text-xl font-semibold text-gray-800">Alat dan Bahan</h2>
+                          </div>
+                          <a href="<?= ScriptApp.getService().getUrl() ?>?page=pengadaan&year=<?= ACTIVE_YEAR ?>" class="text-xs font-bold text-orange-700 hover:text-orange-900">Kelola &rarr;</a>
+                        </div>
+                        <div id="procurement-summary" class="space-y-3"></div>
+                      </div>
+                    </section>
+
+                    <section class="card-content p-6">
+                      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                        <div>
+                          <p class="text-xs font-bold uppercase tracking-wider text-indigo-700">Kesiapan anggaran</p>
+                          <h2 class="text-xl font-semibold text-gray-800">Status Pembayaran per Program</h2>
+                        </div>
+                        <span class="text-xs text-gray-500">Terhubung dengan data Penyelenggara, Pemberdayaan, dan Keuangan</span>
+                      </div>
+                      <div class="overflow-x-auto rounded-xl border border-gray-100">
+                        <table class="min-w-full text-sm">
+                          <thead class="bg-gradient-to-r from-sky-50 to-indigo-50 text-gray-700">
+                            <tr><th class="px-3 py-2 text-left">Program / Batch</th><th class="px-3 py-2 text-center">Tanggal Mulai</th><th class="px-3 py-2 text-center">Peserta</th><th class="px-3 py-2 text-center">Progres</th><th class="px-3 py-2 text-center">Pembayaran</th></tr>
+                          </thead>
+                          <tbody id="payment-status-table-body" class="divide-y divide-gray-100"></tbody>
+                        </table>
+                      </div>
+                    </section>
 
                     
 
@@ -696,6 +751,68 @@
     tableBody.innerHTML = html;
   }
 
+  const pimpinanSampleData = {
+    batches: [
+      { program: 'Pemasangan Sistim Integrasi Bangunan Cerdas 1', batch: 'Batch 1', mulai: '22 Juni 2026', peserta: 16, progress: 100, payment: 'Terbayar', kebutuhan: 'Panel kontrol, kabel, sensor' },
+      { program: 'Pengoperasian Mesin Bubut', batch: 'Batch 2', mulai: '29 Juni 2026', peserta: 16, progress: 72, payment: 'Diproses', kebutuhan: 'Mata bubut, oli, alat ukur' },
+      { program: 'Computer Operator Assistant', batch: 'Batch 1', mulai: '06 Juli 2026', peserta: 16, progress: 38, payment: 'Belum diajukan', kebutuhan: 'Modul praktik, tinta, kertas' }
+    ],
+    procurement: [
+      { label: 'Sudah disetujui Pokja', value: 12, tone: 'bg-emerald-100 text-emerald-800' },
+      { label: 'Menunggu verifikasi', value: 5, tone: 'bg-amber-100 text-amber-800' },
+      { label: 'Belum dibuat', value: 3, tone: 'bg-rose-100 text-rose-800' }
+    ]
+  };
+
+  function paymentClass(status) {
+    if (status === 'Terbayar') return 'bg-emerald-100 text-emerald-800';
+    if (status === 'Diproses') return 'bg-amber-100 text-amber-800';
+    return 'bg-rose-100 text-rose-800';
+  }
+
+  function renderPimpinanPanels(data) {
+    const batches = Array.isArray(data?.batches) ? data.batches : pimpinanSampleData.batches;
+    const procurement = Array.isArray(data?.procurement) ? data.procurement : pimpinanSampleData.procurement;
+    const batchList = document.getElementById('batch-progress-list');
+    const paymentTable = document.getElementById('payment-status-table-body');
+    const procurementSummary = document.getElementById('procurement-summary');
+
+    if (batchList) {
+      batchList.innerHTML = batches.length ? batches.map(item => {
+        const progress = Math.max(0, Math.min(100, Number(item.progress) || 0));
+        return `<article class="rounded-xl border border-gray-100 bg-gray-50 p-4">
+          <div class="flex flex-wrap items-start justify-between gap-2">
+            <div><h3 class="font-bold text-gray-800">${escapeHtml(item.program || '-')}</h3><p class="text-xs text-gray-500">${escapeHtml(item.batch || '-')} &middot; Mulai ${escapeHtml(item.mulai || '-')}</p></div>
+            <span class="status-pill ${paymentClass(item.payment)}">${escapeHtml(item.payment || 'Belum ada status')}</span>
+          </div>
+          <div class="mt-3 flex items-center gap-3"><div class="progress-track flex-1"><div class="progress-fill" style="width:${progress}%"></div></div><span class="text-xs font-bold text-gray-700">${progress}%</span></div>
+          <div class="mt-2 flex flex-wrap justify-between gap-2 text-xs text-gray-500"><span>${formatNumber(item.peserta)} peserta</span><span>Kebutuhan: ${escapeHtml(item.kebutuhan || 'Belum diinput')}</span></div>
+        </article>`;
+      }).join('') : '<p class="text-sm text-gray-500">Belum ada data batch.</p>';
+    }
+
+    if (paymentTable) {
+      paymentTable.innerHTML = batches.length ? batches.map(item => {
+        const progress = Math.max(0, Math.min(100, Number(item.progress) || 0));
+        return `<tr class="row-zebra"><td class="px-3 py-3 font-semibold text-gray-800">${escapeHtml(item.program || '-')}<span class="block text-xs font-normal text-gray-500">${escapeHtml(item.batch || '-')}</span></td><td class="px-3 py-3 text-center">${escapeHtml(item.mulai || '-')}</td><td class="px-3 py-3 text-center font-semibold">${formatNumber(item.peserta)}</td><td class="px-3 py-3 text-center"><span class="font-bold">${progress}%</span></td><td class="px-3 py-3 text-center"><span class="status-pill ${paymentClass(item.payment)}">${escapeHtml(item.payment || '-')}</span></td></tr>`;
+      }).join('') : '<tr><td colspan="5" class="px-3 py-5 text-center text-gray-500">Belum ada data pembayaran.</td></tr>';
+    }
+
+    if (procurementSummary) {
+      procurementSummary.innerHTML = procurement.map(item => `<div class="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 px-3 py-3"><span class="text-sm text-gray-700">${escapeHtml(item.label || '-')}</span><span class="status-pill ${escapeHtml(item.tone || 'bg-gray-100 text-gray-700')}">${formatNumber(item.value)}</span></div>`).join('');
+    }
+  }
+
+  function loadPimpinanPanels() {
+    renderPimpinanPanels(pimpinanSampleData);
+    if (typeof google === 'undefined' || !google.script || !google.script.run || typeof google.script.run.getPimpinanDashboardData !== 'function') return;
+    google.script.run.withSuccessHandler(function (data) {
+      if (data && data.status === 'success') renderPimpinanPanels(data);
+    }).withFailureHandler(function (err) {
+      console.warn('Data pimpinan belum tersedia:', err);
+    }).getPimpinanDashboardData(ACTIVE_YEAR);
+  }
+
   // =========================
   // CHART
   // =========================
@@ -914,6 +1031,7 @@ function renderAnggaranChart(stats) {
   });
 
   window.onload = function () {
+    loadPimpinanPanels();
     loadDashboardData();
   };
 </script>
