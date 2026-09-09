@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+    <script>
+      Chart.register(ChartDataLabels);
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Styling Dasar */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f3f4f6;
+        }
+        .header {
+            background-color: #2C4C63; /* Navy/Biru Tua */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .card-content {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card-content:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+        }
+        /* Style untuk tombol aktif di navigasi */
+        .nav-active {
+            border-bottom: 3px solid #f97316; /* Orange-500 untuk Pelatihan */
+            color: #ffedd5; /* Orange-100 */
+            background-color: #4b5563;
+        }
+        /* Style untuk Canvas Chart */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+        /* Loading spinner */
+        .loading {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @media (max-width: 640px) {
+            .data-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .pendidikan-wrap{
+          display: grid;
+          grid-template-columns: 1.4fr 1fr; /* chart area lebih besar */
+          align-items: center;
+          gap: 32px;
+        }
+        .pendidikan-chart{
+          display:flex;
+          justify-content:center;
+          align-items:center;
+        }
+        .pendidikan-legend{
+          min-width:240px;
+          display:flex;
+          flex-direction:column;
+          gap:12px;
+        }
+        .legend-item{
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          cursor:pointer;
+          user-select:none;
+        }
+        .legend-left{
+          display:flex;
+          align-items:center;
+          gap:10px;
+        }
+        .legend-swatch{
+          width:10px;
+          height:10px;
+          border-radius:999px;
+          display:inline-block;
+        }
+        .legend-label{
+          font-size:13px;
+          color:#0f172a;
+          font-weight:600;
+        }
+        .legend-pill{
+          font-size:12px;
+          font-weight:700;
+          color:#0f172a;
+          padding:6px 12px;
+          border-radius:999px;
+          background:#e2e8f0;
+          min-width:52px;
+          text-align:center;
+        }
+        .legend-item.is-hidden{
+          opacity:.45;
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen flex flex-col">
+        <!-- Header & Navigasi -->
+        <header class="header p-4 lg:px-8 sticky top-0 z-20">
+          <div class="flex items-center justify-between w-full">
+
+            <!-- KIRI: Logo & Nama Aplikasi -->
+            <div class="flex items-center space-x-3">
+              <img src="https://bpvpkendari.kemnaker.go.id/storage/upload/setting/11749712002.png"
+                alt="Logo Kemnaker"
+                class="h-10 w-10 object-contain rounded-lg border-2 border-white bg-white p-1"
+              />
+              <h3 class="text-xl lg:text-2xl font-extrabold tracking-tight">
+                Sistem Informasi Pelatihan (SIMPEL)
+              </h3>
+            </div>
+
+            <!-- KANAN: Menu Navigasi + Logout (Desktop) -->
+            <div class="hidden lg:flex lg:items-center lg:space-x-6">
+              <nav class="flex space-x-6 text-base font-medium">
+                <a href="<?= ScriptApp.getService().getUrl() ?>?page=dashboard&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
+                  class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                  Home
+                </a>
+
+                <!-- Dropdown Pelatihan -->
+                <div class="relative group">
+                  <button
+                    type="button"
+                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-300 inline-flex items-center">
+                    Pelatihan
+                    <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                  </button>
+
+                  <div
+                    class="absolute left-0 top-full pt-2 w-48 opacity-0 invisible
+                          group-hover:opacity-100 group-hover:visible
+                          transition-all duration-700 ease-in-out z-50">
+                    <div class="bg-gray-800 rounded-lg shadow-lg">
+                      <a href="<?= ScriptApp.getService().getUrl() ?>?page=pelatihan&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
+                        class="block px-4 py-2 hover:bg-gray-700 rounded-t-lg">
+                        Pelatihan UPTP
+                      </a>
+                      <a href="<?= ScriptApp.getService().getUrl() ?>?page=pelatihan_uptd&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
+                        class="block px-4 py-2 hover:bg-gray-700 rounded-b-lg">
+                        Pelatihan UPTD
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <a href="<?= ScriptApp.getService().getUrl() ?>?page=sertifikasi&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
+                  class="py-2 px-3 rounded-lg nav-active transition duration-150">
+                  Sertifikasi
+                </a>
+
+                <a href="<?= ScriptApp.getService().getUrl() ?>?page=produktivitas&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
+                  class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                  Produktivitas
+                </a>
+
+                <a href="<?= ScriptApp.getService().getUrl() ?>?page=penempatan&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
+                  class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                  Penempatan
+                </a>
+                <a href="<?= ScriptApp.getService().getUrl() ?>?page=umum&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
+                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                    Umum
+                    </a>
+              </nav>
+
+              <button id="logout-btn" onclick="handleLogout()"
+                class="px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-green-100 bg-green-700 hover:bg-green-800 transition duration-150 shadow-md">
+                Logout
+              </button>
+            </div>
+
+            <!-- Tombol Hamburger Menu (Mobile) -->
+            <button id="menu-toggle"
+              class="lg:hidden p-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-white"
+              onclick="toggleMobileMenu()" type="button">
+              <svg id="icon-open" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+              <svg id="icon-close" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Menu Mobile -->
+          <div id="mobile-menu" class="hidden flex-col w-full mt-4 lg:hidden pt-4 border-t border-gray-600">
+            <nav class="flex flex-col space-y-2 text-base font-medium">
+              <a href="<?= ScriptApp.getService().getUrl() ?>?page=dashboard&year=<?= ACTIVE_YEAR ?>"
+                class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                Home
+              </a>
+
+              <!-- Pelatihan (Mobile Dropdown / Expand) -->
+              <button type="button"
+                class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150 inline-flex items-center justify-between"
+                onclick="toggleMobilePelatihan()">
+                <span>Pelatihan</span>
+                <svg id="mobile-pelatihan-chevron" class="w-4 h-4 transition-transform duration-150"
+                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+
+              <div id="mobile-pelatihan-submenu" class="hidden pl-3">
+                <a href="<?= ScriptApp.getService().getUrl() ?>?page=pelatihan&year=<?= ACTIVE_YEAR ?>"
+                  class="block py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                  Pelatihan UPTP
+                </a>
+                <a href="<?= ScriptApp.getService().getUrl() ?>?page=pelatihan_uptd&year=<?= ACTIVE_YEAR ?>"
+                  class="block py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                  Pelatihan UPTD
+                </a>
+              </div>
+
+              <a href="<?= ScriptApp.getService().getUrl() ?>?page=sertifikasi&year=<?= ACTIVE_YEAR ?>"
+                class="py-2 px-3 rounded-lg nav-active transition duration-150">
+                Sertifikasi
+              </a>
+
+              <a href="<?= ScriptApp.getService().getUrl() ?>?page=produktivitas&year=<?= ACTIVE_YEAR ?>"
+                class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                Produktivitas
+              </a>
+
+              <a href="<?= ScriptApp.getService().getUrl() ?>?page=penempatan&year=<?= ACTIVE_YEAR ?>"
+                class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                Penempatan
+              </a>
+              <a href="<?= ScriptApp.getService().getUrl() ?>?page=umum&year=<?= ACTIVE_YEAR ?>"
+                  class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                  Umum
+              </a>
+            </nav>
+
+            <div class="mt-4">
+              <button id="logout-btn-mobile" onclick="handleLogout()"
+                class="w-full px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-green-100 bg-green-700 hover:bg-green-800 transition duration-150 shadow-md">
+                Logout
+              </button>
+            </div>
+          </div>
+        </header>
+
+
+        <!-- Konten Utama Dashboard Sertifikasi -->
+        <main class="flex-grow p-4 lg:p-8 flex justify-center">
+            <div class="w-full max-w-7xl space-y-8">
+                
+                <!-- Banner -->
+                <div class="bg-indigo-600 p-6 rounded-lg text-white shadow-lg text-center sm:text-left">
+                    <p class="text-sm font-light">BALAI PELATIHAN VOKASI DAN PRODUKTIVITAS (BPVP) KENDARI</p>
+                    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold mt-1">
+                        DATA PESERTA SERTIFIKASI
+                    </h2>
+                    <p class="mt-3 text-sm sm:text-lg font-medium">
+                        Selamat datang di Portal SIMPEL <span id="year-label"></span> - A Nice Place to Grow.
+                    </p>
+                </div>
+
+                <!-- Indikator Loading -->
+                <div id="loading-indicator" class="text-center p-4" style="display: none;">
+                    <div class="loading"></div>
+                    <p class="text-gray-500 mt-2">Memuat data...</p>
+                </div>
+
+                <!-- Statistik Ringkasan -->
+                <div id="ringkasan-stats" class="space-y-8" style="display: none;">                    
+                    <!-- Total Peserta & Jenis Kelamin -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Peserta -->
+                        <div class="card-content p-6 flex flex-col justify-center items-center lg:col-span-1 border-b-4 border-blue-300">
+                            <h3 class="text-xl font-bold text-gray-800">Total Peserta</h3>
+                            <span class="text-5xl font-extrabold text-blue-900" id="total-peserta">0</span>
+                            <p class="text-lg font-medium text-gray-500 mt-2">Total Peserta Sertifikasi</p>
+                        </div>
+
+                        <!-- Laki-Laki dan Perempuan -->
+                        <div class="card-content p-6 lg:col-span-2">
+                            <h2 class="text-xl font-semibold text-gray-800 mb-4">Laki-Laki dan Perempuan</h2>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center">
+                                <div class="bg-indigo-50 p-4 rounded-lg">
+                                    <p class="text-4xl font-bold text-blue-900" id="laki-laki">0</p>
+                                    <p class="text-gray-600 mt-1">Laki-laki</p>
+                                </div>
+                                <div class="bg-indigo-50 p-4 rounded-lg">
+                                    <p class="text-4xl font-bold text-blue-900" id="perempuan">0</p>
+                                    <p class="text-gray-600 mt-1">Perempuan</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hasil UJK & APL -->
+                    <div class="card-content p-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Status Pengajuan dan Hasil UJK</h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                            <!-- Sudah APL 01 & APL O2 -->
+                            <div class="bg-indigo-50 p-4 rounded-lg">
+                                <p class="text-3xl font-bold text-blue-900" id="sudah-apl">0</p>
+                                <p class="text-gray-600 mt-1">Sertifikat Yang Sudah Dicetak</p>
+                            </div>
+
+                            <!-- Lulus UJK -->
+                            <div class="bg-indigo-50 p-4 rounded-lg">
+                                <p class="text-3xl font-bold text-blue-900" id="lulus-ujk">0</p>
+                                <p class="text-gray-600 mt-1">Kompeten</p>
+                            </div>
+
+                            <!-- Belum Lulus UJK -->
+                            <div class="bg-indigo-50 p-4 rounded-lg">
+                                <p class="text-3xl font-bold text-blue-900" id="belum-lulus-ujo">0</p>
+                                <p class="text-gray-600 mt-1">Belum Kompeten</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart TUK -->
+                    <div class="card-content p-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Distribusi Peserta Berdasarkan TUK</h2>
+                        <div class="chart-container">
+                            <canvas id="tukChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Chart Pendidikan -->
+                    <div class="card-content p-6 ">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Distribusi Peserta Berdasarkan Pendidikan</h2>
+                        <div class="pendidikan-wrap">
+                          <div class="pendidikan-chart">
+                            <canvas id="pendidikanChart"></canvas>
+                          </div>
+                          <div id="pendidikanLegend" class="pendidikan-legend"></div>
+                        </div>
+                    </div>
+
+                    <!-- Chart Skema -->
+                    <div class="card-content p-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Distribusi Peserta Berdasarkan Skema (Top 5)</h2>
+                        <div class="chart-container">
+                            <canvas id="skemaChart"></canvas>
+                        </div>
+                        <!-- Tambahan: Area untuk detail skema lainnya jika diperlukan
+                        <div id="skema-lainnya" class="mt-6 text-sm text-gray-600">
+                             <!-- Data detail skema lainnya akan dimasukkan di sini oleh JS -->
+                        <!-- </div> -->
+                    </div>
+
+                    <!-- Tabel Skema Sertifikasi -->
+                    <div class="card-content p-6 mt-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Tabel Skema Sertifikasi</h2>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full border border-gray-300 rounded-lg">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="p-2 border">Skema</th>
+                                        <th class="p-2 border text-center">Jumlah Peserta</th>
+                                        <th class="p-2 border text-center">Kompeten</th>
+                                        <th class="p-2 border text-center">Belum Kompeten</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="skema-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div> <!-- End ringkasan-stats -->
+            </div>
+        </main>
+        <!-- Footer -->
+        <footer class="bg-gray-700 text-white p-4 text-center text-sm mt-auto z-10">
+            &copy; <span id="footer-year"></span> Sistem Informasi Pelatihan BPVP Kendari.
+        </footer>
+    </div>
+
+    <script>
+      // Gunakan variabel global di Apps Script
+      const APP_URL = '<?= ScriptApp.getService().getUrl() ?>';
+      const ACTIVE_YEAR = <?= ACTIVE_YEAR ?>;
+
+
+      // Deklarasi instance Chart global
+      let tukChartInstance, pendidikanChartInstance, skemaChartInstance;
+
+      // Toggle menu mobile
+      function toggleMobileMenu() {
+        const menu = document.getElementById('mobile-menu');
+        const iconOpen = document.getElementById('icon-open');
+        const iconClose = document.getElementById('icon-close');
+
+        menu.classList.toggle('hidden');
+        iconOpen.classList.toggle('hidden');
+        iconClose.classList.toggle('hidden');
+      }
+
+      function toggleMobilePelatihan() {
+          const submenu = document.getElementById('mobile-pelatihan-submenu');
+          const chevron = document.getElementById('mobile-pelatihan-chevron');
+
+          if (!submenu || !chevron) return;
+
+          submenu.classList.toggle('hidden');
+          chevron.classList.toggle('rotate-180');
+      }
+
+      // Logout
+      function handleLogout() {
+        localStorage.removeItem('userEmail');
+        window.location.href = APP_URL + '?page=index&year=' + encodeURIComponent(ACTIVE_YEAR);
+      }
+
+
+      // Load data sertifikasi dari Apps Script
+      function loadSertifikasiData() {
+        const userEmail = localStorage.getItem('userEmail');
+
+        if (!userEmail) {
+          window.location.href = APP_URL + '?page=index';
+          return;
+        }
+
+        // Tampilkan loading dan sembunyikan konten
+        document.getElementById('loading-indicator').style.display = 'block';
+        document.getElementById('ringkasan-stats').style.display = 'none';
+
+        google.script.run
+          .withSuccessHandler(renderSertifikasiData)
+          .withFailureHandler(handleError)
+          .getSertifikasiStats(ACTIVE_YEAR);
+      }
+
+      // ===== Plugin: tampilkan "Total: xxx" di samping legend (kanan) =====
+      const legendTotalTextPlugin = {
+          id: 'legendTotalText',
+          afterDraw(chart, args, opts) {
+              const total = (opts?.total ?? null);
+              if (total === null || total === undefined) return;
+
+              const legend = chart.legend;
+              if (!legend) return;
+
+              const { ctx } = chart;
+              ctx.save();
+
+              const text = `Total: ${new Intl.NumberFormat('id-ID').format(total)}`;
+
+              ctx.font = (opts?.font) || '700 12px Inter, sans-serif';
+              ctx.fillStyle = (opts?.color) || '#334155';
+              ctx.textBaseline = 'middle';
+              ctx.textAlign = 'right';
+
+              // Posisi: sejajar legend (kanan)
+              const paddingRight = opts?.paddingRight ?? 10;
+              const x = chart.chartArea.right;            // sisi kanan area chart
+              const y = legend.top + legend.height / 2;   // tengah legend
+
+              ctx.fillText(text, x - paddingRight, y);
+
+              ctx.restore();
+          }
+      };
+
+      /**
+       * ======= BAR CHART STACKED – Distribusi Peserta per TUK (Kompeten vs Belum Kompeten)
+       */
+      // ===== Plugin: tampilkan "Total: xxx" di samping legend (kanan) =====
+      // const legendTotalTextPlugin = {
+      //   id: 'legendTotalText',
+      //   afterDraw(chart, args, opts) {
+      //     const total = (opts?.total ?? null);
+      //     if (total === null || total === undefined) return;
+
+      //     const legend = chart.legend;
+      //     if (!legend) return;
+
+      //     const { ctx } = chart;
+      //     ctx.save();
+
+      //     const text = `Total: ${new Intl.NumberFormat('id-ID').format(total)}`;
+
+      //     ctx.font = (opts?.font) || '700 12px Inter, sans-serif';
+      //     ctx.fillStyle = (opts?.color) || '#334155';
+      //     ctx.textBaseline = 'middle';
+      //     ctx.textAlign = 'right';
+
+      //     const paddingRight = opts?.paddingRight ?? 10;
+      //     const x = chart.chartArea.right;
+      //     const y = legend.top + legend.height / 2;
+
+      //     ctx.fillText(text, x - paddingRight, y);
+      //     ctx.restore();
+      //   }
+      // };
+
+      // ===== Plugin: 2 pill label di atas stacked bar (Kompeten & Belum Kompeten) =====
+      const stackedPillLabelsPlugin = {
+        id: 'stackedPillLabels',
+        afterDatasetsDraw(chart, args, opts) {
+          const { ctx, data, chartArea, scales } = chart;
+          if (!data?.datasets?.length) return;
+
+          const dsKompeten = data.datasets[0];
+          const dsBelum    = data.datasets[1];
+          if (!dsKompeten || !dsBelum) return;
+
+          const yScale = scales?.y;
+          if (!yScale) return;
+
+          const meta0 = chart.getDatasetMeta(0);
+          if (!meta0?.data?.length) return;
+
+          const padX   = opts?.padX ?? 10;
+          const gap    = opts?.gap  ?? 8;
+          const radius = opts?.radius ?? 999;
+          const h      = opts?.height ?? 22;
+          const yOffset = opts?.yOffset ?? 8;
+
+          const font = opts?.font ?? '700 12px Inter, sans-serif';
+
+          // warna sesuai permintaan
+          const bgKompeten = opts?.bgKompeten ?? 'rgba(153,183,246)';
+          const bgBelum    = opts?.bgBelum    ?? 'rgba(79,70,229)';
+
+          // helper draw rounded rect
+          function roundRect(x, y, w, h, r) {
+            const rr = Math.min(r, h / 2, w / 2);
+            ctx.beginPath();
+            ctx.moveTo(x + rr, y);
+            ctx.arcTo(x + w, y, x + w, y + h, rr);
+            ctx.arcTo(x + w, y + h, x, y + h, rr);
+            ctx.arcTo(x, y + h, x, y, rr);
+            ctx.arcTo(x, y, x + w, y, rr);
+            ctx.closePath();
+          }
+
+          ctx.save();
+          ctx.font = font;
+          ctx.textBaseline = 'middle';
+          ctx.textAlign = 'center';
+
+          for (let i = 0; i < meta0.data.length; i++) {
+            const el = meta0.data[i];
+            if (!el) continue;
+
+            const vKompeten = Number(dsKompeten.data[i]) || 0;
+            const vBelum    = Number(dsBelum.data[i]) || 0;
+
+            if ((vKompeten + vBelum) <= 0) continue;
+
+            const total = vKompeten + vBelum;
+
+            // posisi di atas stack (berdasarkan total)
+            const xCenter = el.x;
+            let yTop = yScale.getPixelForValue(total) - yOffset;
+            if (yTop < chartArea.top + 6) yTop = chartArea.top + 6;
+
+            const t1 = String(vKompeten.toLocaleString('id-ID'));
+            const t2 = String(vBelum.toLocaleString('id-ID'));
+
+            const w1 = ctx.measureText(t1).width + padX * 2;
+            const w2 = ctx.measureText(t2).width + padX * 2;
+
+            const totalW = w1 + gap + w2;
+            let startX = xCenter - totalW / 2;
+
+            // clamp biar tidak kepotong kiri/kanan
+            if (startX < chartArea.left) startX = chartArea.left;
+            if (startX + totalW > chartArea.right) startX = chartArea.right - totalW;
+
+            const y = yTop - h;
+
+            // pill kompeten
+            ctx.fillStyle = bgKompeten;
+            roundRect(startX, y, w1, h, radius);
+            ctx.fill();
+
+            // teks kompeten (gelap biar kontras dengan biru muda)
+            ctx.fillStyle = '#0f172a';
+            ctx.fillText(t1, startX + w1 / 2, y + h / 2);
+
+            // pill belum kompeten
+            const x2 = startX + w1 + gap;
+            ctx.fillStyle = bgBelum;
+            roundRect(x2, y, w2, h, radius);
+            ctx.fill();
+
+            // teks belum kompeten (putih biar kontras dengan biru tua)
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText(t2, x2 + w2 / 2, y + h / 2);
+          }
+
+          ctx.restore();
+        }
+      };
+
+      /**
+       * ======= BAR CHART STACKED – Distribusi Peserta per TUK
+       * - Label pill di atas bar: Kompeten & Belum Kompeten (berdampingan)
+       * - Tooltip tetap tampil detail jika tukDetails dikirim dari GS
+       */
+      function renderTukChart(data) {
+        const canvas = document.getElementById('tukChart');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+
+        if (tukChartInstance) tukChartInstance.destroy();
+
+        const tukNames = data?.tukNames || [];
+        const tukLulus = (data?.tukLulus || []).map(v => Number(v) || 0);
+        const tukTidakLulus = (data?.tukTidakLulus || []).map(v => Number(v) || 0);
+
+        const tukDetails = data?.tukDetails || {};
+
+        if (!tukNames.length) {
+          console.warn('Data TUK kosong: tukNames length = 0');
+          return;
+        }
+
+        const totalPeserta =
+          tukLulus.reduce((a, b) => a + b, 0) +
+          tukTidakLulus.reduce((a, b) => a + b, 0);
+
+        // Pastikan ChartDataLabels sudah ter-register (kamu sudah register di head)
+        // Kita matikan display-nya untuk chart TUK karena pakai pill custom
+        tukChartInstance = new Chart(ctx, {
+          type: 'bar',
+          plugins: [legendTotalTextPlugin, stackedPillLabelsPlugin],
+          data: {
+            labels: tukNames,
+            datasets: [
+              {
+                label: 'Kompeten',
+                data: tukLulus,
+                backgroundColor: 'rgba(153,183,246)',
+                borderColor: '#99b7f6',
+                borderWidth: 1,
+                borderRadius: 4
+              },
+              {
+                label: 'Belum Kompeten',
+                data: tukTidakLulus,
+                backgroundColor: 'rgba(79,70,229)',
+                borderColor: '#4f46e5',
+                borderWidth: 1,
+                borderRadius: 4
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'top' },
+
+              legendTotalText: {
+                total: totalPeserta,
+                paddingRight: 8,
+                color: '#334155',
+                font: '700 12px Inter, sans-serif'
+              },
+
+              tooltip: {
+                callbacks: {
+                  title: (items) => items?.[0]?.label || '',
+                  label: (ctx) => {
+                    const v = Number(ctx.raw) || 0;
+                    return `${ctx.dataset.label}: ${v.toLocaleString('id-ID')} Orang`;
+                  },
+                  afterBody: (items) => {
+                    const label = items?.[0]?.label || '';
+                    const details = tukDetails[label] || [];
+                    if (!details.length) return [];
+                    const lines = [' ', 'Detail:'];
+                    details.forEach(d => {
+                      const l = Number(d.lulus) || 0;
+                      const t = Number(d.tidak) || 0;
+                      lines.push(`• ${d.name}: Kompeten ${l.toLocaleString('id-ID')} | Belum ${t.toLocaleString('id-ID')}`);
+                    });
+                    return lines;
+                  }
+                }
+              },
+
+              // Matikan datalabels default untuk chart TUK
+              datalabels: { display: false }
+            },
+            scales: {
+              x: {
+                stacked: true,
+                grid: { display: false },
+                ticks: { autoSkip: false }
+              },
+              y: {
+                stacked: true,
+                grid: { display: false },
+                beginAtZero: true,
+                ticks: { precision: 0 }
+              }
+            }
+          }
+        });
+      }
+
+
+
+        
+
+        // ============= PIE CHART PENDIDIKAN ==============
+        function renderPendidikanChart(data) {
+          const canvas = document.getElementById('pendidikanChart');
+          if (!canvas) return;
+          const ctx = canvas.getContext('2d');
+
+          const legendEl = document.getElementById('pendidikanLegend');
+          if (!legendEl) return; // wajib ada container legend
+
+          const labels = data?.pendidikanLabels ?? ['S2','D4/S1','D3','SMA/SMK','SMP','SD'];
+          const valuesRaw = data?.pendidikanValues ?? [];
+          const values = valuesRaw.map(v => Number(v) || 0);
+
+          // --- HITUNG TOTAL UNTUK DISPLAY ---
+          const totalSertifikasi = values.reduce((a, b) => a + b, 0);
+
+          const bgColors = ['#1E63E6', '#3a7aff', '#5D94FF', '#84AFFF', '#A9c9FF', '#cfe2ff'];
+
+          const fmt = (n) => new Intl.NumberFormat('id-ID').format(n);
+
+          // Plugin: bikin legend HTML di kanan
+          const htmlLegendPlugin = {
+            id: 'htmlLegend',
+            afterUpdate(chart) {
+              const ds = chart.data.datasets[0];
+              const dataArr = (ds.data || []).map(n => Number(n) || 0);
+              const total = dataArr.reduce((a, b) => a + b, 0);
+              const n = Math.min(chart.data.labels.length, dataArr.length);
+
+              legendEl.innerHTML = '';
+
+              for (let i = 0; i < n; i++) {
+                const label = chart.data.labels[i];
+                const v = dataArr[i];
+                // const pct = total ? ((v / total) * 100).toFixed(1) : '0.0';
+
+                const item = document.createElement('div');
+                item.className = 'legend-item' + (chart.getDataVisibility(i) ? '' : ' is-hidden');
+
+                const left = document.createElement('div');
+                left.className = 'legend-left';
+
+                const swatch = document.createElement('span');
+                swatch.className = 'legend-swatch';
+                swatch.style.background = bgColors[i] || '#111827';
+
+                const text = document.createElement('span');
+                text.className = 'legend-label';
+                text.textContent = label;
+
+                const pill = document.createElement('span');
+                pill.className = 'legend-pill';
+                pill.style.background = bgColors[i] || '#111827';
+                // Jika mau pill %:
+                // pill.textContent = `${pct}%`;
+                // Jika mau pill angka (seperti gambar 2):
+                pill.textContent = fmt(v);
+
+                left.appendChild(swatch);
+                left.appendChild(text);
+
+                item.appendChild(left);
+                item.appendChild(pill);
+
+                item.addEventListener('click', () => {
+                  chart.toggleDataVisibility(i);
+                  chart.update();
+                });
+
+                legendEl.appendChild(item);
+              }
+            }
+          };
+
+          if (pendidikanChartInstance) pendidikanChartInstance.destroy();
+
+          pendidikanChartInstance = new Chart(ctx, {
+            type: 'doughnut',
+            plugins: [htmlLegendPlugin,legendTotalTextPlugin], // plugin custom legend
+            data: {
+              labels,
+              datasets: [{
+                data: values,
+                backgroundColor: bgColors,
+                borderWidth: 1,
+                spacing: 7
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              cutout: '45%',
+              radius: '85%',
+              layout: { padding: { top: 25, bottom: 16, left: 16, right: 16 } },
+              plugins: {
+                legend: { display: false },
+                legendTotalText: {
+                  total: totalSertifikasi,
+                  paddingRight: 10,
+                  color: '#334155',
+                  font: '700 12px Inter, sans-serif'
+                }, // matikan legend bawaan (karena pakai HTML)
+                tooltip: {
+                  callbacks: {
+                    label: (ctx) => {
+                      const v = Number(ctx.raw) || 0;
+                      const total = (ctx.dataset.data || []).reduce((a, b) => a + (Number(b) || 0), 0);
+                      const pct = total ? ((v / total) * 100).toFixed(1) : '0.0';
+                      return `${ctx.label}: ${fmt(v)} (${pct}%)`;
+                    }
+                  }
+                },
+                datalabels: { display: false } // tidak pakai datalabels di donut
+              }
+            }
+          });
+        }
+
+        /**
+         * =================BAR CHART HORIZONTAL – TOP 5 Skema Sertifikasi
+         */
+        function renderSkemaChart(data) {
+          const canvas = document.getElementById('skemaChart');
+          if (!canvas) return;
+          const ctx = canvas.getContext('2d');
+
+          if (skemaChartInstance) skemaChartInstance.destroy();
+
+          const skemaLabels = data?.skemaLabels || [];
+          const skemaValues = data?.skemaValues || [];
+
+          // ===== Gabungkan semua data =====
+          const combined = skemaLabels.map((label, i) => ({
+            name: label,
+            count: Number(skemaValues[i]) || 0
+          }));
+
+          // ===== TOTAL SEMUA SKEMA (SEBELUM TOP 5) =====
+          const totalSemuaSkema = combined.reduce(
+            (sum, item) => sum + item.count,
+            0
+          );
+
+          // ===== Ambil TOP 5 untuk ditampilkan =====
+          const top5 = [...combined]
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 5);
+
+          const labels = top5.map(x => x.name);
+          const values = top5.map(x => x.count);
+
+          skemaChartInstance = new Chart(ctx, {
+            type: 'bar',
+            plugins: [ChartDataLabels, legendTotalTextPlugin],
+            data: {
+              labels,
+              datasets: [{
+                label: 'Jumlah Peserta',
+                data: values,
+                backgroundColor: 'rgba(153,183,246)',
+                borderColor: '#99b7f6',
+                borderWidth: 2,
+                borderRadius: 6,
+                maxBarThickness: 40
+              }]
+            },
+            options: {
+              indexAxis: 'y',
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  display: true,
+                  position: 'top'
+                },
+
+                // ===== Total SEMUA skema (meski yang tampil TOP 5) =====
+                legendTotalText: {
+                  total: totalSemuaSkema,
+                  paddingRight: 8,
+                  color: '#334155',
+                  font: '700 12px Inter, sans-serif'
+                },
+
+                datalabels: {
+                  display: true,
+                  anchor: 'end',
+                  align: 'right',
+                  offset: 10,
+                  color: '#111827',
+                  font: { weight: 'bold', size: 12 },
+                  formatter: v => Number(v).toLocaleString('id-ID')
+                },
+
+                tooltip: {
+                  backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                  padding: 10,
+                  callbacks: {
+                    label: (ctx) =>
+                      `Jumlah Peserta: ${Number(ctx.raw).toLocaleString('id-ID')}`
+                  }
+                }
+              },
+              scales: {
+                x: {
+                  beginAtZero: true,
+                  grid: { color: 'transparent' },
+                  ticks: { precision: 0 }
+                },
+                y: {
+                  grid: { display: false },
+                  ticks: {
+                    autoSkip: false,
+                    font: { size: 11 }
+                  }
+                }
+              }
+            }
+          });
+        }
+
+        // ============== Tabel Skema ================
+        function renderSkemaTable(data) {
+          const tableBody = document.getElementById('skema-table-body');
+          if (!tableBody) return;
+
+          tableBody.innerHTML = '';
+
+          data.skemaTable.forEach(r => {
+            const row = `
+              <tr class="border-b">
+                <td class="p-2">${r.skema}</td>
+                <td class="p-2 text-center">${r.jumlah}</td>
+                <td class="p-2 text-center text-blue-900 font-semibold">${r.lulus}</td>
+                <td class="p-2 text-center text-blue-300 font-semibold">${r.tidakLulus}</td>
+              </tr>
+            `;
+            tableBody.innerHTML += row;
+          });
+        }
+
+        // ====================================================
+        // ============Render data sertifikasi ke HTML
+        // ====================================================
+        function renderSertifikasiData(data) {
+          document.getElementById('loading-indicator').style.display = 'none';
+          document.getElementById('ringkasan-stats').style.display = 'block';
+
+          if (data.status === 'error') return;
+
+          // Debug jika perlu
+          console.log('DATA DARI APPS SCRIPT:', data);
+
+          // Statistik ringkasan
+          document.getElementById('laki-laki').textContent       = data.pesertaValues[0] || 0;
+          document.getElementById('perempuan').textContent       = data.pesertaValues[1] || 0;
+          document.getElementById('sudah-apl').textContent       = data.pesertaValues[2] || 0;
+          document.getElementById('lulus-ujk').textContent       = data.pesertaValues[3] || 0;
+          document.getElementById('belum-lulus-ujo').textContent = data.pesertaValues[4] || 0;
+          document.getElementById('total-peserta').textContent   = data.pesertaValues[5] || 0;
+
+          // Render semua komponen
+          renderTukChart(data);
+          renderPendidikanChart(data);
+          renderSkemaChart(data);
+          renderSkemaTable(data);
+        }
+
+        function handleError(error) {
+          document.getElementById('loading-indicator').style.display = 'none';
+          const wrap = document.getElementById('ringkasan-stats');
+          wrap.style.display = 'block';
+          wrap.innerHTML =
+            '<div class="text-center p-8 bg-red-100 text-red-700 rounded-lg">' +
+            'Gagal memuat data dari Spreadsheet. Error: ' + error.message +
+            '</div>';
+          console.error('Error saat memanggil Apps Script:', error);
+        }
+
+        // Auto load ketika halaman siap
+        document.addEventListener('DOMContentLoaded', loadSertifikasiData);
+        document.addEventListener('DOMContentLoaded', () => {
+            const footerYear = document.getElementById('footer-year');
+            if (footerYear && ACTIVE_YEAR) {
+                footerYear.textContent = ACTIVE_YEAR;
+            };
+            const y = document.getElementById('year-label');
+                if (y) y.textContent = ACTIVE_YEAR;
+        });
+    </script>
+</body>
+</html>

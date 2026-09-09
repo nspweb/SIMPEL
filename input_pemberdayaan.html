@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Input Pemberdayaan & Penempatan - SIMPEL BPVP Kendari 2026</title>
+
+  <!-- Tailwind CSS, SweetAlert2 & Fonts -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f3f4f6;
+    }
+    .header {
+      background-color: #2C4C63; /* Navy SIMPEL */
+      color: white;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    .card-content {
+      background-color: white;
+      border-radius: 0.75rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card-content:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+    }
+    .nav-active {
+      border-bottom: 3px solid #f97316;
+      color: #ffedd5;
+      background-color: #4b5563;
+    }
+    .tab-active {
+      border-bottom: 3px solid #f97316;
+      color: #ea580c;
+      font-weight: 700;
+    }
+    .input-field {
+      background-color: #ffffff;
+      border: 1px solid #cbd5e1;
+      transition: all 0.2s ease;
+    }
+    .input-field:focus {
+      border-color: #ea580c;
+      box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15);
+      outline: none;
+    }
+    .row-zebra:nth-child(even) { background-color: #f8fafc; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- ========================================================================= -->
+  <!-- HEADER & UNIFIED NAVBAR -->
+  <!-- ========================================================================= -->
+  <header class="header p-4 lg:px-8 sticky top-0 z-30">
+    <div class="flex items-center justify-between w-full max-w-7xl mx-auto">
+      
+      <!-- KIRI: Logo Kemnaker -->
+      <div class="flex items-center space-x-3">
+        <img src="https://bpvpkendari.kemnaker.go.id/storage/upload/setting/11749712002.png"
+             alt="Logo Kemnaker"
+             class="h-10 w-10 object-contain rounded-lg border-2 border-white bg-white p-1 shadow-xs" />
+        <div>
+          <h3 class="text-lg lg:text-xl font-extrabold tracking-tight">Sistem Informasi Pelatihan (SIMPEL)</h3>
+          <p class="text-[11px] text-orange-200 font-medium tracking-wide">BPVP KENDARI &bull; WORKSPACE PEMBERDAYAAN</p>
+        </div>
+      </div>
+
+      <!-- DESKTOP NAV -->
+      <div class="hidden lg:flex lg:items-center lg:space-x-6">
+        <nav class="flex space-x-4 text-sm font-medium">
+          <a id="nav-home" href="#" class="py-2 px-3 rounded-lg hover:bg-gray-700 transition">Home</a>
+          
+          <!-- Dropdown Pelatihan -->
+          <div class="relative group">
+            <button class="py-2 px-3 rounded-lg hover:bg-gray-700 transition inline-flex items-center" type="button">
+              Pelatihan
+              <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div class="absolute left-0 top-full pt-2 w-48 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+              <div class="bg-gray-800 rounded-lg shadow-lg py-1">
+                <a id="nav-pelatihan-uptp" href="#" class="block px-4 py-2 hover:bg-gray-700 text-white">Pelatihan UPTP</a>
+                <a id="nav-pelatihan-uptd" href="#" class="block px-4 py-2 hover:bg-gray-700 text-white">Pelatihan UPTD</a>
+              </div>
+            </div>
+          </div>
+
+          <a id="nav-sertifikasi" href="#" class="py-2 px-3 rounded-lg hover:bg-gray-700 transition">Sertifikasi</a>
+          <a id="nav-produktivitas" href="#" class="py-2 px-3 rounded-lg hover:bg-gray-700 transition">Produktivitas</a>
+          <a id="nav-penempatan" href="#" class="py-2 px-3 rounded-lg nav-active transition">Penempatan</a>
+          <a id="nav-umum" href="#" class="py-2 px-3 rounded-lg hover:bg-gray-700 transition">Umum</a>
+          <a id="nav-portal" href="#" class="py-2 px-3 rounded-lg bg-orange-700 text-white hover:bg-orange-600 transition flex items-center gap-1.5 font-bold">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span>Workspace</span>
+          </a>
+        </nav>
+
+        <!-- LOGOUT -->
+        <button onclick="handleLogout()" class="px-3 py-1.5 text-xs font-semibold rounded-md text-white bg-red-600 hover:bg-red-700 transition shadow-sm">
+          Keluar
+        </button>
+      </div>
+
+      <!-- MOBILE HAMBURGER -->
+      <button class="lg:hidden p-2 rounded-md hover:bg-gray-700 text-white" onclick="toggleMobileMenu()">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- MOBILE MENU -->
+    <div id="mobile-menu" class="hidden flex-col w-full mt-3 lg:hidden pt-3 border-t border-gray-600 text-sm">
+      <a id="m-nav-home" href="#" class="py-2 px-3 rounded-lg hover:bg-gray-700">Home</a>
+      <a id="m-nav-pelatihan-uptp" href="#" class="py-2 px-3 rounded-lg hover:bg-gray-700">Pelatihan UPTP</a>
+      <a id="m-nav-pelatihan-uptd" href="#" class="py-2 px-3 rounded-lg hover:bg-gray-700">Pelatihan UPTD</a>
+      <a id="m-nav-sertifikasi" href="#" class="py-2 px-3 rounded-lg hover:bg-gray-700">Sertifikasi</a>
+      <a id="m-nav-produktivitas" href="#" class="py-2 px-3 rounded-lg hover:bg-gray-700">Produktivitas</a>
+      <a id="m-nav-penempatan" href="#" class="py-2 px-3 rounded-lg bg-gray-700 text-white font-bold">Penempatan</a>
+      <a id="m-nav-umum" href="#" class="py-2 px-3 rounded-lg hover:bg-gray-700">Umum</a>
+      <a id="m-nav-portal" href="#" class="py-2 px-3 rounded-lg bg-orange-700 text-white font-bold">Workspace</a>
+      <button onclick="handleLogout()" class="mt-2 text-left py-2 px-3 rounded-lg text-red-300 hover:bg-red-800">Keluar</button>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- MAIN CONTENT -->
+  <!-- ========================================================================= -->
+  <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+
+    <!-- TOP BREADCRUMB & BANNER -->
+    <div class="card-content p-5 sm:p-6 border-l-4 border-orange-600 bg-white">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="min-w-0">
+          <div class="flex items-center gap-2 text-xs font-semibold text-orange-800 uppercase tracking-wider mb-1">
+            <span>MODUL INPUT</span> &bull; <span>TIM PEMBERDAYAAN & PENEMPATAN</span> &bull; <span>TAHUN 2026</span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Manajemen Peserta & Data Penempatan</h1>
+          <p class="text-xs sm:text-sm text-slate-600 mt-1">
+            <strong>Tanggung Jawab:</strong> Mengisi data peserta program dari Penyelenggara, mengelola Master Data Penempatan Kerja/Mitra, dan Data BNBA Peserta.
+          </p>
+        </div>
+
+        <div class="flex items-center gap-3 shrink-0 self-start md:self-center">
+          <div class="text-left md:text-right">
+            <div class="text-xs font-bold text-slate-800 leading-tight" id="user-display-name">Tim Pemberdayaan</div>
+            <div class="mt-1">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide bg-orange-50 text-orange-700 border border-orange-200 uppercase whitespace-nowrap">
+                Role: Pemberdayaan
+              </span>
+            </div>
+          </div>
+          <a id="btn-view-penempatan" href="#" class="px-3.5 py-2 rounded-lg text-xs font-bold text-white bg-slate-800 hover:bg-slate-900 transition inline-flex items-center gap-2 shadow-xs whitespace-nowrap">
+            <svg class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            <span>Dashboard Penempatan</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS CARDS -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="card-content p-4 border-t-2 border-purple-600">
+        <p class="text-[11px] font-semibold text-purple-700 uppercase">Inbox Peserta</p>
+        <p id="stat-inbox" class="text-2xl font-black text-purple-700 mt-1">0</p>
+        <p class="text-[10px] text-purple-500 mt-0.5">Program perlu diisi peserta</p>
+      </div>
+      <div class="card-content p-4 border-t-2 border-emerald-600">
+        <p class="text-[11px] font-semibold text-emerald-700 uppercase">Peserta Terisi</p>
+        <p id="stat-selesai-isi" class="text-2xl font-black text-emerald-700 mt-1">0</p>
+        <p class="text-[10px] text-emerald-500 mt-0.5">Diteruskan ke Penyelenggara</p>
+      </div>
+      <div class="card-content p-4 border-t-2 border-teal-600">
+        <p class="text-[11px] font-semibold text-teal-700 uppercase">Total Ditempatkan</p>
+        <p id="stat-total-penempatan" class="text-2xl font-black text-teal-800 mt-1">546</p>
+        <p class="text-[10px] text-teal-500 mt-0.5">Bekerja & Berwirausaha</p>
+      </div>
+      <div class="card-content p-4 border-t-2 border-orange-600">
+        <p class="text-[11px] font-semibold text-orange-700 uppercase">Total BNBA</p>
+        <p id="stat-total-bnba" class="text-2xl font-black text-orange-700 mt-1">1.970</p>
+        <p class="text-[10px] text-orange-500 mt-0.5">Data rincian individu</p>
+      </div>
+    </div>
+
+    <!-- MAIN TABS -->
+    <div class="card-content bg-white p-2 sm:p-3">
+      <div class="flex items-center gap-2 sm:gap-6 border-b border-slate-200 overflow-x-auto">
+        <button onclick="switchTab('peserta')" id="tab-peserta" class="tab-btn tab-active py-3 px-4 text-xs sm:text-sm whitespace-nowrap transition">
+          1. Data Peserta Pelatihan (Tahap 2)
+        </button>
+        <button onclick="switchTab('penempatan')" id="tab-penempatan" class="tab-btn py-3 px-4 text-xs sm:text-sm text-slate-600 hover:text-slate-900 whitespace-nowrap transition">
+          2. Master Data Penempatan (File 2)
+        </button>
+        <button onclick="switchTab('bnba')" id="tab-bnba" class="tab-btn py-3 px-4 text-xs sm:text-sm text-slate-600 hover:text-slate-900 whitespace-nowrap transition">
+          3. Data BNBA Peserta
+        </button>
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- TAB 1: INBOX DATA PESERTA PELATIHAN -->
+      <!-- ===================================================================== -->
+      <div id="content-peserta" class="p-4 sm:p-6 space-y-6">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900">Pengisian Data Peserta Pelatihan BPVP 2026</h2>
+            <p class="text-xs text-slate-500">Pilih program yang dikirimkan oleh <strong>Penyelenggara</strong>, isi rincian peserta, lalu oper kembali untuk dijadwalkan.</p>
+          </div>
+          <span class="text-xs font-semibold px-2.5 py-1 rounded bg-orange-50 text-orange-800 border border-orange-200">Tahap 2: Pemberdayaan</span>
+        </div>
+
+        <!-- Selector Program -->
+        <div class="p-4 rounded-xl bg-orange-50/50 border border-orange-200">
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Pilih Program dari Antrean Penyelenggara</label>
+          <select id="pemb-select-program" onchange="onSelectProgramForPeserta(this.value)" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm bg-white font-medium">
+            <option value="">-- Pilih program pelatihan --</option>
+          </select>
+        </div>
+
+        <form id="form-peserta" onsubmit="handleSavePeserta(event)" class="space-y-6">
+          <input type="hidden" id="pemb-row-index" />
+
+          <!-- Info Box Program Terpilih -->
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+            <div>
+              <span class="text-slate-500 block">Kejuruan:</span>
+              <strong id="info-kejuruan" class="text-slate-800 text-sm">-</strong>
+            </div>
+            <div class="md:col-span-2">
+              <span class="text-slate-500 block">Program Pelatihan:</span>
+              <strong id="info-program" class="text-slate-800 text-sm font-bold">-</strong>
+            </div>
+          </div>
+
+          <!-- Section A: Gender & Total -->
+          <div>
+            <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3">A. Rincian Gender & Jumlah Peserta</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Perempuan <span class="text-red-500">*</span></label>
+                <input type="number" id="pemb-perempuan" required oninput="calcTotal()" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="0" min="0" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Laki-Laki <span class="text-red-500">*</span></label>
+                <input type="number" id="pemb-laki" required oninput="calcTotal()" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="0" min="0" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-teal-800 mb-1">Total Peserta Pelatihan (Otomatis)</label>
+                <input type="number" id="pemb-total" readonly class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm bg-teal-50 font-black text-teal-900 border-teal-300" placeholder="0" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Section B: Pendidikan -->
+          <div>
+            <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3">B. Tingkat Pendidikan</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-1">S1 / D4</label>
+                <input type="number" id="pemb-s1" class="input-field w-full px-3 py-2 rounded-lg text-xs" placeholder="0" min="0" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-1">D3</label>
+                <input type="number" id="pemb-d3" class="input-field w-full px-3 py-2 rounded-lg text-xs" placeholder="0" min="0" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-1">SMA / SMK</label>
+                <input type="number" id="pemb-sma" class="input-field w-full px-3 py-2 rounded-lg text-xs" placeholder="0" min="0" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-1">SMP</label>
+                <input type="number" id="pemb-smp" class="input-field w-full px-3 py-2 rounded-lg text-xs" placeholder="0" min="0" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-1">SD</label>
+                <input type="number" id="pemb-sd" class="input-field w-full px-3 py-2 rounded-lg text-xs" placeholder="0" min="0" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Section C: Disabilitas & Usia -->
+          <div>
+            <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3">C. Disabilitas & Rentang Usia</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-6 gap-3">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Disabilitas</label>
+                <input type="number" id="pemb-disabilitas" class="input-field w-full px-3 py-2 rounded-lg text-xs" placeholder="0" min="0" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-1">U 17-24</label>
+                <input type="number" id="pemb-u17" class="input-field w-full px-3 py-2 rounded-lg text-xs" placeholder="0" min="0" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-1">U 25-28</label>
+                <input type="number" id="pemb-u25" class="input-field w-full px-3 py-2 rounded-lg text-xs" placeholder="0" min="0" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-1">U 29-34</label>
+                <input type="number" id="pemb-u29" class="input-field w-full px-3 py-2 rounded-lg text-xs" placeholder="0" min="0" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-1">U 35-40</label>
+                <input type="number" id="pemb-u35" class="input-field w-full px-3 py-2 rounded-lg text-xs" placeholder="0" min="0" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-1">U 41-dst</label>
+                <input type="number" id="pemb-u41" class="input-field w-full px-3 py-2 rounded-lg text-xs" placeholder="0" min="0" />
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+            <button type="submit" id="btn-save-peserta" class="px-6 py-2.5 rounded-lg text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 shadow-md transition inline-flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+              <span>Simpan & Oper ke Penyelenggara untuk Dimulai</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- TAB 2: MASTER DATA PENEMPATAN KERJA -->
+      <!-- ===================================================================== -->
+      <div id="content-penempatan" class="p-4 sm:p-6 space-y-6 hidden">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900">Input Data Penempatan Alumni (2. Master Data Penempatan 2026_.xlsx)</h2>
+            <p class="text-xs text-slate-500">Mencatat serapan alumni per kejuruan, wirausaha, serta mitra perusahaan penerima alumni.</p>
+          </div>
+        </div>
+
+        <form id="form-penempatan" onsubmit="handleSavePenempatan(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Kejuruan <span class="text-red-500">*</span></label>
+            <select id="pen-kejuruan" required class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm bg-white">
+              <option value="">-- Pilih Kejuruan --</option>
+              <option value="Otomotif">Otomotif</option>
+              <option value="Tata Kecantikan">Tata Kecantikan</option>
+              <option value="Las">Las</option>
+              <option value="Teknologi Informasi Dan Komunikasi">Teknologi Informasi Dan Komunikasi</option>
+              <option value="Bisnis Dan Manajemen">Bisnis Dan Manajemen</option>
+              <option value="Bangunan">Bangunan</option>
+              <option value="Listrik">Listrik</option>
+              <option value="Elektronika">Elektronika</option>
+              <option value="Pariwisata">Pariwisata</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Jumlah Peserta Pelatihan</label>
+            <input type="number" id="pen-peserta" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="0" min="0" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Total Penempatan</label>
+            <input type="number" id="pen-total" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="0" min="0" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Ditempatkan / Bekerja</label>
+            <input type="number" id="pen-bekerja" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="0" min="0" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Berwirausaha</label>
+            <input type="number" id="pen-wirausaha" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="0" min="0" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Tidak Ditempatkan</label>
+            <input type="number" id="pen-tidak" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="0" min="0" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nama Perusahaan Mitra</label>
+            <input type="text" id="pen-perusahaan" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="PT. MBA / CV Anugerah" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Sektor Industri</label>
+            <input type="text" id="pen-sektor" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="Pertambangan / Jasa / Perbankan" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Alumni Ditempatkan di Mitra Ini</label>
+            <input type="number" id="pen-alumni" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="0" min="0" />
+          </div>
+
+          <div class="md:col-span-2 lg:col-span-3 flex justify-end gap-3 pt-4 border-t border-slate-100">
+            <button type="submit" id="btn-save-penempatan" class="px-6 py-2.5 rounded-lg text-xs font-bold text-white bg-teal-700 hover:bg-teal-800 shadow-md transition inline-flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+              <span>Simpan Data Penempatan</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- TAB 3: DATA BNBA PESERTA -->
+      <!-- ===================================================================== -->
+      <div id="content-bnba" class="p-4 sm:p-6 space-y-6 hidden">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900">Input Data BNBA Peserta Pelatihan & Penempatan</h2>
+            <p class="text-xs text-slate-500">Mencatat rincian per individu alumni (By Name By Address).</p>
+          </div>
+        </div>
+
+        <form id="form-bnba" onsubmit="handleSaveBnba(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nama Lengkap Peserta <span class="text-red-500">*</span></label>
+            <input type="text" id="bnba-nama" required class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="Nama Peserta" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Jenis Kelamin <span class="text-red-500">*</span></label>
+            <select id="bnba-gender" required class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm bg-white">
+              <option value="L">Laki-Laki (L)</option>
+              <option value="P">Perempuan (P)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Kabupaten / Kota Domisili</label>
+            <input type="text" id="bnba-kabupaten" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="Kendari / Konawe / dll" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Pendidikan Terakhir</label>
+            <select id="bnba-pendidikan" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm bg-white">
+              <option value="SMA / SMK">SMA / SMK</option>
+              <option value="S1 / D4">S1 / D4</option>
+              <option value="D3">D3</option>
+              <option value="SMP">SMP</option>
+              <option value="SD">SD</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Program Pelatihan</label>
+            <input type="text" id="bnba-program" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="Operator Track Excavator / dll" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Kejuruan</label>
+            <input type="text" id="bnba-kejuruan" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="Otomotif / TIK / dll" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Status Kelulusan</label>
+            <select id="bnba-lulus" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm bg-white">
+              <option value="Lulus">Lulus</option>
+              <option value="Tidak Lulus">Tidak Lulus</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Status Bekerja</label>
+            <select id="bnba-bekerja" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm bg-white">
+              <option value="Bekerja">Bekerja</option>
+              <option value="Berwirausaha">Berwirausaha</option>
+              <option value="Belum Bekerja">Belum Bekerja</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Perusahaan / Usaha</label>
+            <input type="text" id="bnba-perusahaan" class="input-field w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="PT. MBA / Usaha Sendiri" />
+          </div>
+
+          <div class="md:col-span-2 lg:col-span-3 flex justify-end gap-3 pt-4 border-t border-slate-100">
+            <button type="submit" id="btn-save-bnba" class="px-6 py-2.5 rounded-lg text-xs font-bold text-white bg-teal-700 hover:bg-teal-800 shadow-md transition inline-flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+              <span>Simpan Data BNBA</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT LOGIC -->
+  <!-- ========================================================================= -->
+  <script>
+    const APP_URL = '<?= typeof ScriptApp !== "undefined" ? ScriptApp.getService().getUrl() : "" ?>';
+    const ACTIVE_YEAR = '<?= typeof ACTIVE_YEAR !== "undefined" ? ACTIVE_YEAR : "2026" ?>';
+    const AUTH_TOKEN = '<?= typeof AUTH_TOKEN !== "undefined" ? AUTH_TOKEN : "" ?>';
+
+    let dbPelatihan = [];
+
+    function setupLinks() {
+      const year = ACTIVE_YEAR || '2026';
+      const token = AUTH_TOKEN || localStorage.getItem('authToken') || '';
+      const base = APP_URL || '#';
+
+      const map = {
+        'nav-home': `${base}?page=dashboard&year=${year}&token=${encodeURIComponent(token)}`,
+        'nav-pelatihan-uptp': `${base}?page=pelatihan&year=${year}&token=${encodeURIComponent(token)}`,
+        'nav-pelatihan-uptd': `${base}?page=pelatihan_uptd&year=${year}&token=${encodeURIComponent(token)}`,
+        'nav-sertifikasi': `${base}?page=sertifikasi&year=${year}&token=${encodeURIComponent(token)}`,
+        'nav-produktivitas': `${base}?page=produktivitas&year=${year}&token=${encodeURIComponent(token)}`,
+        'nav-penempatan': `${base}?page=penempatan&year=${year}&token=${encodeURIComponent(token)}`,
+        'nav-umum': `${base}?page=umum&year=${year}&token=${encodeURIComponent(token)}`,
+        'nav-portal': `${base}?page=portal&year=${year}&token=${encodeURIComponent(token)}`,
+        'btn-view-penempatan': `${base}?page=penempatan&year=${year}&token=${encodeURIComponent(token)}`,
+        'm-nav-home': `${base}?page=dashboard&year=${year}&token=${encodeURIComponent(token)}`,
+        'm-nav-pelatihan-uptp': `${base}?page=pelatihan&year=${year}&token=${encodeURIComponent(token)}`,
+        'm-nav-pelatihan-uptd': `${base}?page=pelatihan_uptd&year=${year}&token=${encodeURIComponent(token)}`,
+        'm-nav-sertifikasi': `${base}?page=sertifikasi&year=${year}&token=${encodeURIComponent(token)}`,
+        'm-nav-produktivitas': `${base}?page=produktivitas&year=${year}&token=${encodeURIComponent(token)}`,
+        'm-nav-penempatan': `${base}?page=penempatan&year=${year}&token=${encodeURIComponent(token)}`,
+        'm-nav-umum': `${base}?page=umum&year=${year}&token=${encodeURIComponent(token)}`,
+        'm-nav-portal': `${base}?page=portal&year=${year}&token=${encodeURIComponent(token)}`
+      };
+
+      for (let id in map) {
+        const el = document.getElementById(id);
+        if (el) el.href = map[id];
+      }
+    }
+
+    function toggleMobileMenu() {
+      const m = document.getElementById('mobile-menu');
+      m.classList.toggle('hidden');
+      m.classList.toggle('flex');
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.className = 'tab-btn py-3 px-4 text-xs sm:text-sm text-slate-600 hover:text-slate-900 whitespace-nowrap transition');
+      document.getElementById('tab-' + tabId).className = 'tab-btn tab-active py-3 px-4 text-xs sm:text-sm whitespace-nowrap transition';
+
+      document.getElementById('content-peserta').classList.add('hidden');
+      document.getElementById('content-penempatan').classList.add('hidden');
+      document.getElementById('content-bnba').classList.add('hidden');
+
+      document.getElementById('content-' + tabId).classList.remove('hidden');
+    }
+
+    function calcTotal() {
+      const p = Number(document.getElementById('pemb-perempuan').value) || 0;
+      const l = Number(document.getElementById('pemb-laki').value) || 0;
+      document.getElementById('pemb-total').value = p + l;
+    }
+
+    function loadPrograms() {
+      const email = localStorage.getItem('userEmail') || 'pemberdayaan@kemnaker.go.id';
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(res => {
+            if (res.status === 'success' && res.records) {
+              dbPelatihan = res.records;
+              populateInbox(res.records);
+              updateStats(res.records);
+            }
+          })
+          .getModuleRecords(email, 'program_pelatihan', ACTIVE_YEAR, AUTH_TOKEN);
+      } else {
+        dbPelatihan = [
+          { _rowIndex: 2, NO: 1, KEJURUAN: 'Listrik', 'PROGRAM PELATIHAN': 'Pemasangan Sistim Integrasi Bangunan Cerdas 1', _stage: 'SELESAI', PEREMPUAN: 1, 'LAKI-LAKI': 7, 'JUMLAH PESERTA PELATIHAN': 8 },
+          { _rowIndex: 3, NO: 2, KEJURUAN: 'Listrik', 'PROGRAM PELATIHAN': 'Pemasangan Sistim Integrasi Bangunan Cerdas 2', _stage: 'MENUNGGU_PESERTA', PEREMPUAN: '', 'LAKI-LAKI': '', 'JUMLAH PESERTA PELATIHAN': '' },
+          { _rowIndex: 4, NO: 3, KEJURUAN: 'Elektronika', 'PROGRAM PELATIHAN': 'Smart Farming 1', _stage: 'SIAP_DIMULAI', PEREMPUAN: 6, 'LAKI-LAKI': 10, 'JUMLAH PESERTA PELATIHAN': 16 }
+        ];
+        populateInbox(dbPelatihan);
+        updateStats(dbPelatihan);
+      }
+    }
+
+    function populateInbox(records) {
+      const select = document.getElementById('pemb-select-program');
+      select.innerHTML = '<option value="">-- Pilih program pelatihan --</option>';
+      records.forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r._rowIndex;
+        const status = r._stage === 'MENUNGGU_PESERTA' ? 'Menunggu Diisi' : 'Peserta Terisi';
+        opt.textContent = `[#${r.NO || r._rowIndex}] ${r.KEJURUAN || '-'} - ${r['PROGRAM PELATIHAN'] || '-'} (${status})`;
+        select.appendChild(opt);
+      });
+    }
+
+    function onSelectProgramForPeserta(rowIndex) {
+      const row = dbPelatihan.find(r => String(r._rowIndex) === String(rowIndex));
+      if (!row) return;
+
+      document.getElementById('pemb-row-index').value = row._rowIndex;
+      document.getElementById('info-kejuruan').textContent = row.KEJURUAN || '-';
+      document.getElementById('info-program').textContent = row['PROGRAM PELATIHAN'] || '-';
+
+      document.getElementById('pemb-perempuan').value = row.PEREMPUAN || '';
+      document.getElementById('pemb-laki').value = row['LAKI-LAKI'] || '';
+      document.getElementById('pemb-total').value = row['JUMLAH PESERTA PELATIHAN'] || '';
+    }
+
+    function updateStats(records) {
+      const waiting = records.filter(r => r._stage === 'MENUNGGU_PESERTA').length;
+      const filled = records.filter(r => r._stage !== 'MENUNGGU_PESERTA').length;
+      document.getElementById('stat-inbox').textContent = waiting;
+      document.getElementById('stat-selesai-isi').textContent = filled;
+    }
+
+    const defaultBtnPembHtml = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg><span>Simpan & Oper ke Penyelenggara untuk Dimulai</span>';
+
+    function handleSavePeserta(e) {
+      e.preventDefault();
+      const rowIndex = document.getElementById('pemb-row-index').value;
+      if (!rowIndex) {
+        Swal.fire({ icon: 'warning', title: 'Pilih Program', text: 'Silakan pilih program dari daftar antrean.' });
+        return;
+      }
+
+      const email = localStorage.getItem('userEmail') || 'pemberdayaan@kemnaker.go.id';
+      const female = Number(document.getElementById('pemb-perempuan').value) || 0;
+      const male = Number(document.getElementById('pemb-laki').value) || 0;
+      const total = Number(document.getElementById('pemb-total').value) || (female + male);
+
+      const data = {
+        'JUMLAH PESERTA PELATIHAN': total,
+        PEREMPUAN: female,
+        'LAKI-LAKI': male
+      };
+
+      const btn = document.getElementById('btn-save-peserta');
+      btn.disabled = true;
+      btn.innerHTML = 'Menyimpan...';
+
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(res => {
+            btn.disabled = false;
+            btn.innerHTML = defaultBtnPembHtml;
+            if (res.status === 'success') {
+              Swal.fire({ icon: 'success', title: 'Data Peserta Tersimpan!', text: res.message, confirmButtonColor: '#ea580c' });
+              loadPrograms();
+            } else {
+              Swal.fire({ icon: 'error', title: 'Gagal', text: res.message });
+            }
+          })
+          .withFailureHandler(err => {
+            btn.disabled = false;
+            btn.innerHTML = defaultBtnPembHtml;
+            Swal.fire({ icon: 'error', title: 'Kesalahan Server', text: err.message });
+          })
+          .updatePesertaPemberdayaan(email, ACTIVE_YEAR, Number(rowIndex), data, AUTH_TOKEN);
+      } else {
+        const row = dbPelatihan.find(r => String(r._rowIndex) === String(rowIndex));
+        if (row) {
+          row['JUMLAH PESERTA PELATIHAN'] = total;
+          row.PEREMPUAN = female;
+          row['LAKI-LAKI'] = male;
+          row._stage = 'SIAP_DIMULAI';
+        }
+        btn.disabled = false;
+        btn.innerHTML = defaultBtnPembHtml;
+        Swal.fire({ icon: 'success', title: 'Peserta Disimpan (Lokal)', text: 'Data peserta telah dioper kembali ke Penyelenggara untuk dijadwalkan.', confirmButtonColor: '#ea580c' });
+        loadPrograms();
+      }
+    }
+
+    function handleSavePenempatan(e) {
+      e.preventDefault();
+      const email = localStorage.getItem('userEmail') || 'pemberdayaan@kemnaker.go.id';
+      const values = {
+        No: '',
+        Kejuruan: document.getElementById('pen-kejuruan').value,
+        'Jumlah Peserta Pelatihan': document.getElementById('pen-peserta').value,
+        'Total Penempatan': document.getElementById('pen-total').value,
+        'Ditempatkan / Bekerja': document.getElementById('pen-bekerja').value,
+        'Tidak Ditempatkan': document.getElementById('pen-tidak').value,
+        Berwirausaha: document.getElementById('pen-wirausaha').value,
+        'Nama Perusahaan': document.getElementById('pen-perusahaan').value,
+        Sektor: document.getElementById('pen-sektor').value,
+        'Jumlah Alumni Yang Ditempatkan': document.getElementById('pen-alumni').value
+      };
+
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(res => {
+            if (res.status === 'success') {
+              Swal.fire({ icon: 'success', title: 'Tersimpan!', text: res.message, confirmButtonColor: '#0f766e' });
+              document.getElementById('form-penempatan').reset();
+            } else Swal.fire({ icon: 'error', title: 'Gagal', text: res.message });
+          })
+          .saveInputRecord(email, 'penempatan', ACTIVE_YEAR, values, AUTH_TOKEN);
+      } else {
+        Swal.fire({ icon: 'success', title: 'Tersimpan (Lokal)', text: 'Data penempatan berhasil disimpan.', confirmButtonColor: '#0f766e' });
+        document.getElementById('form-penempatan').reset();
+      }
+    }
+
+    function handleSaveBnba(e) {
+      e.preventDefault();
+      const email = localStorage.getItem('userEmail') || 'pemberdayaan@kemnaker.go.id';
+      const values = {
+        Name: document.getElementById('bnba-nama').value,
+        Gender: document.getElementById('bnba-gender').value,
+        'Kabupaten/Kota': document.getElementById('bnba-kabupaten').value,
+        Pendidikan: document.getElementById('bnba-pendidikan').value,
+        'Name Program Pelatihan': document.getElementById('bnba-program').value,
+        'Name Kejuruan': document.getElementById('bnba-kejuruan').value,
+        'Lulus/ Tidak Lulus': document.getElementById('bnba-lulus').value,
+        Bekerja: document.getElementById('bnba-bekerja').value,
+        'Perusahaan/Instansi/Usaha': document.getElementById('bnba-perusahaan').value
+      };
+
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(res => {
+            if (res.status === 'success') {
+              Swal.fire({ icon: 'success', title: 'Tersimpan!', text: res.message, confirmButtonColor: '#0f766e' });
+              document.getElementById('form-bnba').reset();
+            } else Swal.fire({ icon: 'error', title: 'Gagal', text: res.message });
+          })
+          .saveInputRecord(email, 'bnba', ACTIVE_YEAR, values, AUTH_TOKEN);
+      } else {
+        Swal.fire({ icon: 'success', title: 'Tersimpan (Lokal)', text: 'Data BNBA berhasil disimpan.', confirmButtonColor: '#0f766e' });
+        document.getElementById('form-bnba').reset();
+      }
+    }
+
+    function handleLogout() {
+      localStorage.clear();
+      window.top.location.href = APP_URL || 'index.html';
+    }
+
+    window.onload = function() {
+      setupLinks();
+      loadPrograms();
+    };
+  </script>
+</body>
+</html>

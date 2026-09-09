@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js (HANYA 1x) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- DataLabels (HANYA 1x) -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-piechart-outlabels"></script> -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+       body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .header {
+            background-color: #2C4C63;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .card-content {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow:
+                0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                0 2px 4px -2px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card-content:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 10px 15px -3px rgba(0, 0, 0, 0.1),
+                0 4px 6px -4px rgba(0, 0, 0, 0.05);
+        }
+        .nav-active {
+            border-bottom: 3px solid #f97316;
+            color: #ffedd5;
+            background-color: #4b5563;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+        .chart-card {
+        overflow: hidden;           /* mencegah keluar card */
+        }
+        .chart-wrap {
+        position: relative;
+        width: 100%;
+        height: 320px;              /* atur sesuai kebutuhan */
+        }
+        .chart-wrap canvas {
+        width: 100% !important;
+        height: 100% !important;
+        }
+        .pendidikan-wrap{
+        display:flex;
+        gap:24px;
+        align-items:center;
+        width:100%;
+        height:320px; /* sesuaikan */
+        }
+        .pendidikan-chart{
+        flex: 1 1 auto;
+        min-width: 260px;
+        height: 100%;
+        position: relative;
+        }
+        .pendidikan-legend{
+        flex: 0 0 220px;          /* lebih sempit */
+        display:flex;
+        flex-direction:column;
+        gap:8px;                 /* jarak antar item diperkecil */
+        }
+        .legend-item{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:6px;                 /* jarak kiri-kanan diperkecil */
+        }
+        .legend-left{
+        display:flex;
+        align-items:center;
+        gap:8px;                 /* jarak bullet ke teks */
+        }
+        .legend-swatch{
+        width:14px;              /* sedikit lebih kecil */
+        height:8px;
+        border-radius:6px;
+        }
+        .legend-label{
+        font-size:13px;
+        font-weight:500;
+        }
+        .legend-pill{
+        font-size:12px;
+        font-weight:700;
+        padding:4px 8px;         /* PENTING: ini yang bikin badge lebih dekat */
+        border-radius:999px;
+        min-width:48px;          /* optional: seragamkan lebar */
+        text-align:center;
+        }
+        .legend-item.is-hidden{
+        opacity:.45;
+        }
+        .loading {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen flex flex-col">
+        <!-- Header & Navigasi -->
+        <header class="header p-4 lg:px-8 sticky top-0 z-20">
+            <div class="flex items-center justify-between w-full">
+                <!-- Kiri: Logo & Nama -->
+                <div class="flex items-center space-x-3">
+                <img src="https://bpvpkendari.kemnaker.go.id/storage/upload/setting/11749712002.png"
+                    alt="Logo Kemnaker"
+                    class="h-10 w-10 object-contain rounded-lg border-2 border-white bg-white p-1" />
+                <h3 class="text-xl lg:text-2xl font-extrabold tracking-tight">
+                    Sistem Informasi Pelatihan (SIMPEL)
+                </h3>
+                </div>
+
+                <!-- Kanan: Menu + Logout (Desktop) -->
+                <div class="hidden lg:flex lg:items-center lg:space-x-6">
+                <nav class="flex space-x-6 text-base font-medium">
+                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=dashboard&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
+                    class="block px-4 py-2 hover:bg-gray-700 rounded-b-lg">
+                    Home
+                    </a>
+
+                    <!-- Dropdown Pelatihan -->
+                    <div class="relative group">
+                    <button type="button"
+                        class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-300 inline-flex items-center">
+                        Pelatihan
+                        <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+
+                    <div class="absolute left-0 top-full pt-2 w-48
+                                opacity-0 invisible
+                                group-hover:opacity-100 group-hover:visible
+                                transition-all duration-700 ease-in-out z-50">
+                        <div class="bg-gray-800 rounded-lg shadow-lg">
+                        <a href="<?= ScriptApp.getService().getUrl() ?>?page=pelatihan&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
+                            class="block px-4 py-2 hover:bg-gray-700 rounded-t-lg">
+                            Pelatihan UPTP
+                        </a>
+                        <a href="<?= ScriptApp.getService().getUrl() ?>?page=pelatihan_uptd&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
+                            class="block px-4 py-2 nav-active rounded-b-lg">
+                            Pelatihan UPTD
+                        </a>
+                        </div>
+                    </div>
+                    </div>
+
+                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=sertifikasi&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
+                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                    Sertifikasi
+                    </a>
+
+                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=produktivitas&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
+                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                    Produktivitas
+                    </a>
+
+                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=penempatan&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
+                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                    Penempatan
+                    </a>
+                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=umum&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
+                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                    Umum
+                    </a>
+                </nav>
+
+                <button onclick="handleLogout()"
+                    class="px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-green-100 bg-green-700 hover:bg-green-800 transition duration-150 shadow-md">
+                    Logout
+                </button>
+                </div>
+
+                <!-- Hamburger (Mobile) -->
+                <button id="menu-toggle"
+                class="lg:hidden p-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-white"
+                onclick="toggleMobileMenu()" type="button">
+                <svg id="icon-open" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+                <svg id="icon-close" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+                </button>
+            </div>
+
+            <!-- Menu Mobile -->
+            <div id="mobile-menu" class="hidden flex-col w-full mt-4 lg:hidden pt-4 border-t border-gray-600">
+                <nav class="flex flex-col space-y-2 text-base font-medium">
+                <a href="<?= ScriptApp.getService().getUrl() ?>?page=dashboard&year=<?= ACTIVE_YEAR ?>"
+                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                    Home
+                </a>
+
+                <!-- Pelatihan (Mobile Dropdown / Expand) -->
+                <button type="button"
+                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150 inline-flex items-center justify-between"
+                    onclick="toggleMobilePelatihan()">
+                    <span>Pelatihan</span>
+                    <svg id="mobile-pelatihan-chevron" class="w-4 h-4 transition-transform duration-150" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+
+                <div id="mobile-pelatihan-submenu" class="hidden pl-3">
+                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=pelatihan&year=<?= ACTIVE_YEAR ?>"
+                    class="block py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                    Pelatihan UPTP
+                    </a>
+                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=pelatihan_uptd&year=<?= ACTIVE_YEAR ?>"
+                    class="block py-2 px-3 rounded-lg nav-active transition duration-150">
+                    Pelatihan UPTD
+                    </a>
+                </div>
+
+                <a href="<?= ScriptApp.getService().getUrl() ?>?page=sertifikasi&year=<?= ACTIVE_YEAR ?>"
+                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                    Sertifikasi
+                </a>
+
+                <a href="<?= ScriptApp.getService().getUrl() ?>?page=produktivitas&year=<?= ACTIVE_YEAR ?>"
+                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                    Produktivitas
+                </a>
+
+                <a href="<?= ScriptApp.getService().getUrl() ?>?page=penempatan&year=<?= ACTIVE_YEAR ?>"
+                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                    Penempatan
+                </a>
+                <a href="<?= ScriptApp.getService().getUrl() ?>?page=umum&year=<?= ACTIVE_YEAR ?>"
+                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                    Umum
+                </a>
+                </nav>
+
+                <div class="mt-4">
+                <button onclick="handleLogout()"
+                    class="w-full px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-green-100 bg-green-700 hover:bg-green-800 transition duration-150 shadow-md">
+                    Logout
+                </button>
+                </div>
+            </div>
+        </header>
+
+
+        <!-- Konten Utama -->
+        <main class="flex-grow p-4 lg:p-8 flex justify-center">
+            <div class="w-full max-w-7xl space-y-8">
+                <!-- Banner -->
+                <div class="bg-indigo-600 p-6 rounded-lg text-white shadow-lg text-center sm:text-left">
+                    <p class="text-sm font-light">BALAI PELATIHAN VOKASI DAN PRODUKTIVITAS (BPVP) KENDARI</p>
+                    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold mt-1">
+                        DATA PESERTA PELATIHAN UPTD
+                    </h2>
+                    <p class="mt-3 text-sm sm:text-lg font-medium">
+                        Selamat datang di Portal SIMPEL <span id="year-label"></span> - A Nice Place to Grow.
+                    </p>
+                </div>
+
+                <!-- Loading -->
+                <div id="loading-indicator" class="text-center p-4" style="display: none;">
+                    <div class="loading"></div>
+                    <p class="text-gray-500 mt-2">Memuat data...</p>
+                </div>
+
+                <!-- Statistik PELATIHAN UPTD -->
+                <div id="ringkasan-stats-pelatihanuptd" class="space-y-8" style="display: none;">
+
+                    <!-- Total + Gender -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="card-content p-6 flex flex-col justify-center items-center lg:col-span-1 border-b-4 border-blue-300">
+                            <h3 class="text-xl font-bold text-gray-800">Total Peserta</h3>
+                            <span class="text-5xl font-extrabold text-blue-900" id="pelatihanuptd-total-peserta">0</span>
+                            <p class="text-lg font-medium text-gray-500 mt-2">Total Peserta Pelatihan</p>
+                        </div>
+
+                        <div class="card-content p-6 lg:col-span-2">
+                            <h2 class="text-xl font-semibold text-gray-800 mb-4">Laki-Laki dan Perempuan</h2>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                                <div class="bg-indigo-50 p-4 rounded-lg">
+                                    <p class="text-4xl font-bold text-blue-900" id="pelatihanuptd-laki-laki">0</p>
+                                    <p class="text-gray-600 mt-1">Laki-laki</p>
+                                </div>
+                                <div class="bg-indigo-50 p-4 rounded-lg">
+                                    <p class="text-4xl font-bold text-blue-900" id="pelatihanuptd-perempuan">0</p>
+                                    <p class="text-gray-600 mt-1">Perempuan</p>
+                                </div>
+                                <div class="bg-indigo-50 p-4 rounded-lg">
+                                    <p class="text-4xl font-bold text-blue-900" id="pelatihanuptd-peserta-disabilitas">0</p>
+                                    <p class="text-gray-600 mt-1">Peseta Disabilitas</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Kelulusan + Disabilitas
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="card-content p-6 lg:col-span-2">
+                            <h2 class="text-xl font-semibold text-gray-800 mb-4">Status Kelulusan Pelatihan</h2>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center">
+                                <div class="bg-indigo-50 p-4 rounded-lg">
+                                    <p class="text-3xl font-bold text-blue-900" id="pelatihanuptd-lulus-count">0</p>
+                                    <p class="text-gray-600 mt-1">Lulus</p>
+                                </div>
+                                <div class="bg-indigo-50 p-4 rounded-lg">
+                                    <p class="text-3xl font-bold text-blue-900" id="pelatihanuptd-tidak-lulus-count">0</p>
+                                    <p class="text-gray-600 mt-1">Tidak Lulus</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-content p-6 flex flex-col justify-center items-center lg:col-span-1 border-b-4 border-blue-300">
+                            <span class="text-3xl font-extrabold text-blue-900" id="pelatihanuptd-peserta-disabilitas">0</span>
+                            <p class="text-base font-medium text-gray-600 mt-1 tracking-wide">Peserta Disabilitas</p>
+                        </div>
+                    </div> -->
+
+                    <!-- Chart -->
+                    <div class="grid grid-cols-1 gap-6">
+
+                        <!-- Chart UPTD -->
+                        <div class="mt-6 grid grid-cols-1 lg:grid-cols-1 gap-6">
+                            <div class="bg-white rounded-xl shadow p-4 mb-6">
+                                <h2 class="text-lg font-semibold text-slate-800">
+                                    Jumlah Peserta berdasarkan UPTD
+                                </h2>
+                                <div class="chart-container">
+                                    <canvas id="pelatihanuptd-uptdChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="card bg-white shadow rounded-lg">
+                                <div class="p-6">
+                                    <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                                        Jumlah Peserta berdasarkan Usia
+                                    </h2>
+                                    <div class="chart-container">
+                                        <canvas id="pelatihanuptd-usiaChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pendidikan (Pie) -->
+                            <div class="card-content p-6">
+                                <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                                    Distribusi Peserta Berdasarkan Pendidikan
+                                </h2>
+
+                                <div class="pendidikan-wrap">
+                                    <div class="pendidikan-chart">
+                                    <canvas id="pelatihanuptd-pendidikanChart"></canvas>
+                                    </div>
+
+                                    <div id="pelatihanuptd-pendidikanLegend" class="pendidikan-legend"></div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Chart Kejuruan (Tabel/Chart) -->
+                        <div class="mt-6 grid grid-cols-1 lg:grid-cols-1 gap-6">
+                            <div class="bg-white rounded-xl shadow p-4 mb-6">
+                                <h2 class="text-lg font-semibold text-slate-800">
+                                    Jumlah Peserta Berdasarkan Kejuruan
+                                </h2>
+
+                                <div class="mt-4 h-80">
+                                    <canvas id="pelatihanuptd-kejuruanChart"></canvas>
+                                </div>
+
+                                <!-- Jika butuh tabel HTML juga (opsional, belum ada pemanggilan script) -->
+                                <!--
+                                <div class="overflow-x-auto mt-6">
+                                    <table class="min-w-full text-sm text-left text-gray-600">
+                                        <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                                            <tr>
+                                            <th class="px-4 py-3">Kejuruan</th>
+                                            <th class="px-4 py-3">Daerah</th>
+                                            <th class="px-4 py-3">Total Peserta</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="pelatihanuptd-kejuruanTableBody"></tbody>
+                                    </table>
+                                </div>
+                                -->
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+        <!-- Footer -->
+        <footer class="bg-gray-700 text-white p-4 text-center text-sm mt-auto z-10">
+            &copy; <span id="footer-year"></span> Sistem Informasi Pelatihan BPVP Kendari.
+        </footer>
+    </div>
+
+    <script>
+        /* =========================================================
+        PELATIHAN UPTD - FULL CLIENT SCRIPT
+        - Call GS: getPelatihanUptdStats()
+        - Render scorecard + 3 charts (UPTD bar, Pendidikan doughnut, Kejuruan bar)
+        ========================================================= */
+
+        // =======================
+        // Helpers
+        // =======================
+
+        // WAJIB: aktifkan plugin datalabels
+        // Chart.register(ChartDataLabels);
+
+        // // aktifkan plugin custom Anda
+        // Chart.register(legendTotalTextPlugin);
+
+        const APP_URL = '<?= ScriptApp.getService().getUrl() ?>';
+        const ACTIVE_YEAR = <?= ACTIVE_YEAR ?>;
+
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const iconOpen = document.getElementById('icon-open');
+            const iconClose = document.getElementById('icon-close');
+
+            menu.classList.toggle('hidden');
+            iconOpen.classList.toggle('hidden');
+            iconClose.classList.toggle('hidden');
+        }
+        function toggleMobilePelatihan() {
+            const submenu = document.getElementById('mobile-pelatihan-submenu');
+            const chevron = document.getElementById('mobile-pelatihan-chevron');
+
+            if (!submenu || !chevron) return;
+
+            submenu.classList.toggle('hidden');
+            chevron.classList.toggle('rotate-180');
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('userEmail');
+            window.location.href = APP_URL + '?page=index&year=' + encodeURIComponent(ACTIVE_YEAR);
+        }
+
+
+        const fmtID = (n) => (Number(n) || 0).toLocaleString('id-ID');
+
+        function setText(id, value) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = fmtID(value);
+        }
+
+        function show(id) {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'block';
+        }
+
+        function hide(id) {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+        }
+
+        // =======================
+        // Plugin: legend total text (untuk bar charts)
+        // =======================
+        const legendTotalTextPlugin = {
+        id: 'legendTotalText',
+        afterDraw(chart, args, opts) {
+            const total = (opts?.total ?? null);
+            if (total === null || total === undefined) return;
+
+            const legend = chart.legend;
+            if (!legend) return;
+
+            const { ctx } = chart;
+            ctx.save();
+
+            const text = `Total: ${fmtID(total)}`;
+
+            ctx.font = (opts?.font) || '700 12px Inter, sans-serif';
+            ctx.fillStyle = (opts?.color) || '#334155';
+            ctx.textBaseline = 'middle';
+            ctx.textAlign = 'right';
+
+            const paddingRight = opts?.paddingRight ?? 10;
+            const x = chart.chartArea.right;
+            const y = legend.top + legend.height / 2;
+
+            ctx.fillText(text, x - paddingRight, y);
+            ctx.restore();
+        }
+        };
+
+        // =======================
+        // Register plugins (Chart.js v3/v4)
+        // =======================
+        (function registerChartPlugins() {
+        if (!window.Chart) {
+            console.error('Chart.js belum ter-load.');
+            return;
+        }
+        // Register datalabels jika ada
+        if (window.ChartDataLabels) {
+            Chart.register(ChartDataLabels);
+        }
+        // Register custom plugin
+        Chart.register(legendTotalTextPlugin);
+        })();
+
+        // =======================
+        // Chart instances
+        // =======================
+        let pelatihanuptdUptdChartInstance = null;
+        let pelatihanuptdKejuruanChartInstance = null;
+        let pelatihanuptdPendidikanChartInstance = null;
+        let pelatihanuptdUsiaChartInstance = null;
+
+
+        // =======================
+        // Chart: UPTD (Bar)
+        // =======================
+        function renderPelatihanUptdUptdChart(stats) {
+            const canvas = document.getElementById('pelatihanuptd-uptdChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            if (pelatihanuptdUptdChartInstance) pelatihanuptdUptdChartInstance.destroy();
+
+            const labelsRaw = stats.uptdLabels || [];
+            const valuesRaw = (stats.uptdValues || []).map(v => Number(v) || 0);
+
+            // Sort desc
+            const combined = labelsRaw.map((label, i) => ({
+                label,
+                value: valuesRaw[i] || 0
+            })).sort((a, b) => b.value - a.value);
+
+            const labels = combined.map(o => o.label);
+            const values = combined.map(o => o.value);
+            const total = values.reduce((a, b) => a + (Number(b) || 0), 0);
+
+            pelatihanuptdUptdChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                labels,
+                datasets: [{
+                    label: 'Jumlah Peserta',
+                    data: values,
+                    borderColor: 'rgba(104, 152, 255)',
+                    backgroundColor: '#6898ff',
+                    borderWidth: 1,
+                    borderRadius: 6,
+                    maxBarThickness: 40
+                }]
+                },
+                options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' },
+                    legendTotalText: {
+                    total,
+                    paddingRight: 8,
+                    color: '#334155',
+                    font: '700 12px Inter, sans-serif'
+                    },
+                    datalabels: {
+                    display: true,
+                    anchor: 'end',
+                    align: 'top',
+                    offset: 2, 
+                    color: '#4b5b6e',
+                    font: { weight: 'bold', size: 11 },
+                    clamp: true,
+                    formatter: (v) => fmtID(v)
+                    }
+                },
+                scales: {
+                    y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: 'transparent' } },
+                    x: { grid: { display: false }, ticks: { autoSkip: false, maxRotation: 45 } }
+                }
+                }
+            });
+        }
+
+        // =======================
+        // Chart: Kejuruan (Bar)
+        // =======================
+        function renderPelatihanUptdKejuruanChart(stats) {
+            const canvas = document.getElementById('pelatihanuptd-kejuruanChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            if (pelatihanuptdKejuruanChartInstance) pelatihanuptdKejuruanChartInstance.destroy();
+
+            const labelsRaw = stats.kejuruanLabels || [];
+            const valuesRaw = (stats.kejuruanValues || []).map(v => Number(v) || 0);
+
+            const combined = labelsRaw.map((label, i) => ({
+                label,
+                value: valuesRaw[i] || 0
+            })).sort((a, b) => b.value - a.value);
+
+            const labels = combined.map(o => o.label);
+            const values = combined.map(o => o.value);
+            const total = values.reduce((a, b) => a + (Number(b) || 0), 0);
+
+            // ===== detail data dari GS =====
+            const daerahLabels = stats.kejuruanDetailDaerahLabels || [];
+            const detailMatrix = stats.kejuruanDetailMatrix || []; // [kIndex][dIndex]
+
+            pelatihanuptdKejuruanChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                labels,
+                datasets: [{
+                    label: 'Total Peserta',
+                    data: values,
+                    borderColor: 'rgba(104, 152, 255)',
+                    backgroundColor: '#6898ff',
+                    borderWidth: 1,
+                    borderRadius: 6,
+                    maxBarThickness: 40
+                }]
+                },
+                options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' },
+                    legendTotalText: {
+                    total,
+                    paddingRight: 8,
+                    color: '#334155',
+                    font: '700 12px Inter, sans-serif'
+                    },
+                    datalabels: {
+                    display: true,
+                    anchor: 'end',
+                    align: 'top',
+                    offset: 2,
+                    clamp: true,
+                    color: '#4b5b6e',
+                    font: { weight: 'bold', size: 11 },
+                    formatter: (v) => fmtID(v)
+                    },
+
+                    // ===== tooltip multi-line per daerah =====
+                    tooltip: {
+                    displayColors: false,
+                    callbacks: {
+                        title: (items) => {
+                        const it = items?.[0];
+                        if (!it) return '';
+                        return `${it.label} (Total ${fmtID(it.raw)})`;
+                        },
+                        label: () => '',
+
+                        afterBody: (items) => {
+                        const it = items?.[0];
+                        if (!it) return [];
+
+                        const kejuruanName = it.label;
+
+                        // index di data asli GS (bukan urutan sorted)
+                        const kIndex = (stats.kejuruanLabels || []).indexOf(kejuruanName);
+                        if (kIndex < 0) return ['(Detail tidak ditemukan)'];
+
+                        const row = detailMatrix[kIndex] || [];
+                        const lines = [];
+
+                        for (let i = 0; i < daerahLabels.length; i++) {
+                            const v = Number(row[i]) || 0;
+                            if (v > 0) lines.push(`${daerahLabels[i]} : ${fmtID(v)}`);
+                        }
+
+                        return lines.length ? lines : ['(Tidak ada data)'];
+                        }
+                    }
+                    }
+                },
+                scales: {
+                    y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: 'transparent' } },
+                    x: { grid: { display: false }, ticks: { autoSkip: false, maxRotation: 45 } }
+                }
+                }
+            });
+        }
+
+
+function renderPelatihanUptdUsiaChart(stats) {
+  const canvas = document.getElementById('pelatihanuptd-usiaChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  if (pelatihanuptdUsiaChartInstance) pelatihanuptdUsiaChartInstance.destroy();
+
+  // labels bar = kelompok usia
+  const usiaLabels = stats.usiaLabels || [];
+  // total bar = total per usia (akumulasi semua daerah)
+  const usiaTotals = (stats.usiaTotals || []).map(v => Number(v) || 0);
+
+  // breakdown untuk tooltip:
+  // daerahLabels = [Buton, Kolaka, ...]
+  // matrix = [daerahIndex][usiaIndex]
+  const daerahLabels = stats.usiaDaerahLabels || [];
+  const matrix = stats.usiaMatrix || [];
+
+  const grandTotal = usiaTotals.reduce((a, b) => a + (Number(b) || 0), 0);
+
+  pelatihanuptdUsiaChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: usiaLabels,
+      datasets: [{
+        label: 'Jumlah Peserta',
+        data: usiaTotals,
+        borderColor: 'rgba(104, 152, 255)',
+        backgroundColor: '#6898ff',
+        borderWidth: 1,
+        borderRadius: 6,
+        maxBarThickness: 40
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top' },
+
+        legendTotalText: {
+          total: grandTotal,
+          paddingRight: 8,
+          color: '#334155',
+          font: '700 12px Inter, sans-serif'
+        },
+
+        datalabels: {
+          display: true,
+          anchor: 'end',
+          align: 'top',
+          offset: 2,
+          clamp: true,
+          color: '#4b5b6e',
+          font: { weight: 'bold', size: 11 },
+          formatter: (v) => fmtID(v)
+        },
+
+        // Tooltip: mirip Kejuruan (title total + afterBody breakdown per daerah)
+        tooltip: {
+          displayColors: false,
+          callbacks: {
+            title: (items) => {
+              const it = items?.[0];
+              if (!it) return '';
+              return `${it.label} (Total ${fmtID(it.raw)})`;
+            },
+            label: () => '',
+
+            // breakdown per daerah
+            afterBody: (items) => {
+              const it = items?.[0];
+              if (!it) return [];
+              const usiaIndex = it.dataIndex; // index usia
+
+              const lines = [];
+              for (let d = 0; d < daerahLabels.length; d++) {
+                const daerah = daerahLabels[d];
+                const row = matrix[d] || [];
+                const v = Number(row[usiaIndex]) || 0;
+                if (v > 0) lines.push(`${daerah} : ${fmtID(v)}`);
+              }
+
+              return lines.length ? lines : ['(Tidak ada data)'];
+            }
+          }
+        }
+      },
+      scales: {
+        y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: 'transparent' } },
+        x: { grid: { display: false }, ticks: { autoSkip: false, maxRotation: 0 } }
+      }
+    }
+  });
+}
+
+
+
+
+        // =======================
+        // Chart: Pendidikan (Doughnut)
+        // Slice = total kategori pendidikan (akumulasi semua daerah)
+        // Legend kanan = pill total per slice
+        // Tooltip hover = rincian per daerah (Buton: x, Kolaka: y, ...)
+        // =======================
+        function renderPelatihanUptdPendidikanChart(data) {
+            const canvas = document.getElementById('pelatihanuptd-pendidikanChart');
+            const legendEl = document.getElementById('pelatihanuptd-pendidikanLegend');
+            if (!canvas || !legendEl) return;
+
+            const ctx = canvas.getContext('2d');
+
+            const labels = data?.pendidikanLabels ?? ['Sarjana','D3','SMA/SMK','SMP','SD'];
+            const values = (data?.pendidikanValues ?? []).map(v => Number(v) || 0);
+
+            // --- TAMBAHKAN BARIS INI: Hitung total peserta pendidikan ---
+            const totalPendidikan = values.reduce((a, b) => a + b, 0);
+
+            const daerahLabels = data?.pendidikanDaerahLabels ?? [];
+            const matrix = data?.pendidikanMatrix ?? []; // [catIndex][daerahIndex]
+
+            const bgColors = ['#1E63E6', '#3a7aff', '#5D94FF', '#84AFFF', '#A9c9FF', '#cfe2ff'];
+
+            // Legend HTML kanan: label + pill total
+            const htmlLegendPlugin = {
+                id: 'htmlLegendPelatihanUptdPendidikan',
+                afterUpdate(chart) {
+                const ds = chart.data.datasets[0];
+                const totals = (ds.data || []).map(n => Number(n) || 0);
+
+                legendEl.innerHTML = '';
+
+                chart.data.labels.forEach((label, i) => {
+                    const item = document.createElement('div');
+                    item.className = 'legend-item' + (chart.getDataVisibility(i) ? '' : ' is-hidden');
+
+                    const left = document.createElement('div');
+                    left.className = 'legend-left';
+
+                    const swatch = document.createElement('span');
+                    swatch.className = 'legend-swatch';
+                    swatch.style.background = bgColors[i] || '#111827';
+
+                    const text = document.createElement('span');
+                    text.className = 'legend-label';
+                    text.textContent = label;
+
+                    const pill = document.createElement('span');
+                    pill.className = 'legend-pill';
+                    pill.style.background = bgColors[i] || '#111827';
+                    pill.textContent = fmtID(totals[i]);
+
+                    left.appendChild(swatch);
+                    left.appendChild(text);
+
+                    item.appendChild(left);
+                    item.appendChild(pill);
+
+                    item.addEventListener('click', () => {
+                    chart.toggleDataVisibility(i);
+                    chart.update();
+                    });
+
+                    legendEl.appendChild(item);
+                });
+                }
+            };
+
+            if (pelatihanuptdPendidikanChartInstance) pelatihanuptdPendidikanChartInstance.destroy();
+
+            pelatihanuptdPendidikanChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                labels,
+                datasets: [{
+                    data: values,
+                    backgroundColor: bgColors,
+                    borderWidth: 1,
+                    spacing: 7
+                }]
+                },
+                options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '45%',
+                radius: '85%',
+                layout: { padding: { top: 25, bottom: 16, left: 16, right: 16 } },
+                plugins: {
+                    legend: { display: false },
+                    datalabels: { display: false },
+                    legendTotalText: {
+                        total: totalPendidikan,
+                        paddingRight: 10,
+                        color: '#334155',
+                        font: '700 13px Inter, sans-serif'
+                    },
+                    tooltip: {
+                    displayColors: false,
+                    callbacks: {
+                        title: (items) => {
+                        const item = items?.[0];
+                        if (!item) return '';
+                        return `${item.label} (Total ${fmtID(item.raw)})`;
+                        },
+                        label: () => '',
+                        afterBody: (items) => {
+                        const item = items?.[0];
+                        if (!item) return [];
+
+                        const catIndex = item.dataIndex;
+                        const arr = (matrix?.[catIndex] || []);
+
+                        const lines = [];
+                        for (let i = 0; i < daerahLabels.length; i++) {
+                            const daerah = daerahLabels[i];
+                            const v = Number(arr[i]) || 0;
+                            lines.push(`${daerah} : ${fmtID(v)}`);
+                        }
+                        return lines;
+                        }
+                    }
+                    }
+                }
+                },
+                plugins: [htmlLegendPlugin, legendTotalTextPlugin]
+            });
+        }
+
+        // =======================
+        // Main render
+        // =======================
+        function renderPelatihanUptdData(data) {
+        hide('loading-indicator');
+
+        const ringkasan = document.getElementById('ringkasan-stats-pelatihanuptd');
+
+        if (!data || data.status === 'error') {
+            if (ringkasan) {
+            ringkasan.style.display = 'block';
+            ringkasan.innerHTML =
+                '<div class="text-center p-8 bg-red-100 text-red-700 rounded-lg">Gagal memuat data pelatihan UPTD. Error: ' +
+                (data?.message || 'Tidak diketahui') + '</div>';
+            }
+            console.error('Error dari Apps Script (pelatihanuptd):', data?.message);
+            return;
+        }
+
+        if (ringkasan) ringkasan.style.display = 'block';
+
+        // Scorecards
+        setText('pelatihanuptd-total-peserta', data.totalPeserta);
+        setText('pelatihanuptd-laki-laki', data.lakiLaki);
+        setText('pelatihanuptd-perempuan', data.perempuan);
+        // setText('pelatihanuptd-lulus-count', data.lulus);
+        // setText('pelatihanuptd-tidak-lulus-count', data.tidakLulus);
+        setText('pelatihanuptd-peserta-disabilitas', data.disabilitas);
+
+        // Charts
+        renderPelatihanUptdUptdChart(data);
+        renderPelatihanUptdPendidikanChart(data);
+        renderPelatihanUptdKejuruanChart(data);
+        renderPelatihanUptdUsiaChart(data);
+
+        }
+
+        function handlePelatihanUptdError(error) {
+        hide('loading-indicator');
+
+        const ringkasan = document.getElementById('ringkasan-stats-pelatihanuptd');
+        if (ringkasan) {
+            ringkasan.style.display = 'block';
+            ringkasan.innerHTML =
+            '<div class="text-center p-8 bg-red-100 text-red-700 rounded-lg">Gagal memuat data Pelatihan UPTD dari Spreadsheet. Error: ' +
+            (error?.message || 'Tidak diketahui') + '</div>';
+        }
+        console.error('Error saat memanggil Apps Script (pelatihanuptd):', error);
+        }
+
+        function loadPelatihanUptdData() {
+        show('loading-indicator');
+        hide('ringkasan-stats-pelatihanuptd');
+
+        google.script.run
+            .withSuccessHandler(renderPelatihanUptdData)
+            .withFailureHandler(handlePelatihanUptdError)
+            .getPelatihanUptdStats(ACTIVE_YEAR);
+        }
+
+        document.addEventListener('DOMContentLoaded', loadPelatihanUptdData);
+        document.addEventListener('DOMContentLoaded', () => {
+            const footerYear = document.getElementById('footer-year');
+            if (footerYear && ACTIVE_YEAR) {
+                footerYear.textContent = ACTIVE_YEAR;
+            };
+            const y = document.getElementById('year-label');
+                if (y) y.textContent = ACTIVE_YEAR;
+        });
+    </script>
+
+
+</body>
+</html>
+

@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base target="_top">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Styling Dasar */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f3f4f6;
+        }
+        .header {
+            background-color: #2C4C63; /* Navy/Biru Tua */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .card-content {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card-content:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+        }
+        /* Style untuk tombol aktif di navigasi */
+        .nav-active {
+            border-bottom: 3px solid #f97316; /* Orange-500 untuk Penempatan */
+            color: #ffedd5; /* Orange-100 */
+            background-color: #4b5563;
+        }
+        /* Responsive Table */
+        .responsive-table th, .responsive-table td {
+            white-space: nowrap;
+            padding: 1rem;
+            text-align: left;
+        }
+        @media (max-width: 640px) {
+            .data-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen flex flex-col">
+        <!-- Header & Navigasi (Logo, Menu, dan Logout Sebaris di Desktop) -->
+        <header class="header p-4 lg:px-8 sticky top-0 z-20">
+            <div class="flex items-center justify-between w-full">
+                <!-- KIRI: Logo & Nama Aplikasi -->
+                <div class="flex items-center space-x-3">
+                <img src="https://bpvpkendari.kemnaker.go.id/storage/upload/setting/11749712002.png"
+                    alt="Logo Kemnaker"
+                    class="h-10 w-10 object-contain rounded-lg border-2 border-white bg-white p-1"
+                />
+                <h3 class="text-xl lg:text-2xl font-extrabold tracking-tight">
+                    Sistem Informasi Pelatihan (SIMPEL)
+                </h3>
+                </div>
+
+                <!-- KANAN: Menu Navigasi + Logout (Desktop) -->
+                <div class="hidden lg:flex lg:items-center lg:space-x-6">
+                <nav class="flex space-x-6 text-base font-medium">
+                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=dashboard&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
+                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                    Home
+                    </a>
+
+                    <!-- Dropdown Pelatihan -->
+                    <div class="relative group">
+                    <button
+                        type="button"
+                        class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-300 inline-flex items-center">
+                        Pelatihan
+                        <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+
+                    <div
+                        class="absolute left-0 top-full pt-2 w-48 opacity-0 invisible
+                            group-hover:opacity-100 group-hover:visible
+                            transition-all duration-700 ease-in-out z-50">
+                        <div class="bg-gray-800 rounded-lg shadow-lg">
+                        <a href="<?= ScriptApp.getService().getUrl() ?>?page=pelatihan&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
+                            class="block px-4 py-2 hover:bg-gray-700 rounded-t-lg">
+                            Pelatihan UPTP
+                        </a>
+                        <a href="<?= ScriptApp.getService().getUrl() ?>?page=pelatihan_uptd&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
+                            class="block px-4 py-2 hover:bg-gray-700 rounded-b-lg">
+                            Pelatihan UPTD
+                        </a>
+                        </div>
+                    </div>
+                    </div>
+
+                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=sertifikasi&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
+                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                    Sertifikasi
+                    </a>
+
+                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=produktivitas&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
+                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                    Produktivitas
+                    </a>
+
+                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=penempatan&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
+                    class="py-2 px-3 rounded-lg nav-active transition duration-150">
+                    Penempatan
+                    </a>
+                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=umum&year=<?= ACTIVE_YEAR ?>&_ts=<?= new Date().getTime() ?>"
+                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                    Umum
+                    </a>
+                </nav>
+
+                <button id="logout-btn" onclick="handleLogout()"
+                    class="px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-green-100 bg-green-700 hover:bg-green-800 transition duration-150 shadow-md">
+                    Logout
+                </button>
+                </div>
+
+                <!-- Tombol Hamburger Menu (Mobile) -->
+                <button id="menu-toggle"
+                class="lg:hidden p-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-white"
+                onclick="toggleMobileMenu()" type="button">
+                <svg id="icon-open" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+                <svg id="icon-close" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                </button>
+            </div>
+
+            <!-- Menu Mobile -->
+            <div id="mobile-menu" class="hidden flex-col w-full mt-4 lg:hidden pt-4 border-t border-gray-600">
+                <nav class="flex flex-col space-y-2 text-base font-medium">
+                <a href="<?= ScriptApp.getService().getUrl() ?>?page=dashboard&year=<?= ACTIVE_YEAR ?>"
+                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                    Home
+                </a>
+
+                <!-- Pelatihan (Mobile Dropdown / Expand) -->
+                <button type="button"
+                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150 inline-flex items-center justify-between"
+                    onclick="toggleMobilePelatihan()">
+                    <span>Pelatihan</span>
+                    <svg id="mobile-pelatihan-chevron" class="w-4 h-4 transition-transform duration-150"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+
+                <div id="mobile-pelatihan-submenu" class="hidden pl-3">
+                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=pelatihan&year=<?= ACTIVE_YEAR ?>"
+                    class="block py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                    Pelatihan UPTP
+                    </a>
+                    <a href="<?= ScriptApp.getService().getUrl() ?>?page=pelatihan_uptd&year=<?= ACTIVE_YEAR ?>"
+                    class="block py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                    Pelatihan UPTD
+                    </a>
+                </div>
+
+                <a href="<?= ScriptApp.getService().getUrl() ?>?page=sertifikasi&year=<?= ACTIVE_YEAR ?>"
+                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                    Sertifikasi
+                </a>
+
+                <a href="<?= ScriptApp.getService().getUrl() ?>?page=produktivitas&year=<?= ACTIVE_YEAR ?>"
+                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                    Produktivitas
+                </a>
+
+                <a href="<?= ScriptApp.getService().getUrl() ?>?page=penempatan&year=<?= ACTIVE_YEAR ?>"
+                    class="py-2 px-3 rounded-lg nav-active transition duration-150">
+                    Penempatan
+                </a>
+                <a href="<?= ScriptApp.getService().getUrl() ?>?page=umum&year=<?= ACTIVE_YEAR ?>"
+                    class="py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                    Umum
+                </a>
+                </nav>
+
+                <div class="mt-4">
+                <button id="logout-btn-mobile" onclick="handleLogout()"
+                    class="w-full px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-green-100 bg-green-700 hover:bg-green-800 transition duration-150 shadow-md">
+                    Logout
+                </button>
+                </div>
+            </div>
+        </header>
+
+
+        <!-- Konten Utama Dashboard Penempatan -->
+        <main class="flex-grow p-4 lg:p-8 flex justify-center">
+            <div class="w-full max-w-7xl space-y-8">
+                <!-- Judul Halaman -->
+                 <!-- Banner Dashboard (DIJAGA SESUAI PERMINTAAN) -->
+                <div class="bg-indigo-600 p-6 rounded-lg text-white shadow-lg text-center sm:text-left">
+                    <p class="text-sm font-light">BALAI PELATIHAN VOKASI DAN PRODUKTIVITAS (BPVP) KENDARI</p>
+                    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold mt-1">
+                        DATA PENEMPATAN PESERTA
+                    </h2>
+                    <p class="mt-3 text-sm sm:text-lg font-medium">
+                        Selamat datang di Portal SIMPEL <span id="year-label"></span> - A Nice Place to Grow.
+                    </p>
+                </div>
+
+                <!-- Bagian 1: Ringkasan Total & Status Penempatan -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Kartu Total Alumni yang Ditempatkan -->
+                    <div class="card-content p-6 flex flex-col justify-center items-center lg:col-span-1 border-b-4 border-blue-300">
+                        <span class="text-5xl font-extrabold text-blue-900" id="total-ditempatkan">0</span>
+                        <p class="text-lg font-medium text-gray-500 mt-2">Total Alumni Ditempatkan Kerja</p>
+                        <p class="text-sm text-gray-400 mt-1">
+                            (Dari total alumni <span id="total-alumni-tracer">0</span> yang dilacak)
+                        </p>
+                    </div>
+
+                    <!-- Statistik Status Lanjutan Alumni -->
+                    <div class="card-content p-6 lg:col-span-2">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                            Status Lanjutan Alumni
+                        </h2>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-center">
+                            <!-- Ditempatkan / Bekerja -->
+                            <div class="bg-indigo-50 p-4 rounded-lg flex flex-col items-center justify-center h-28">
+                                <p class="text-4xl font-bold text-blue-900" id="bekerja-jumlah">0</p>
+                                <p class="text-gray-600 mt-1 text-sm">Ditempatkan / Bekerja</p>
+                            </div>
+
+                            <!-- Berwirausaha Mandiri -->
+                            <div class="bg-indigo-50 p-4 rounded-lg flex flex-col items-center justify-center h-28">
+                                <p class="text-4xl font-bold text-blue-900" id="wirausaha-jumlah">0</p>
+                                <p class="text-gray-600 mt-1 text-sm">Berwirausaha Mandiri</p>
+                            </div>
+
+                            <!-- Tidak Bekerja -->
+                            <div class="bg-indigo-50 p-4 rounded-lg flex flex-col items-center justify-center h-28">
+                                <p class="text-4xl font-bold text-blue-900" id="tidak-bekerja-jumlah">0</p>
+                                <p class="text-gray-600 mt-1 text-sm">Belum Bekerja</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bar Chart Penempatan per Kejuruan dan Tabel per Lokasi -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Chart: Penempatan per Kejuruan -->
+                    <div class="card bg-white shadow rounded-lg">
+                        <div class="p-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                            Penempatan Kerja Berdasarkan Kejuruan
+                        </h2>
+                        <!-- Pastikan container punya tinggi agar chart horizontal terlihat -->
+                        <div class="chart-container h-64 md:h-80">
+                            <canvas id="chartPenempatanKejuruan"></canvas>
+                        </div>
+                        </div>
+                    </div>
+
+                    <!-- Table: Penempatan per Lokasi -->
+                    <div class="card bg-white shadow rounded-lg">
+                        <div class="p-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                            Penempatan Kerja Berdasarkan Lokasi
+                        </h2>
+
+                        <div class="max-h-64 overflow-y-auto">
+                            <table class="w-full responsive-table">
+                            <thead class="border-b bg-gray-50">
+                                <tr>
+                                <th class="text-left p-2">Lokasi</th>
+                                <th class="text-right p-2">Jumlah Penempatan</th>
+                                <th class="text-right p-2">Persentase</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-lokasi"></tbody>
+                            </table>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bagian 3: 5 Perusahaan Mitra Penempatan Teratas -->
+                <div class="card-content p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                        Mitra Penempatan Perusahaan Teratas
+                    </h2>
+                    <div class="h-[450px] overflow-y-auto">
+                        <table class="w-full responsive-table">
+                            <thead class="border-b bg-gray-50">
+                                <tr>
+                                    <th>Nama Perusahaan</th>
+                                    <th>Sektor</th>
+                                    <th>Jumlah Alumni Ditempatkan</th>
+                                </tr>
+                            </thead>
+                            <!-- akan diisi via JavaScript -->
+                            <tbody id="tbody-mitra"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <footer class="bg-gray-700 text-white p-4 text-center text-sm mt-auto z-10">
+            &copy; <span id="footer-year"></span> Sistem Informasi Pelatihan BPVP Kendari.
+        </footer>
+    </div>
+
+    <script>
+        /* ======== KONFIGURASI ==== */
+        const APP_URL = '<?= ScriptApp.getService().getUrl() ?>';
+        const ACTIVE_YEAR = <?= ACTIVE_YEAR ?>;
+
+
+        let penempatanChartInstance = null;
+
+        /* ========= UI HELPERS ========= */
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            document.getElementById('icon-open').classList.toggle('hidden');
+            document.getElementById('icon-close').classList.toggle('hidden');
+            menu.classList.toggle('hidden');
+        }
+
+        function toggleMobilePelatihan() {
+            const submenu = document.getElementById('mobile-pelatihan-submenu');
+            const chevron = document.getElementById('mobile-pelatihan-chevron');
+
+            if (!submenu || !chevron) return;
+
+            submenu.classList.toggle('hidden');
+            chevron.classList.toggle('rotate-180');
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('userEmail');
+            window.location.href = APP_URL + '?page=index&year=' + encodeURIComponent(ACTIVE_YEAR);
+        }
+
+
+        /* ============ DATA LOADER ================= */
+        function loadPenempatanData() {
+            const userEmail = localStorage.getItem('userEmail');
+            if (!userEmail) {
+                window.location.href = APP_URL + '?page=index';
+                return;
+            }
+
+            google.script.run
+                .withSuccessHandler(renderPenempatanData)
+                .withFailureHandler(err => console.error('Gagal ambil data:', err))
+                .getPenempatanStats(ACTIVE_YEAR);
+        }
+
+        /* =========== FORMATTERS ====== */
+        function formatPercentRaw(val) {
+            if (val == null || val === '') return '-';
+            if (typeof val === 'string' && val.includes('%')) return val;
+            const num = Number(val);
+            if (!isNaN(num)) return (num <= 1 ? num * 100 : num).toFixed(0) + '%';
+            return val;
+        }
+
+        /* =====================================================
+        BAR CHART KEJURUAN
+        ===================================================== */
+        function renderPenempatanKejuruanChart(stats) {
+            const stacked = stats?.penempatanStacked;
+            if (!stacked?.labels?.length) return;
+
+            const canvas = document.getElementById("chartPenempatanKejuruan");
+            if (!canvas) return;
+
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return;
+
+            // Hancurkan instance lama bila ada
+            if (penempatanChartInstance) {
+                penempatanChartInstance.destroy();
+                penempatanChartInstance = null;
+            }
+
+            // Gabungkan + normalisasi + sort desc berdasarkan total
+            const combined = stacked.labels.map((label, i) => {
+                const ditempatkan = Number(stacked.ditempatkan?.[i]) || 0;
+                const belum = Number(stacked.belum?.[i]) || 0;
+                const total = ditempatkan + belum;
+
+                return { label, ditempatkan, total };
+            });
+
+            combined.sort((a, b) => b.total - a.total);
+
+            const labels = combined.map((o) => o.label);
+            const totalValues = combined.map((o) => o.total);
+            const ditempatkanValues = combined.map((o) => o.ditempatkan);
+
+            penempatanChartInstance = new Chart(ctx, {
+                type: "bar",
+                plugins: [ChartDataLabels],
+                data: {
+                    labels,
+                    datasets: [
+                        {
+                            label: "Jumlah Peserta",
+                            data: totalValues,
+                            backgroundColor: "rgba(153,183,246)",
+                            borderRadius: 4,
+                            maxBarThickness: 36,
+                            stack: "stack1",
+                            datalabels: {
+                                anchor: "center",
+                                align: "center",
+                                color: "808080",
+                                font: { weight: "bold", size: 10 },
+                                formatter: (v) => Number(v).toLocaleString("id-ID"),
+                            },
+                        },
+                        {
+                            label: "Ditempatkan",
+                            data: ditempatkanValues,
+                            backgroundColor: "rgba(79,70,229)",
+                            borderRadius: 4,
+                            maxBarThickness: 36,
+                            stack: "stack1",
+                            datalabels: {
+                                anchor: "end",
+                                align: "right",
+                                color: "rgba(79,70,229)",
+                                font: { weight: "bold", size: 10 },
+                                formatter: (v) => (v ? Number(v).toLocaleString("id-ID") : ""),
+                            },
+                        },
+                    ],
+                },
+                options: {
+                    indexAxis: "y",
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: "top" },
+                        tooltip: {
+                            backgroundColor: "rgba(15, 23, 42, 0.95)",
+                            padding: 10,
+                            callbacks: {
+                                label: (t) => `${t.dataset.label}: ${Number(t.raw).toLocaleString("id-ID")}`,
+                            },
+                        },
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            beginAtZero: true,
+                            grid: { color: "transparent" },
+                            ticks: { precision: 0 },
+                        },
+                        y: {
+                            stacked: true,
+                            grid: { display: false },
+                            ticks: {
+                                autoSkip: false,
+                                font: { size: 11 },
+                            },
+                        },
+                    },
+                },
+            });
+        }
+
+        /* =====================================================
+        RENDER SEMUA DATA
+        ===================================================== */
+        function renderPenempatanData(stats) {
+            console.log('DATA DARI SERVER:', stats);
+            if (!stats || stats.status !== 'success') return;
+
+            // ===== RINGKASAN =====
+            document.getElementById('total-ditempatkan').textContent =
+                stats.totalDitempatkan ?? 0;
+            document.getElementById('total-alumni-tracer').textContent =
+                stats.totalAlumni ?? 0;
+
+            document.getElementById('bekerja-jumlah').textContent =
+                (stats.bekerjaJumlah || 0).toLocaleString('id-ID');
+            document.getElementById('wirausaha-jumlah').textContent =
+                (stats.wirausahaJumlah || 0).toLocaleString('id-ID');
+            document.getElementById('tidak-bekerja-jumlah').textContent =
+                (stats.tidakBekerjaJumlah || 0).toLocaleString('id-ID');
+
+            // ===== TABEL KEJURUAN =====
+            const tbodyKejuruan = document.getElementById('tbody-kejuruan');
+            if (tbodyKejuruan) {
+                tbodyKejuruan.innerHTML = '';
+                (stats.kejuruanData || []).forEach(r => {
+                tbodyKejuruan.innerHTML += `
+                    <tr class="border-b hover:bg-gray-100">
+                    <td>${r.kejuruan}</td>
+                    <td>${r.jumlah}</td>
+                    <td class="font-bold text-blue-600">${formatPercentRaw(r.persen)}</td>
+                    </tr>`;
+                });
+            }
+
+            // ===== TABEL LOKASI =====
+            const tbodyLokasi = document.getElementById('tbody-lokasi');
+            if (tbodyLokasi) {
+                tbodyLokasi.innerHTML = '';
+                (stats.lokasiData || []).forEach(r => {
+                tbodyLokasi.innerHTML += `
+                    <tr class="border-b hover:bg-gray-100">
+                    <td>${r.lokasi}</td>
+                    <td>${r.jumlah}</td>
+                    <td class="font-bold text-blue-600">${formatPercentRaw(r.persen)}</td>
+                    </tr>`;
+                });
+            }
+
+            // ===== TABEL MITRA =====
+            const tbodyMitra = document.getElementById('tbody-mitra');
+            if (tbodyMitra) {
+                tbodyMitra.innerHTML = '';
+                (stats.mitraData || [])
+                .sort((a, b) => b.jumlah - a.jumlah)
+                .forEach(m => {
+                    tbodyMitra.innerHTML += `
+                    <tr class="border-b hover:bg-gray-100">
+                        <td>${m.perusahaan}</td>
+                        <td>${m.bidang}</td>
+                        <td class="text-center">${m.jumlah}</td>
+                    </tr>`;
+                });
+            }
+
+            // ===== BAR CHART =====
+            renderPenempatanKejuruanChart(stats);
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            const footerYear = document.getElementById('footer-year');
+            if (footerYear && ACTIVE_YEAR) {
+                footerYear.textContent = ACTIVE_YEAR;
+            };
+            const y = document.getElementById('year-label');
+                if (y) y.textContent = ACTIVE_YEAR;
+        });
+
+        /* =====================================================
+        INIT
+        ===================================================== */
+        window.onload = loadPenempatanData;
+    </script>
+</body>
+</html>

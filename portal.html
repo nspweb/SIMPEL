@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --ink:#17324d; --paper:#f5f1e8; }
+    body { font-family:'DM Sans',sans-serif; background:var(--paper); color:var(--ink); }
+    h1,h2,h3 { font-family:'Space Grotesk',sans-serif; }
+    .mesh { background:radial-gradient(circle at 90% 0%,#ffd9b8 0,transparent 32%),linear-gradient(135deg,#f7f0df 0%,#e2f1ed 100%); }
+    .panel { border:1px solid rgba(23,50,77,.12); box-shadow:0 18px 45px rgba(23,50,77,.08); }
+    .rise { animation:rise .55s ease both; }
+    @keyframes rise { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }
+  </style>
+</head>
+<body class="min-h-screen">
+  <main class="mesh min-h-screen px-4 py-6 sm:px-8 lg:px-12">
+    <div class="mx-auto max-w-7xl">
+      <header class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-900/10 pb-5">
+        <div class="flex items-center gap-3"><img src="https://bpvpkendari.kemnaker.go.id/storage/upload/setting/11749712002.png" alt="Logo Kemnaker" class="h-11 w-11 rounded-xl bg-white p-1 shadow-sm"><div><p class="text-xs font-semibold uppercase tracking-[.22em] text-teal-700">BPVP Kendari</p><h1 class="text-xl font-bold">SIMPEL Workspace</h1></div></div>
+        <button onclick="logout()" class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-800">Keluar</button>
+      </header>
+      <section class="rise grid gap-8 py-10 lg:grid-cols-[1.15fr_.85fr] lg:items-end">
+        <div><p id="eyebrow" class="mb-3 text-sm font-bold uppercase tracking-[.2em] text-orange-700"></p><h2 id="title" class="max-w-3xl text-4xl font-bold leading-tight sm:text-6xl"></h2><p id="description" class="mt-5 max-w-2xl text-lg leading-relaxed text-slate-700"></p></div>
+        <div class="panel rounded-2xl bg-white/75 p-6"><p class="text-sm font-semibold text-slate-500">Akun aktif</p><p id="user-name" class="mt-1 text-2xl font-bold"></p><p id="user-email" class="text-sm text-slate-600"></p><div class="mt-5 flex items-center justify-between border-t border-slate-900/10 pt-4"><span class="text-sm text-slate-600">Tahun kerja</span><span class="rounded-full bg-teal-100 px-3 py-1 text-sm font-bold text-teal-800"><?= ACTIVE_YEAR ?></span></div></div>
+      </section>
+      <section><div class="mb-4 flex items-end justify-between"><div><p class="text-sm font-bold uppercase tracking-[.18em] text-teal-700">Ruang kerja</p><h3 class="text-2xl font-bold">Akses sesuai tanggung jawab</h3></div><a id="dashboard-link" class="hidden rounded-lg border border-slate-900/15 bg-white/70 px-3 py-2 text-sm font-semibold hover:bg-white" href="#">Buka dashboard</a></div><div id="cards" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3"></div></section>
+      <p id="notice" class="mt-8 hidden rounded-xl border border-orange-300 bg-orange-50 p-4 text-sm text-orange-900"></p>
+    </div>
+  </main>
+  <script>
+    const APP_URL = '<?= ScriptApp.getService().getUrl() ?>';
+    const AUTH_TOKEN = '<?= AUTH_TOKEN ?>';
+    const configs = {
+      admin: ['ADMINISTRATOR','Kendalikan seluruh alur SIMPEL.','Verifikasi data, pantau semua bidang, buka dashboard, dan kelola input pada seluruh modul.',[['Dashboard Utama','Ringkasan seluruh indikator & realisasi.','dashboard'],['Input Penyelenggara','Inisiasi program & mulai kelas.','input_penyelenggara'],['Input Pemberdayaan','Data peserta & master penempatan.','input_pemberdayaan'],['Input Pelatihan UPTD','Kelola data 5 BLK Binaan.','input_umum'],['Input Produktivitas','Pelatihan produktivitas & green job.','input_produktivitas'],['Input LSP Sertifikasi','Asesi, TUK, asesor, & hasil UJK.','input_lsp']]],
+      pimpinan: ['PIMPINAN','Lihat realisasi dengan satu pandangan.','Pantau pelatihan tahun ini per cluster, batch, TMT, PBK, UPTD, program, dan status anggaran.',[['Dashboard Realisasi','Ringkasan indikator dan realisasi.','dashboard'],['Pantauan Pelatihan UPTP','Monitoring batch dan kelulusan.','pelatihan'],['Pantauan Pelatihan UPTD','Monitoring 5 BLK Binaan.','pelatihan_uptd']]],
+      penyelenggara: ['PENYELENGGARA','Mulai kelas dengan alur yang rapi.','Penyelenggara membuat program, menunggu data peserta dari Pemberdayaan, lalu mengatur kelas sampai dimulai.',[['1. Buat Program Pelatihan','Inisiasi program dan teruskan ke Pemberdayaan.','input_penyelenggara'],['2. Mulai Kelas & Jadwal','Terima batch berisi peserta lalu isi tanggal & status.','input_penyelenggara'],['Dashboard Pelatihan','Pantau capaian pelatihan UPTP.','pelatihan']]],
+      pemberdayaan: ['PEMBERDAYAAN','Kelola peserta dari program sampai penempatan.','Ambil program dari Penyelenggara, cari dan isi data peserta, lalu teruskan kembali untuk dimulai.',[['1. Data Peserta Pelatihan','Isi jumlah, gender, pendidikan, usia, dan disabilitas.','input_pemberdayaan'],['2. Data Penempatan Kerja','Kelola data alumni dan mitra perusahaan.','input_pemberdayaan'],['Dashboard Penempatan','Pantau statistik penempatan kerja.','penempatan']]],
+      umum: ['UMUM','Kelola pelatihan UPTD 5 BLK Binaan.','Pilih BLK yang menjadi tanggung jawab Anda dan kelola tabel pelatihannya.',[['Pelatihan UPTD 5 BLK','Input & kelola data BLK Kolaka, Kolut, Konsel, Konut, Buton.','input_umum'],['Dashboard Pelatihan UPTD','Pantau capaian pelatihan UPTD.','pelatihan_uptd'],['Data Umum','Lihat ringkasan data bagian umum.','umum']]],
+      produktivitas: ['PRODUKTIVITAS','Dorong data produktivitas tetap terukur.','Input dan pantau data dari Master Data Produktivitas 2026.',[['Input Produktivitas','Isi peserta, jumlah, dan data perusahaan mitra.','input_produktivitas'],['Dashboard Produktivitas','Pantau capaian kegiatan produktivitas.','produktivitas']]],
+      lsp: ['LSP SERTIFIKASI','Jaga data sertifikasi tetap siap audit.','Kelola peserta, skema, TUK, asesor, dan hasil sertifikasi.',[['Input Sertifikasi LSP','Isi asesi, skema, TUK, asesor, dan hasil UJK.','input_lsp'],['Dashboard Sertifikasi','Pantau kelulusan dan cetak sertifikat.','sertifikasi']]],
+      keuangan: ['KEUANGAN','Tandai yang sudah ditagihkan dan terbayarkan.','Lacak APBN dan ABT per program/batch, termasuk uang saku dan komponen pembayaran lain.',[['Dashboard Realisasi','Pantau rekap anggaran dan realisasi.','dashboard'],['Status Pembayaran','Pisahkan belum ditagihkan, ditagihkan, dan terealisasi.','dashboard']]]
+    };
+    function pageUrl(page) { return page ? `${APP_URL}?page=${page}&year=<?= ACTIVE_YEAR ?>&token=${encodeURIComponent(AUTH_TOKEN)}` : '#'; }
+    document.getElementById('dashboard-link').href = pageUrl('dashboard');
+    function logout() { google.script.run.withSuccessHandler(function() { localStorage.removeItem('userEmail'); localStorage.removeItem('userRole'); localStorage.removeItem('authToken'); window.top.location.href = APP_URL; }).withFailureHandler(function() { localStorage.clear(); window.top.location.href = APP_URL; }).logoutSession(AUTH_TOKEN); }
+    function render(user) { const role=String(user.role||'umum').toLowerCase(); const c=configs[role]||configs.umum; document.getElementById('eyebrow').textContent=c[0]; document.getElementById('title').textContent=c[1]; document.getElementById('description').textContent=c[2]; document.getElementById('user-name').textContent=user.fullName||'Pengguna'; document.getElementById('user-email').textContent=user.email; if(role==='admin'||role==='pimpinan') document.getElementById('dashboard-link').classList.remove('hidden'); document.getElementById('cards').innerHTML=c[3].map((x,i)=>`<article class="panel rise rounded-2xl bg-white p-5" style="animation-delay:${i*80}ms"><div class="mb-8 flex items-start justify-between"><span class="rounded-lg bg-teal-50 px-2.5 py-1 text-xs font-bold text-teal-800">${String(i+1).padStart(2,'0')}</span><span class="text-2xl text-orange-500">${i===0?'↗':i===1?'◌':'◇'}</span></div><h3 class="text-xl font-bold">${x[0]}</h3><p class="mt-2 min-h-12 text-sm leading-relaxed text-slate-600">${x[1]}</p>${x[2]?`<a href="${pageUrl(x[2])}" class="mt-5 inline-flex rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-800">Buka modul</a>`:''}</article>`).join(''); if(role==='keuangan'){const n=document.getElementById('notice'); n.textContent='Modul keuangan siap dihubungkan dengan data tagihan, pembayaran, uang saku, APBN, dan ABT setelah sumber data diberikan.'; n.classList.remove('hidden');} }
+    window.onload=function(){const email=localStorage.getItem('userEmail'); if(!email){window.top.location.href=APP_URL;return;} google.script.run.withSuccessHandler(r=>{if(r.status!=='success'){logout();return;} localStorage.setItem('userRole',r.user.role); render(r.user);}).withFailureHandler(logout).getUserData(email);};
+  </script>
+</body>
+</html>

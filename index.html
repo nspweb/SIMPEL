@@ -1,0 +1,457 @@
+<!-- File: index.html -->
+<!DOCTYPE html>
+<html>
+
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #eef2ff;
+    }
+
+    .card {
+      transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .card:hover {
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, .2), 0 4px 10px -2px rgba(0, 0, 0, .08);
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5);
+      outline: none;
+    }
+
+    .message-box {
+      max-height: 0;
+      opacity: 0;
+      transition: max-height .4s ease-in-out, opacity .4s ease-in-out, padding .4s ease-in-out;
+    }
+
+    .message-box.show {
+      max-height: 120px;
+      opacity: 1;
+      padding: 1rem;
+    }
+  </style>
+</head>
+
+<body class="flex items-center justify-center min-h-screen p-4">
+
+  <div class="w-full max-w-sm md:max-w-md bg-white rounded-2xl shadow-2xl p-6 sm:p-8 card">
+
+    <!-- Feedback -->
+    <div id="message-container"></div>
+
+    <!-- Switcher -->
+    <div id="auth-switcher" class="flex justify-center mb-8 bg-gray-100 p-1 rounded-xl shadow-inner">
+      <button id="btn-login"
+        class="flex-1 px-4 py-2 text-sm font-semibold rounded-xl transition duration-300 ease-in-out"
+        onclick="showForm('login')">
+        Login
+      </button>
+      <button id="btn-register"
+        class="flex-1 px-4 py-2 text-sm font-semibold rounded-xl transition duration-300 ease-in-out"
+        onclick="showForm('register')">
+        Daftar
+      </button>
+    </div>
+
+    <!-- LOGIN -->
+    <form id="login-form" class="space-y-6" onsubmit="handleLogin(event)">
+      <div class="text-center mb-6">
+        <!-- Icon Selamat Datang -->
+        <div class="flex justify-center mb-3">
+          <img src="https://bpvpkendari.kemnaker.go.id/storage/upload/setting/11749712002.png" alt="Logo Kemnaker"
+            class="h-20 w-20 object-contain rounded-lg border-2 border-white bg-white p-1" />
+        </div>
+
+        <h2 class="text-3xl font-extrabold text-gray-900">
+          Selamat Datang, di Portal SIMPEL!
+        </h2>
+      </div>
+      <div class="form-group">
+        <label for="login-email" class="block text-sm font-medium text-gray-700">Email</label>
+        <input type="email" id="login-email" required
+          class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-0"
+          placeholder="nama@contoh.com">
+      </div>
+
+      <div class="form-group">
+        <label for="login-password" class="block text-sm font-medium text-gray-700">Password</label>
+        <input type="password" id="login-password" required
+          class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-0"
+          placeholder="minimal 6 karakter">
+      </div>
+
+      <div class="form-group">
+        <label for="login-year" class="block text-sm font-medium text-gray-700">Pilih Tahun</label>
+        <select id="login-year" required
+          class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-0 bg-white">
+          <option value="2025">2025</option>
+          <option value="2026">2026</option>
+          <option value="2027">2027</option>
+          <option value="2028">2028</option>
+        </select>
+      </div>
+
+      <button type="submit" id="login-btn"
+        class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-base font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition duration-200">
+        Login
+      </button>
+      <button type="button" onclick="openForgotModal()" class="text-sm text-indigo-600 hover:underline">
+        Lupa password?
+      </button>
+
+
+
+
+      <p class="text-center text-sm text-gray-600 mt-6">Belum punya akun?
+        <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500"
+          onclick="showForm('register'); return false;">Daftar sekarang</a>
+      </p>
+    </form>
+
+    <!-- REGISTER -->
+    <form id="register-form" class="space-y-6 hidden" onsubmit="handleRegister(event)">
+      <h2 class="text-3xl font-extrabold text-gray-900 text-center mb-8">Buat Akun Baru</h2>
+
+      <div class="form-group">
+        <label for="register-name" class="block text-sm font-medium text-gray-700">Nama Lengkap</label>
+        <input type="text" id="register-name" required
+          class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-0" placeholder="Nama Anda">
+      </div>
+
+      <div class="form-group">
+        <label for="register-email" class="block text-sm font-medium text-gray-700">Email</label>
+        <input type="email" id="register-email" required
+          class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-0"
+          placeholder="nama@contoh.com">
+      </div>
+
+      <div class="form-group">
+        <label for="register-password" class="block text-sm font-medium text-gray-700">Password</label>
+        <input type="password" id="register-password" required minlength="6"
+          class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-0"
+          placeholder="minimal 6 karakter">
+      </div>
+
+      <button type="submit" id="register-btn"
+        class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-base font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition duration-200 ease-in-out transform hover:scale-[1.01]">
+        Daftar
+      </button>
+
+      <p class="text-center text-sm text-gray-600 mt-6">Sudah punya akun?
+        <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500 hover:underline"
+          onclick="showForm('login'); return false;">Login di sini</a>
+      </p>
+    </form>
+
+  </div>
+
+
+  <!-- MODAL LUPA PASSWORD -->
+  <div id="forgotModal" class="fixed inset-0 hidden bg-black/40 items-center justify-center z-50">
+    <div class="bg-white p-6 rounded-xl w-full max-w-md">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-lg font-bold">Lupa Password</h3>
+        <button type="button" onclick="closeForgotModal()" class="text-gray-500 hover:text-gray-700">✕</button>
+      </div>
+
+      <input id="fp-email" class="w-full border rounded-lg px-4 py-3" placeholder="Email" />
+      <button id="btnSendOtp" type="button" onclick="sendOTP()"
+        class="w-full mt-2 bg-indigo-600 text-white rounded-lg py-3 font-semibold">
+        Kirim OTP
+      </button>
+
+
+
+      <input id="fp-otp" class="w-full border rounded-lg px-4 py-3 mt-3" placeholder="OTP" />
+      <input id="fp-newpass" class="w-full border rounded-lg px-4 py-3 mt-2" placeholder="Password baru"
+        type="password" />
+
+
+      <button id="btnResetPass" type="button" onclick="resetWithOTP()"
+        class="w-full mt-3 bg-emerald-600 text-white rounded-lg py-3 font-semibold">
+        Reset Password
+      </button>
+    </div>
+  </div>
+
+
+
+
+
+  <script>
+    const APP_URL = '<?= ScriptApp.getService().getUrl() ?>';
+
+    function openForgotModal() {
+      const m = document.getElementById('forgotModal');
+      m.classList.remove('hidden');
+      m.classList.add('flex'); // penting supaya tampil center
+      // opsional: isi email otomatis dari login
+      document.getElementById('fp-email').value = document.getElementById('login-email').value || '';
+    }
+
+    function sendOTP() {
+      const email = document.getElementById('fp-email').value.trim();
+      if (!email) {
+        showMessage('error', 'Email wajib diisi.');
+        return;
+      }
+
+      setButtonLoading('btnSendOtp', true, 'Mengirim OTP...', 'Kirim OTP');
+
+      google.script.run
+        .withSuccessHandler(res => {
+          setButtonLoading('btnSendOtp', false, 'Mengirim OTP...', 'Kirim OTP');
+          showMessage(res.status, res.message);
+        })
+        .withFailureHandler(err => {
+          setButtonLoading('btnSendOtp', false, 'Mengirim OTP...', 'Kirim OTP');
+          showMessage('error', '❌ Gagal memanggil server saat kirim OTP.');
+          console.error(err);
+        })
+        .sendResetCode(email);
+    }
+
+
+    function resetWithOTP() {
+      const email = document.getElementById('fp-email').value.trim();
+      const otp = document.getElementById('fp-otp').value.trim();
+      const pass = document.getElementById('fp-newpass').value;
+
+      if (!email || !otp || !pass) {
+        showMessage('error', 'Email, OTP, dan Password baru wajib diisi.');
+        return;
+      }
+      if (pass.length < 6) {
+        showMessage('error', 'Password minimal 6 karakter.');
+        return;
+      }
+
+      setButtonLoading('btnResetPass', true, 'Mereset password...', 'Reset Password');
+
+      google.script.run
+        .withSuccessHandler(res => {
+          setButtonLoading('btnResetPass', false, 'Mereset password...', 'Reset Password');
+          showMessage(res.status, res.message);
+
+          if (res.status === 'success') {
+            // bersihkan input & tutup modal biar user yakin selesai
+            document.getElementById('fp-otp').value = '';
+            document.getElementById('fp-newpass').value = '';
+            closeForgotModal();
+          }
+        })
+        .withFailureHandler(err => {
+          setButtonLoading('btnResetPass', false, 'Mereset password...', 'Reset Password');
+          showMessage('error', '❌ Gagal memanggil server saat reset password.');
+          console.error(err);
+        })
+        .verifyAndResetPassword(email, otp, pass);
+    }
+
+    function closeForgotModal() {
+      const m = document.getElementById('forgotModal');
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
+
+    function setButtonLoading(btnId, isLoading, textLoading, textNormal) {
+      const btn = document.getElementById(btnId);
+      if (!btn) return;
+      if (isLoading) {
+        btn.disabled = true;
+        btn.classList.add('opacity-70', 'cursor-not-allowed');
+        btn.innerText = textLoading;
+      } else {
+        btn.disabled = false;
+        btn.classList.remove('opacity-70', 'cursor-not-allowed');
+        btn.innerText = textNormal;
+      }
+    }
+
+
+
+
+    // Ambil year dari URL kalau ada (mis: ?year=2026), kalau tidak pakai localStorage, kalau tidak pakai 2025
+    function getYearFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const y = params.get('year');
+      return y && /^\d{4}$/.test(y) ? y : null;
+    }
+
+    function getActiveYear() {
+      return getYearFromUrl() || localStorage.getItem('activeYear') || '2025';
+    }
+
+    function redirectToDashboard(year, authToken) {
+      window.top.location.href = APP_URL
+        + '?page=portal'
+        + '&year=' + encodeURIComponent(year)
+        + '&token=' + encodeURIComponent(authToken || localStorage.getItem('authToken') || '')
+        + '&_ts=' + Date.now();
+    }
+
+    window.onload = function () {
+      // Set default tahun dropdown dari localStorage/url
+      const year = getActiveYear();
+      const yearSelect = document.getElementById('login-year');
+      if (yearSelect) yearSelect.value = year;
+
+      // Jika sudah login -> langsung ke dashboard (wajib login hanya untuk yang belum punya sesi)
+      if (localStorage.getItem('userEmail') && localStorage.getItem('authToken')) {
+        redirectToDashboard(year, localStorage.getItem('authToken'));
+        return;
+      }
+
+      showForm('login');
+    };
+
+    function showMessage(type, message) {
+      const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.addEventListener('mouseenter', Swal.stopTimer)
+          toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+      });
+
+      if (type === 'success') {
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: message,
+          confirmButtonColor: '#4f46e5',
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: message,
+          confirmButtonColor: '#ef4444',
+        });
+      }
+    }
+
+    function showForm(formType) {
+      const loginForm = document.getElementById('login-form');
+      const registerForm = document.getElementById('register-form');
+      const btnLogin = document.getElementById('btn-login');
+      const btnRegister = document.getElementById('btn-register');
+
+      const activeClass = 'bg-indigo-600 text-white shadow-md';
+      const inactiveClass = 'bg-gray-100 text-gray-700 hover:bg-white';
+
+      if (formType === 'login') {
+        loginForm.classList.remove('hidden');
+        registerForm.classList.add('hidden');
+        btnLogin.className = `flex-1 px-4 py-2 text-sm font-semibold rounded-xl transition duration-300 ease-in-out ${activeClass}`;
+        btnRegister.className = `flex-1 px-4 py-2 text-sm font-semibold rounded-xl transition duration-300 ease-in-out ${inactiveClass}`;
+      } else {
+        loginForm.classList.add('hidden');
+        registerForm.classList.remove('hidden');
+        btnRegister.className = `flex-1 px-4 py-2 text-sm font-semibold rounded-xl transition duration-300 ease-in-out ${activeClass}`;
+        btnLogin.className = `flex-1 px-4 py-2 text-sm font-semibold rounded-xl transition duration-300 ease-in-out ${inactiveClass}`;
+      }
+
+      document.getElementById('message-container').innerHTML = '';
+    }
+
+    function setLoading(isLoading, formType) {
+      const btnId = formType === 'login' ? 'login-btn' : 'register-btn';
+      const btn = document.getElementById(btnId);
+      const originalText = formType === 'login' ? 'Login' : 'Daftar';
+
+      if (isLoading) {
+        btn.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Memproses...';
+        btn.disabled = true;
+        btn.classList.add('opacity-70', 'cursor-not-allowed');
+      } else {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        btn.classList.remove('opacity-70', 'cursor-not-allowed');
+      }
+    }
+
+    function handleRegister(e) {
+      e.preventDefault();
+      setLoading(true, 'register');
+
+      const email = document.getElementById('register-email').value;
+      const password = document.getElementById('register-password').value;
+      const fullName = document.getElementById('register-name').value;
+
+      google.script.run
+        .withSuccessHandler(function (response) {
+          setLoading(false, 'register');
+          showMessage(response.status, response.message);
+
+          if (response.status === 'success') {
+            showForm('login');
+            document.getElementById('login-email').value = email;
+            document.getElementById('login-password').focus();
+          }
+        })
+        .withFailureHandler(function (error) {
+          setLoading(false, 'register');
+          showMessage('error', 'Gagal memanggil server: Coba ulangi kembali.');
+          console.error(error);
+        })
+        .registerUser({ email, password, fullName });
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      const year = document.getElementById('login-year').value || '2025';
+
+      setLoading(true, 'login');
+
+      google.script.run
+        .withSuccessHandler(function (response) {
+          setLoading(false, 'login');
+
+          if (response.status === 'success') {
+            // Simpan sesi lokal
+            localStorage.setItem('userEmail', response.user.email);
+            localStorage.setItem('userRole', response.user.role || 'umum');
+            localStorage.setItem('activeYear', year);
+            localStorage.setItem('authToken', response.authToken);
+
+            redirectToDashboard(year, response.authToken);
+          } else {
+            showMessage('error', response.message);
+          }
+        })
+        .withFailureHandler(function (error) {
+          setLoading(false, 'login');
+          showMessage('error', 'Gagal memanggil server.');
+          console.error(error);
+        })
+        .checkLogin(email, password);
+    }
+  </script>
+
+</body>
+
+</html>
