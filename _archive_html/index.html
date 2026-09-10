@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-slate-900">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & Registrasi Multi-Role - SIMPEL BPVP Kendari 2026</title>
+
+    <!-- Tailwind CSS & Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="simpel_auth.js"></script>
+
+    <style>
+        body, html, button, input, select, textarea, .font-heading { font-family: 'Montserrat', sans-serif; }
+        i, [class*="fa-"] { font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", "FontAwesome" !important; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-950 via-[#172e3e] to-[#2C4C63]">
+
+    <div class="max-w-lg w-full bg-white rounded-3xl shadow-2xl p-6 sm:p-9 border border-white/20 relative overflow-hidden my-8">
+        
+        <!-- TOP BRANDING -->
+        <div class="text-center space-y-2 mb-6">
+            <div class="inline-flex p-3 rounded-2xl bg-teal-50 border border-teal-100 shadow-xs">
+                <img src="assets/logo kemnaker.png" 
+                     onerror="this.src='https://bpvpkendari.kemnaker.go.id/storage/upload/setting/11749712002.png'" 
+                     alt="Logo Kemnaker" 
+                     class="h-12 w-12 object-contain">
+            </div>
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-widest text-teal-600 block">KEMENTERIAN KETENAGAKERJAAN RI</span>
+                <h1 class="text-2xl font-extrabold text-slate-900 font-heading">SIMPEL BPVP Kendari</h1>
+                <p class="text-xs text-slate-500">Sistem Informasi Pelatihan, Sertifikasi, Penempatan & Produktivitas</p>
+            </div>
+        </div>
+
+        <!-- AUTH TABS (MASUK / DAFTAR AKUN) -->
+        <div class="flex items-center justify-center p-1 bg-slate-100 rounded-2xl mb-6">
+            <button type="button" id="tab-login-btn" onclick="switchAuthTab('login')" 
+                    class="flex-1 py-2 text-xs font-bold rounded-xl bg-white text-slate-900 shadow-xs transition flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-arrow-right-to-bracket text-teal-600"></i>
+                <span>Masuk (Login)</span>
+            </button>
+            <button type="button" id="tab-register-btn" onclick="switchAuthTab('register')" 
+                    class="flex-1 py-2 text-xs font-bold rounded-xl text-slate-600 hover:text-slate-900 transition flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-user-plus text-indigo-600"></i>
+                <span>Daftar Akun Baru</span>
+            </button>
+        </div>
+
+        <!-- TAB 1: LOGIN PENGGUNA -->
+        <div id="login-section">
+            <form onsubmit="handleManualLogin(event)" class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1.5">Email / Akun Pengguna <span class="text-rose-500">*</span></label>
+                    <div class="relative">
+                        <i class="fa-solid fa-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="email" id="email" required value="admin@bpvpkendari.go.id" placeholder="nama@bpvpkendari.go.id"
+                               class="w-full pl-10 pr-3.5 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:outline-none bg-slate-50/50 text-slate-800 text-xs font-medium transition">
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="block font-bold text-slate-700">Kata Sandi (Password) <span class="text-rose-500">*</span></label>
+                        <button type="button" onclick="handleForgotPassword()" class="text-[11px] text-teal-600 hover:text-teal-700 font-semibold transition">Lupa sandi?</button>
+                    </div>
+                    <div class="relative">
+                        <i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="password" id="password" required value="password" placeholder="Masukkan kata sandi"
+                               class="w-full pl-10 pr-11 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:outline-none bg-slate-50/50 text-slate-800 text-xs font-medium transition">
+                        <button type="button" onclick="togglePasswordVisibility('password', 'password-eye-icon')" 
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none p-1 transition"
+                                title="Lihat / Sembunyikan Kata Sandi">
+                            <i id="password-eye-icon" class="fa-solid fa-eye text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-1">
+                    <label class="flex items-center gap-2 cursor-pointer select-none">
+                        <input type="checkbox" id="remember-me" checked class="rounded text-teal-600 focus:ring-teal-500 w-4 h-4 border-slate-300">
+                        <span class="text-slate-600 text-xs font-medium">Ingat Sesi Saya</span>
+                    </label>
+                    <span class="text-[10px] text-slate-400 font-medium"><i class="fa-solid fa-shield-halved text-teal-600 mr-1"></i>Sistem Terenkripsi</span>
+                </div>
+
+                <button type="submit" id="btn-login-submit" class="w-full py-3.5 rounded-xl bg-[#2C4C63] hover:bg-[#1e384b] text-white font-bold shadow-lg hover:shadow-slate-800/20 transition text-sm flex items-center justify-center gap-2 mt-2">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    <span>Masuk ke Workspace SIMPEL</span>
+                </button>
+
+                <div class="pt-3 text-center border-t border-slate-100">
+                    <p class="text-slate-500 text-xs">
+                        Belum memiliki akun dinas? 
+                        <button type="button" onclick="switchAuthTab('register')" class="text-teal-600 font-bold hover:underline transition">
+                            Daftar Akun Baru
+                        </button>
+                    </p>
+                </div>
+            </form>
+        </div>
+
+        <!-- TAB 2: DAFTAR AKUN BARU (REGISTER) -->
+        <div id="register-section" class="hidden">
+            <form onsubmit="handleRegister(event)" class="space-y-4 text-xs">
+                
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1.5">Nama Lengkap Pegawai / Petugas <span class="text-rose-500">*</span></label>
+                    <div class="relative">
+                        <i class="fa-solid fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" id="reg-name" required placeholder="Contoh: Ahmad Rizky, S.T." 
+                               class="w-full pl-10 pr-3.5 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:outline-none bg-slate-50/50 text-slate-800 text-xs font-medium transition">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1.5">Email Kedinasan / Akun Login <span class="text-rose-500">*</span></label>
+                    <div class="relative">
+                        <i class="fa-solid fa-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="email" id="reg-email" required placeholder="nama@bpvpkendari.go.id" 
+                               class="w-full pl-10 pr-3.5 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:outline-none bg-slate-50/50 text-slate-800 text-xs font-medium transition">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1.5">Pilihan Role Wewenang Bidang <span class="text-rose-500">*</span></label>
+                    <div class="relative">
+                        <i class="fa-solid fa-id-badge absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <select id="reg-role" required class="w-full pl-10 pr-3.5 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:outline-none bg-slate-50/50 text-slate-800 text-xs font-medium transition">
+                            <option value="">-- Pilih Salah Satu dari 9 Role --</option>
+                            <option value="admin">1. Admin (Super Administrator / Portal)</option>
+                            <option value="pimpinan">2. Pimpinan (Executive Dashboard & KPI Balai)</option>
+                            <option value="penyelenggara">3. Penyelenggara (Program Pelatihan UPTP: PBK, TMT, PBL)</option>
+                            <option value="pemberdayaan">4. Pemberdayaan (Data Siswa BNBA & Penempatan Alumni)</option>
+                            <option value="lsp">5. LSP (LSP BPVP Kendari / Sertifikasi BNSP)</option>
+                            <option value="produktivitas">6. Produktivitas (Bimbingan Teknis & Konsultasi Industri)</option>
+                            <option value="pengadaan">7. Pengadaan / Pokja (Logistik Bahan & Seragam)</option>
+                            <option value="umum">8. Umum / TU (Pelatihan UPTD Binaan & Tata Usaha)</option>
+                            <option value="keuangan">9. Keuangan (SP2D, Pembayaran & Realisasi Anggaran)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1.5">Kata Sandi (Password) <span class="text-rose-500">*</span></label>
+                        <div class="relative">
+                            <i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <input type="password" id="reg-password" required placeholder="Min. 6 karakter" minlength="6"
+                                   class="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:outline-none bg-slate-50/50 text-slate-800 text-xs font-medium transition">
+                            <button type="button" onclick="togglePasswordVisibility('reg-password', 'reg-password-eye-icon')" 
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none p-1 transition"
+                                    title="Lihat / Sembunyikan Kata Sandi">
+                                <i id="reg-password-eye-icon" class="fa-solid fa-eye text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1.5">Konfirmasi Sandi <span class="text-rose-500">*</span></label>
+                        <div class="relative">
+                            <i class="fa-solid fa-shield-halved absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <input type="password" id="reg-confirm-password" required placeholder="Ulangi sandi" minlength="6"
+                                   class="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:outline-none bg-slate-50/50 text-slate-800 text-xs font-medium transition">
+                            <button type="button" onclick="togglePasswordVisibility('reg-confirm-password', 'reg-confirm-eye-icon')" 
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none p-1 transition"
+                                    title="Lihat / Sembunyikan Konfirmasi Sandi">
+                                <i id="reg-confirm-eye-icon" class="fa-solid fa-eye text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-teal-50 rounded-xl border border-teal-100 text-[11px] text-teal-800 space-y-1">
+                    <p class="font-bold"><i class="fa-solid fa-circle-info mr-1 text-teal-600"></i>Hak Akses Terisolasi per Role:</p>
+                    <p class="text-slate-600 text-[11px]">Akun pegawai yang baru didaftarkan akan otomatis diarahkan ke modul spesifik sesuai bidang wewenang yang dipilih.</p>
+                </div>
+
+                <button type="submit" class="w-full py-3.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold shadow-lg hover:shadow-teal-700/20 transition text-sm flex items-center justify-center gap-2 mt-2">
+                    <i class="fa-solid fa-user-check"></i>
+                    <span>Daftarkan Akun Pegawai</span>
+                </button>
+
+                <div class="pt-3 text-center border-t border-slate-100">
+                    <p class="text-slate-500 text-xs">
+                        Sudah memiliki akun terdaftar? 
+                        <button type="button" onclick="switchAuthTab('login')" class="text-teal-600 font-bold hover:underline transition">
+                            Masuk (Login) di sini
+                        </button>
+                    </p>
+                </div>
+            </form>
+        </div>
+
+        <p class="mt-6 text-center text-[10px] text-slate-400">
+            &copy; 2026 BPVP Kendari &bull; Sistem Informasi Pelatihan Vokasi & Produktivitas
+        </p>
+    </div>
+
+    <script>
+        function togglePasswordVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (!input || !icon) return;
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        function switchAuthTab(tab) {
+            const loginSection = document.getElementById('login-section');
+            const registerSection = document.getElementById('register-section');
+            const loginBtn = document.getElementById('tab-login-btn');
+            const registerBtn = document.getElementById('tab-register-btn');
+
+            if (tab === 'login') {
+                loginSection.classList.remove('hidden');
+                registerSection.classList.add('hidden');
+                loginBtn.className = "flex-1 py-2 text-xs font-bold rounded-xl bg-white text-slate-900 shadow-xs transition flex items-center justify-center gap-1.5";
+                registerBtn.className = "flex-1 py-2 text-xs font-bold rounded-xl text-slate-600 hover:text-slate-900 transition flex items-center justify-center gap-1.5";
+                setTimeout(() => document.getElementById('email')?.focus(), 50);
+            } else {
+                loginSection.classList.add('hidden');
+                registerSection.classList.remove('hidden');
+                registerBtn.className = "flex-1 py-2 text-xs font-bold rounded-xl bg-white text-slate-900 shadow-xs transition flex items-center justify-center gap-1.5";
+                loginBtn.className = "flex-1 py-2 text-xs font-bold rounded-xl text-slate-600 hover:text-slate-900 transition flex items-center justify-center gap-1.5";
+                setTimeout(() => document.getElementById('reg-name')?.focus(), 50);
+            }
+        }
+
+        function handleManualLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Form Belum Lengkap',
+                    text: 'Silakan isi email dan kata sandi Anda.',
+                    confirmButtonColor: '#2C4C63'
+                });
+                return;
+            }
+
+            const result = SimpelAuth.login(email, password);
+
+            if (!result.success) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal Masuk',
+                    text: result.message,
+                    confirmButtonColor: '#2C4C63'
+                });
+                return;
+            }
+
+            const user = result.user || result;
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil Masuk!',
+                text: 'Selamat datang, ' + user.name + ' (' + (user.roleLabel || user.role) + ')',
+                timer: 1200,
+                showConfirmButton: false
+            }).then(() => {
+                window.location.href = user.homePage || 'portal.html';
+            });
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const role = document.getElementById('reg-role').value;
+            const password = document.getElementById('reg-password').value;
+            const confirmPassword = document.getElementById('reg-confirm-password').value;
+
+            if (password.length < 6) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Kata Sandi Terlalu Pendek',
+                    text: 'Kata sandi minimal harus 6 karakter demi keamanan akun Anda.',
+                    confirmButtonColor: '#0f766e'
+                });
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Kata Sandi Tidak Cocok',
+                    text: 'Pastikan konfirmasi kata sandi sama persis dengan kata sandi yang Anda masukkan.',
+                    confirmButtonColor: '#0f766e'
+                });
+                return;
+            }
+
+            // Check if email already registered
+            const allUsers = SimpelAuth.getAllUsers();
+            if (allUsers[email.toLowerCase()]) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Email Sudah Terdaftar',
+                    text: 'Email ini sudah digunakan oleh akun lain. Silakan login atau gunakan email dinas lainnya.',
+                    confirmButtonColor: '#0f766e'
+                });
+                return;
+            }
+
+            const newUser = SimpelAuth.registerUser({ name, email, password, role });
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Akun Berhasil Didaftarkan!',
+                html: `Selamat datang <b>${newUser.name}</b>!<br>Wewenang Anda telah ditetapkan sebagai: <b>${newUser.roleLabel}</b>.`,
+                confirmButtonText: 'Lanjut ke Modul Saya',
+                confirmButtonColor: '#0f766e'
+            }).then(() => {
+                SimpelAuth.login(email, password);
+                window.location.href = newUser.homePage || 'portal.html';
+            });
+        }
+
+        function handleForgotPassword() {
+            Swal.fire({
+                icon: 'info',
+                title: 'Bantuan Kata Sandi',
+                html: `<div class="text-left text-xs space-y-2 text-slate-600 leading-relaxed">
+                    <p>Untuk mereset kata sandi akun SIMPEL BPVP Kendari, silakan berkoordinasi dengan <b>Administrator IT / Subbag Tata Usaha</b>.</p>
+                    <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-[11px] space-y-1">
+                        <p class="font-bold text-slate-800"><i class="fa-solid fa-headset mr-1 text-teal-600"></i>Layanan Bantuan Internal:</p>
+                        <p>&bull; Email: <span class="font-mono text-teal-700">admin@bpvpkendari.go.id</span></p>
+                        <p>&bull; Lokasi: Ruang Tata Usaha & IT Balai BPVP Kendari</p>
+                    </div>
+                </div>`,
+                confirmButtonColor: '#2C4C63'
+            });
+        }
+    </script>
+</body>
+</html>

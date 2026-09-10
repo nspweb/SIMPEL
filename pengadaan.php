@@ -1,0 +1,411 @@
+<?php
+require_once __DIR__ . '/auth/auth_check.php';
+requireRoleAccess(['admin', 'pimpinan', 'pengadaan']);
+$activePage = 'pengadaan';
+?>
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Pokja Pengadaan - SIMPEL BPVP Kendari</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="simpel_auth.js"></script>
+    <style>
+        body, html, button, input, select, textarea, .font-heading { font-family: 'Montserrat', sans-serif; }
+        i, [class*="fa-"] { font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", "FontAwesome" !important; }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-50 flex flex-col antialiased">
+
+    <!-- UNIFIED APP NAVBAR -->
+    <?php include __DIR__ . '/includes/header.php'; ?>
+    <?php include __DIR__ . '/includes/sidebar.php'; ?>
+
+    <main class="flex-1 min-w-0 w-full px-4 sm:px-6 lg:px-8 xl:px-10 py-5 sm:py-6 space-y-6">
+
+        <!-- PAGE TITLE & ACTIONS -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-xl sm:text-2xl font-bold font-heading text-slate-900 tracking-tight">Dashboard & Monitoring Pengadaan Bahan 2026</h1>
+                <p class="text-xs text-slate-500 mt-0.5">Balai Pelatihan Vokasi dan Produktivitas Kendari · Kementerian Ketenagakerjaan RI</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2.5">
+                <a href="input.php" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-bold shadow-sm transition">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span>Input SPK & Nota Pesanan</span>
+                </a>
+                <a href="detail_pengadaan.php" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs font-bold shadow-xs transition">
+                    <i class="fa-solid fa-calculator text-emerald-800"></i>
+                    <span>Rincian Standar Bahan</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- HERO STAT CARDS (DONEZO STYLE) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+            <!-- Card 1: Primary Emerald Highlight -->
+            <div class="rounded-3xl p-5 sm:p-6 text-white relative overflow-hidden shadow-sm flex flex-col justify-between" style="background-color: #134e38;">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <span class="text-[11px] font-semibold tracking-wider text-emerald-200 uppercase block">Total Item Terverifikasi</span>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-1 font-heading">18 Item</h2>
+                    </div>
+                    <a href="#table-section" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center text-white text-sm transition">
+                        <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                    </a>
+                </div>
+                <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs">
+                    <span class="text-emerald-200">10 Kejuruan & Workshop</span>
+                    <span class="px-2 py-0.5 rounded-full bg-emerald-700/80 text-[10px] font-bold text-white">100% Terinput</span>
+                </div>
+            </div>
+
+            <!-- Card 2: White Metric -->
+            <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-xs flex flex-col justify-between">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase block">Estimasi Nilai Pengadaan</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-1 font-heading">Rp 124,5 Jt</h2>
+                    </div>
+                    <a href="detail_pengadaan.php" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 text-sm transition">
+                        <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                    </a>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                    <span class="truncate">SBM PMK 2026</span>
+                    <span class="text-emerald-700 font-bold flex items-center gap-1">
+                        <i class="fa-solid fa-shield-check"></i> Sesuai Pagu
+                    </span>
+                </div>
+            </div>
+
+            <!-- Card 3: White Metric -->
+            <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-xs flex flex-col justify-between">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase block">Realisasi Gudang Selesai</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-emerald-700 tracking-tight mt-1 font-heading">14 Item</h2>
+                    </div>
+                    <span class="w-9 h-9 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center text-sm font-bold">
+                        78%
+                    </span>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                    <span>BAST Gudang Fisik</span>
+                    <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold text-[10px]">Siap Digunakan</span>
+                </div>
+            </div>
+
+            <!-- Card 4: White Metric -->
+            <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-xs flex flex-col justify-between">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase block">Dalam Proses / Tender</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-amber-600 tracking-tight mt-1 font-heading">4 Item</h2>
+                    </div>
+                    <span class="w-9 h-9 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-sm font-bold">
+                        22%
+                    </span>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                    <span>Tahap Vendor & PO</span>
+                    <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-semibold text-[10px]">On Track Batch 2</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- MIDDLE SECTION: LOGISTICS CATEGORIES & SPK/VENDOR INTEGRATION -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- Left Col (7/12): Kategori Pengadaan & Alokasi Anggaran -->
+            <div class="lg:col-span-7 bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-xs flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h2 class="text-sm sm:text-base font-bold text-slate-900 font-heading">Distribusi Kategori Logistik Pelatihan</h2>
+                            <p class="text-xs text-slate-400">Pengelompokan barang habis pakai dan modul praktek PBK 2026</p>
+                        </div>
+                        <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">5 Klaster</span>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold mb-1">
+                                <span class="text-slate-700 flex items-center gap-2">
+                                    <i class="fa-solid fa-shirt text-indigo-600 text-xs"></i> Pakaian & Seragam Kerja Siswa
+                                </span>
+                                <span class="text-slate-900 font-bold">100% · Rp 5.600.000 (2 Paket)</span>
+                            </div>
+                            <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="h-full bg-emerald-600 rounded-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold mb-1">
+                                <span class="text-slate-700 flex items-center gap-2">
+                                    <i class="fa-solid fa-fire-burner text-amber-600 text-xs"></i> Bahan Praktek Las, Fabrikasi & Listrik
+                                </span>
+                                <span class="text-slate-900 font-bold">100% · Rp 48.200.000 (4 Paket)</span>
+                            </div>
+                            <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="h-full bg-emerald-600 rounded-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold mb-1">
+                                <span class="text-slate-700 flex items-center gap-2">
+                                    <i class="fa-solid fa-book-open text-blue-600 text-xs"></i> Modul Pembelajaran SKKNI & ATK Siswa
+                                </span>
+                                <span class="text-slate-900 font-bold">83% · Rp 18.400.000 (6 Paket)</span>
+                            </div>
+                            <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="h-full bg-blue-600 rounded-full" style="width: 83%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold mb-1">
+                                <span class="text-slate-700 flex items-center gap-2">
+                                    <i class="fa-solid fa-laptop-code text-teal-600 text-xs"></i> Komponen & Perangkat TIK
+                                </span>
+                                <span class="text-slate-900 font-bold">67% · Rp 28.500.000 (3 Paket)</span>
+                            </div>
+                            <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="h-full bg-teal-600 rounded-full" style="width: 67%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold mb-1">
+                                <span class="text-slate-700 flex items-center gap-2">
+                                    <i class="fa-solid fa-car text-rose-600 text-xs"></i> Suku Cadang & Bahan Praktek Otomotif
+                                </span>
+                                <span class="text-slate-900 font-bold">67% · Rp 23.800.000 (3 Paket)</span>
+                            </div>
+                            <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="h-full bg-amber-500 rounded-full" style="width: 67%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <span class="text-slate-500">Status Verifikasi Pejabat Pengadaan:</span>
+                    <span class="font-bold text-emerald-700 flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-check"></i> Sesuai Rencana Umum Pengadaan (RUP) Kemnaker
+                    </span>
+                </div>
+            </div>
+
+            <!-- Right Col (5/12): Integrasi SPK, Nota Pesanan & Rekanan -->
+            <div class="lg:col-span-5 bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-xs flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="text-sm sm:text-base font-bold text-slate-900 font-heading">Rekanan & Dokumen Pengadaan</h2>
+                        <a href="input.php" class="text-xs font-bold text-emerald-800 hover:underline">Kelola SPK &rarr;</a>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4">Tracking Surat Perintah Kerja (SPK) dan Surat Pesanan berjalan:</p>
+
+                    <div class="space-y-3">
+                        <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+                            <div class="min-w-0 pr-2">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 font-mono">SPK-004</span>
+                                    <p class="text-xs font-bold text-slate-800 truncate">CV. Sinar Logistik Mandiri</p>
+                                </div>
+                                <p class="text-[11px] text-slate-500 truncate mt-0.5">Pengadaan Seragam & Wearpack Praktek</p>
+                            </div>
+                            <span class="px-2 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold whitespace-nowrap">BAST Selesai</span>
+                        </div>
+
+                        <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+                            <div class="min-w-0 pr-2">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 font-mono">SPK-005</span>
+                                    <p class="text-xs font-bold text-slate-800 truncate">CV. Graha Grafika Kendari</p>
+                                </div>
+                                <p class="text-[11px] text-slate-500 truncate mt-0.5">Pencetakan Modul Pembelajaran Siswa</p>
+                            </div>
+                            <span class="px-2 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold whitespace-nowrap">BAST Selesai</span>
+                        </div>
+
+                        <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+                            <div class="min-w-0 pr-2">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 font-mono">SPK-007</span>
+                                    <p class="text-xs font-bold text-slate-800 truncate">PT. Multi Niaga Sultra</p>
+                                </div>
+                                <p class="text-[11px] text-slate-500 truncate mt-0.5">Komponen Perangkat Praktek Grafis & TIK</p>
+                            </div>
+                            <span class="px-2 py-1 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold whitespace-nowrap animate-pulse">Pengiriman</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-slate-100">
+                    <a href="input.php" class="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition">
+                        <i class="fa-solid fa-list-check text-slate-600"></i>
+                        <span>Lihat Semua Daftar Nota Pemesanan (12 Data)</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABLE & FILTER SECTION -->
+        <div id="table-section" class="bg-white rounded-3xl border border-slate-200/90 shadow-xs overflow-hidden">
+            <!-- Table Header Bar -->
+            <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-sm sm:text-base font-bold text-slate-900 font-heading">Daftar Rincian Pengadaan Bahan & Alat</h2>
+                    <p class="text-xs text-slate-500">Pencatatan realisasi dan status penerimaan gudang logistik</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <div class="relative">
+                        <input type="text" id="searchInput" placeholder="Cari alat / bahan / batch..." onkeyup="filterPengadaanTable()" class="pl-8 pr-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-700/20 w-48 sm:w-64 transition">
+                        <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 text-slate-400 text-xs"></i>
+                    </div>
+                    <select id="kategoriFilter" onchange="filterPengadaanTable()" class="px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 text-slate-700 font-medium focus:bg-white focus:outline-none">
+                        <option value="all">Semua Kategori</option>
+                        <option value="Pakaian & Seragam">Pakaian & Seragam</option>
+                        <option value="Bahan Praktek">Bahan Praktek</option>
+                        <option value="Modul / ATK">Modul / ATK</option>
+                        <option value="Alat / Bahan Praktek">Alat / Komponen</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Table Elements (Fits 100% width, no horizontal scroll) -->
+            <div class="w-full overflow-hidden">
+                <table class="w-full text-left text-xs text-slate-600" id="pengadaanTable">
+                    <thead class="bg-slate-50/75 text-slate-500 font-semibold border-b border-slate-200">
+                        <tr>
+                            <th class="py-3.5 px-3 text-center w-12">No</th>
+                            <th class="py-3.5 px-3 w-1/5">Program / Kejuruan</th>
+                            <th class="py-3.5 px-3 w-1/4">Nama Alat / Bahan Praktek</th>
+                            <th class="py-3.5 px-3 w-28 text-center">Kategori</th>
+                            <th class="py-3.5 px-2 text-center w-20">Volume</th>
+                            <th class="py-3.5 px-3 text-right w-28">Nilai Est. (Rp)</th>
+                            <th class="py-3.5 px-3 w-1/4">Spesifikasi / Standar</th>
+                            <th class="py-3.5 px-3 text-center w-28">Status Gudang</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr class="hover:bg-slate-50/80 transition pengadaan-row" data-kategori="Pakaian & Seragam">
+                            <td class="py-3.5 px-3 sm:px-4 text-center font-bold text-slate-400 whitespace-nowrap">1</td>
+                            <td class="py-3.5 px-3 sm:px-4 font-bold text-slate-900">Junior Web Developer <span class="text-slate-400 font-normal">· Batch 1</span></td>
+                            <td class="py-3.5 px-3 sm:px-4 font-semibold text-slate-800">Baju Seragam Praktek TIK & Kaos Polo</td>
+                            <td class="py-3.5 px-3 sm:px-4 whitespace-nowrap"><span class="px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 font-semibold text-[10px]">Pakaian & Seragam</span></td>
+                            <td class="py-3.5 px-2 sm:px-3 text-center font-extrabold whitespace-nowrap">16 Stel</td>
+                            <td class="py-3.5 px-3 sm:px-4 text-right font-bold text-emerald-800 whitespace-nowrap">Rp 2.800.000</td>
+                            <td class="py-3.5 px-3 sm:px-4 text-slate-500">Cotton Combed 24s Bordir Kemnaker RI</td>
+                            <td class="py-3.5 px-3 sm:px-4 text-center whitespace-nowrap"><span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800">Selesai / Diterima</span></td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition pengadaan-row" data-kategori="Bahan Praktek">
+                            <td class="py-3.5 px-3 sm:px-4 text-center font-bold text-slate-400 whitespace-nowrap">2</td>
+                            <td class="py-3.5 px-3 sm:px-4 font-bold text-slate-900">Junior Web Developer <span class="text-slate-400 font-normal">· Batch 1</span></td>
+                            <td class="py-3.5 px-3 sm:px-4 font-semibold text-slate-800">Flashdisk SanDisk Ultra 64GB</td>
+                            <td class="py-3.5 px-3 sm:px-4 whitespace-nowrap"><span class="px-2 py-0.5 rounded bg-teal-50 text-teal-700 font-semibold text-[10px]">Bahan Praktek</span></td>
+                            <td class="py-3.5 px-2 sm:px-3 text-center font-extrabold whitespace-nowrap">16 Unit</td>
+                            <td class="py-3.5 px-3 sm:px-4 text-right font-bold text-emerald-800 whitespace-nowrap">Rp 1.520.000</td>
+                            <td class="py-3.5 px-3 sm:px-4 text-slate-500">USB 3.0 Original Garansi 5 Thn</td>
+                            <td class="py-3.5 px-3 sm:px-4 text-center whitespace-nowrap"><span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800">Selesai / Diterima</span></td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition pengadaan-row" data-kategori="Modul / ATK">
+                            <td class="py-3.5 px-3 sm:px-4 text-center font-bold text-slate-400 whitespace-nowrap">3</td>
+                            <td class="py-3.5 px-3 sm:px-4 font-bold text-slate-900">Junior Web Developer <span class="text-slate-400 font-normal">· Batch 1</span></td>
+                            <td class="py-3.5 px-3 sm:px-4 font-semibold text-slate-800">Modul Cetak SKKNI Junior Web Developer</td>
+                            <td class="py-3.5 px-3 sm:px-4 whitespace-nowrap"><span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-semibold text-[10px]">Modul / ATK</span></td>
+                            <td class="py-3.5 px-2 sm:px-3 text-center font-extrabold whitespace-nowrap">16 Buku</td>
+                            <td class="py-3.5 px-3 sm:px-4 text-right font-bold text-emerald-800 whitespace-nowrap">Rp 1.360.000</td>
+                            <td class="py-3.5 px-3 sm:px-4 text-slate-500">Full Color 180 Hal HVS 80gr Hardcover</td>
+                            <td class="py-3.5 px-3 sm:px-4 text-center whitespace-nowrap"><span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800">Selesai / Diterima</span></td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition pengadaan-row" data-kategori="Bahan Praktek">
+                            <td class="py-3.5 px-3 sm:px-4 text-center font-bold text-slate-400 whitespace-nowrap">4</td>
+                            <td class="py-3.5 px-3 sm:px-4 font-bold text-slate-900">Pengelasan SMAW 3G <span class="text-slate-400 font-normal">· Batch 1</span></td>
+                            <td class="py-3.5 px-3 sm:px-4 font-semibold text-slate-800">Elektroda E7018 & Plat Baja 10mm</td>
+                            <td class="py-3.5 px-3 sm:px-4 whitespace-nowrap"><span class="px-2 py-0.5 rounded bg-amber-50 text-amber-700 font-semibold text-[10px]">Bahan Praktek</span></td>
+                            <td class="py-3.5 px-2 sm:px-3 text-center font-extrabold whitespace-nowrap">32 Kotak</td>
+                            <td class="py-3.5 px-3 sm:px-4 text-right font-bold text-emerald-800 whitespace-nowrap">Rp 14.800.000</td>
+                            <td class="py-3.5 px-3 sm:px-4 text-slate-500">LB-52 Kobe Steel & Plat SS400</td>
+                            <td class="py-3.5 px-3 sm:px-4 text-center whitespace-nowrap"><span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800">Selesai / Diterima</span></td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition pengadaan-row" data-kategori="Bahan Praktek">
+                            <td class="py-3.5 px-3 sm:px-4 text-center font-bold text-slate-400 whitespace-nowrap">5</td>
+                            <td class="py-3.5 px-3 sm:px-4 font-bold text-slate-900">Barista & Kopi <span class="text-slate-400 font-normal">· Batch 1</span></td>
+                            <td class="py-3.5 px-3 sm:px-4 font-semibold text-slate-800">Biji Kopi Arabika Toraja & Robusta Sultra</td>
+                            <td class="py-3.5 px-3 sm:px-4 whitespace-nowrap"><span class="px-2 py-0.5 rounded bg-amber-50 text-amber-700 font-semibold text-[10px]">Bahan Praktek</span></td>
+                            <td class="py-3.5 px-2 sm:px-3 text-center font-extrabold whitespace-nowrap">25 Kg</td>
+                            <td class="py-3.5 px-3 sm:px-4 text-right font-bold text-emerald-800 whitespace-nowrap">Rp 4.500.000</td>
+                            <td class="py-3.5 px-3 sm:px-4 text-slate-500">Fresh roast medium kemasan valve 1kg</td>
+                            <td class="py-3.5 px-3 sm:px-4 text-center whitespace-nowrap"><span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800">Selesai / Diterima</span></td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition pengadaan-row" data-kategori="Alat / Bahan Praktek">
+                            <td class="py-3.5 px-3 sm:px-4 text-center font-bold text-slate-400 whitespace-nowrap">6</td>
+                            <td class="py-3.5 px-3 sm:px-4 font-bold text-slate-900">Desainer Grafis Muda <span class="text-slate-400 font-normal">· Batch 2</span></td>
+                            <td class="py-3.5 px-3 sm:px-4 font-semibold text-slate-800">Drawing Pad Pen Tablet & Kertas Glossy A3</td>
+                            <td class="py-3.5 px-3 sm:px-4 whitespace-nowrap"><span class="px-2 py-0.5 rounded bg-teal-50 text-teal-700 font-semibold text-[10px]">Alat / Bahan Praktek</span></td>
+                            <td class="py-3.5 px-2 sm:px-3 text-center font-extrabold whitespace-nowrap">16 Set</td>
+                            <td class="py-3.5 px-3 sm:px-4 text-right font-bold text-emerald-800 whitespace-nowrap">Rp 9.600.000</td>
+                            <td class="py-3.5 px-3 sm:px-4 text-slate-500">Wacom CTL-472 + A3 Glossy 250gsm</td>
+                            <td class="py-3.5 px-3 sm:px-4 text-center whitespace-nowrap"><span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-amber-100 text-amber-800 animate-pulse">Dalam Pengiriman</span></td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition pengadaan-row" data-kategori="Bahan Praktek">
+                            <td class="py-3.5 px-3 sm:px-4 text-center font-bold text-slate-400 whitespace-nowrap">7</td>
+                            <td class="py-3.5 px-3 sm:px-4 font-bold text-slate-900">Teknik Otomotif Kendaraan Ringan <span class="text-slate-400 font-normal">· Batch 2</span></td>
+                            <td class="py-3.5 px-3 sm:px-4 font-semibold text-slate-800">Oli Mesin SAE 10W-40 & Kampas Rem Set</td>
+                            <td class="py-3.5 px-3 sm:px-4 whitespace-nowrap"><span class="px-2 py-0.5 rounded bg-amber-50 text-amber-700 font-semibold text-[10px]">Bahan Praktek</span></td>
+                            <td class="py-3.5 px-2 sm:px-3 text-center font-extrabold whitespace-nowrap">20 Galon</td>
+                            <td class="py-3.5 px-3 sm:px-4 text-right font-bold text-emerald-800 whitespace-nowrap">Rp 8.200.000</td>
+                            <td class="py-3.5 px-3 sm:px-4 text-slate-500">API SN/CF Synthetic + Brake Pad Genuine</td>
+                            <td class="py-3.5 px-3 sm:px-4 text-center whitespace-nowrap"><span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-amber-100 text-amber-800">Verifikasi Dokumen</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Table Footer Pagination/Info -->
+            <div class="p-4 bg-slate-50/50 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-500">
+                <span>Menampilkan <strong class="text-slate-700">7</strong> item contoh dari total <strong class="text-slate-700">18</strong> item pengadaan aktif</span>
+                <span class="text-emerald-800 font-medium">Terakhir diperbarui: 10 September 2026</span>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-400">
+        &copy; 2026 Balai Pelatihan Vokasi dan Produktivitas Kendari · Kementerian Ketenagakerjaan RI
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Sidebar rendered server-side by PHP
+        });
+
+        function filterPengadaanTable() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const kategori = document.getElementById('kategoriFilter').value;
+            const rows = document.querySelectorAll('.pengadaan-row');
+
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                const rowKat = row.getAttribute('data-kategori');
+                const matchesQuery = text.includes(query);
+                const matchesKat = (kategori === 'all' || rowKat === kategori);
+
+                if (matchesQuery && matchesKat) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

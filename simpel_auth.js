@@ -16,16 +16,18 @@ const SIMPEL_USERS = {
     'admin@bpvpkendari.go.id': {
         name: 'Administrator SIMPEL',
         email: 'admin@bpvpkendari.go.id',
+        password: 'password',
         role: 'admin',
         roleLabel: 'Super Admin (Portal)',
         dept: 'Pengelola Sistem Informasi & Integrasi Data',
         badgeColor: 'bg-rose-500',
-        homePage: 'portal.html',
+        homePage: 'dashboard.html',
         permissions: ['*']
     },
     'pimpinan@bpvpkendari.go.id': {
         name: 'Kepala BPVP Kendari',
         email: 'pimpinan@bpvpkendari.go.id',
+        password: 'password',
         role: 'pimpinan',
         roleLabel: 'Pimpinan Balai',
         dept: 'Pimpinan & Pengambil Kebijakan',
@@ -36,6 +38,7 @@ const SIMPEL_USERS = {
     'penyelenggara@bpvpkendari.go.id': {
         name: 'Seksi Penyelenggara Pelatihan',
         email: 'penyelenggara@bpvpkendari.go.id',
+        password: 'password',
         role: 'penyelenggara',
         roleLabel: 'Penyelenggara Pelatihan',
         dept: 'Seksi Penyelenggaraan Pelatihan Vokasi (UPTP)',
@@ -46,6 +49,7 @@ const SIMPEL_USERS = {
     'pemberdayaan@bpvpkendari.go.id': {
         name: 'Seksi Pemberdayaan & Peserta',
         email: 'pemberdayaan@bpvpkendari.go.id',
+        password: 'password',
         role: 'pemberdayaan',
         roleLabel: 'Pemberdayaan Peserta',
         dept: 'Seksi Pemberdayaan & Kerjasama Alumni (UPTP)',
@@ -56,6 +60,7 @@ const SIMPEL_USERS = {
     'lsp@bpvpkendari.go.id': {
         name: 'LSP BPVP Kendari',
         email: 'lsp@bpvpkendari.go.id',
+        password: 'password',
         role: 'lsp',
         roleLabel: 'LSP BPVP Kendari',
         dept: 'Lembaga Sertifikasi Profesi (BNSP)',
@@ -66,6 +71,7 @@ const SIMPEL_USERS = {
     'produktivitas@bpvpkendari.go.id': {
         name: 'Instruktur & Konsultan Produktivitas',
         email: 'produktivitas@bpvpkendari.go.id',
+        password: 'password',
         role: 'produktivitas',
         roleLabel: 'Produktivitas Industri',
         dept: 'Seksi Peningkatan Produktivitas',
@@ -76,6 +82,7 @@ const SIMPEL_USERS = {
     'pengadaan@bpvpkendari.go.id': {
         name: 'Pokja / Pengadaan Barang & Jasa',
         email: 'pengadaan@bpvpkendari.go.id',
+        password: 'password',
         role: 'pengadaan',
         roleLabel: 'Pengadaan / Pokja',
         dept: 'Pokja Pengadaan Bahan & Alat Pelatihan',
@@ -86,6 +93,7 @@ const SIMPEL_USERS = {
     'umum@bpvpkendari.go.id': {
         name: 'Subbag Umum & Tata Usaha',
         email: 'umum@bpvpkendari.go.id',
+        password: 'password',
         role: 'umum',
         roleLabel: 'Umum & TU (UPTD)',
         dept: 'Subbag Tata Usaha & UPTD Binaan',
@@ -96,6 +104,7 @@ const SIMPEL_USERS = {
     'keuangan@bpvpkendari.go.id': {
         name: 'Verifikator & Bendahara Keuangan',
         email: 'keuangan@bpvpkendari.go.id',
+        password: 'password',
         role: 'keuangan',
         roleLabel: 'Keuangan & SP2D',
         dept: 'Urusan Keuangan & Perbendaharaan',
@@ -906,32 +915,50 @@ const SimpelAuth = {
         return SIMPEL_USERS['admin@bpvpkendari.go.id'];
     },
 
-    login(email) {
+    login(email, password) {
         const allUsers = this.getAllUsers();
-        let user = allUsers[email];
+        const cleanEmail = (email || '').toLowerCase().trim();
+        
+        let user = allUsers[cleanEmail];
+        if (!user) {
+            // Case-insensitive key match
+            const matchKey = Object.keys(allUsers).find(k => k.toLowerCase() === cleanEmail);
+            if (matchKey) {
+                user = allUsers[matchKey];
+            }
+        }
         
         if (!user) {
-            // Default user fallback if typed manually
-            user = {
-                name: email.split('@')[0],
-                email: email,
-                role: 'admin',
-                roleLabel: 'Admin',
-                dept: 'BPVP Kendari',
-                badgeColor: 'bg-rose-500',
-                homePage: 'portal.html',
-                permissions: ['*']
+            return {
+                success: false,
+                message: 'Akun dengan email "' + email + '" belum terdaftar. Silakan klik tab "Daftar Akun Baru".'
             };
         }
+
+        // Validate password if provided
+        if (password !== undefined && password !== null) {
+            const expectedPassword = user.password || 'password';
+            if (password !== expectedPassword) {
+                return {
+                    success: false,
+                    message: 'Kata sandi (password) yang Anda masukkan salah. Silakan coba lagi.'
+                };
+            }
+        }
+
         localStorage.setItem('simpel_user', JSON.stringify(user));
-        return user;
+        return {
+            success: true,
+            user: user,
+            ...user
+        };
     },
 
     registerUser({ name, email, password, role }) {
         const registeredUsers = JSON.parse(localStorage.getItem('simpel_registered_users') || '{}');
         
         const roleTemplates = {
-            'admin': { roleLabel: 'Super Admin', dept: 'Pengelola Sistem Informasi & Integrasi', badgeColor: 'bg-rose-500', homePage: 'portal.html', permissions: ['*'] },
+            'admin': { roleLabel: 'Super Admin', dept: 'Pengelola Sistem Informasi & Integrasi', badgeColor: 'bg-rose-500', homePage: 'dashboard.html', permissions: ['*'] },
             'pimpinan': { roleLabel: 'Pimpinan Balai', dept: 'Pimpinan & Pengambil Kebijakan', badgeColor: 'bg-purple-600', homePage: 'dashboard.html', permissions: ['dashboard', 'detail_pengadaan'] },
             'penyelenggara': { roleLabel: 'Penyelenggara Pelatihan', dept: 'Seksi Penyelenggaraan Pelatihan Vokasi (UPTP)', badgeColor: 'bg-teal-600', homePage: 'pelatihan.html', permissions: ['pelatihan', 'input_penyelenggara', 'input'] },
             'pemberdayaan': { roleLabel: 'Pemberdayaan Peserta', dept: 'Seksi Pemberdayaan & Kerjasama Alumni (UPTP)', badgeColor: 'bg-blue-600', homePage: 'penempatan.html', permissions: ['penempatan', 'input_pemberdayaan', 'input'] },
@@ -1018,246 +1045,545 @@ const SimpelAuth = {
     },
 
     renderNavbar(activePage) {
-        // Enforce role route guarding on navbar render
+        // Enforce role route guarding
         this.enforcePageAccess(activePage);
 
         const user = this.getCurrentUser();
         const navContainer = document.getElementById('simpel-unified-header');
         if (!navContainer) return;
 
-        // Generate Role-Specific Navigation Links (STRICT ISOLATION: No access/links to other roles' pages)
-        let roleNavHtml = '';
+        // Global Dropdown Toggles for Sidebar
+        window.toggleBidangDropdown = function(e) {
+            if (e) { e.preventDefault(); e.stopPropagation(); }
+            const submenu = document.getElementById('bidang-submenu');
+            const chevron = document.getElementById('bidang-chevron');
+            if (!submenu) return;
+            submenu.classList.toggle('hidden');
+            if (chevron) chevron.classList.toggle('rotate-180');
+        };
 
-        if (user.role === 'admin') {
-            // Admin has Super Access to all modules and Portal
-            roleNavHtml = `
-                <a href="portal.html" class="px-3.5 py-2 rounded-xl transition ${activePage === 'portal' ? 'bg-[#0E202C] text-rose-300 font-bold ring-1 ring-white/10' : 'text-slate-200 hover:bg-[#0E202C]/60 hover:text-white'}">
-                    <i class="fa-solid fa-network-wired mr-1.5 text-rose-400"></i>
-                    <span>Portal Admin</span>
-                </a>
-                <a href="dashboard.html" class="px-3.5 py-2 rounded-xl transition ${activePage === 'dashboard' ? 'bg-[#0E202C] text-teal-300 font-bold ring-1 ring-white/10' : 'text-slate-200 hover:bg-[#0E202C]/60 hover:text-white'}">
-                    <i class="fa-solid fa-chart-pie mr-1.5 text-teal-400"></i>
-                    <span>Dashboard Pimpinan</span>
-                </a>
-                <div class="relative group">
-                    <button type="button" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl transition ${['pelatihan', 'penempatan', 'produktivitas', 'umum', 'pelatihan_uptd', 'sertifikasi', 'keuangan', 'pengadaan', 'detail_pengadaan'].includes(activePage) ? 'bg-[#0E202C] text-teal-300 font-bold ring-1 ring-white/10' : 'text-slate-200 hover:bg-[#0E202C]/60 hover:text-white'}">
-                        <i class="fa-solid fa-layer-group text-teal-400"></i>
-                        <span>Semua Bidang</span>
-                        <i class="fa-solid fa-chevron-down text-[9px] ml-0.5 text-slate-400 group-hover:rotate-180 transition-transform"></i>
-                    </button>
-                    <div class="absolute left-0 top-full mt-1.5 w-80 rounded-2xl bg-white text-slate-800 border border-slate-200 shadow-2xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
-                        <div class="px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 border-b border-slate-100 mb-1 flex items-center justify-between">
-                            <span>Modul Bidang Kerja</span>
-                            <span class="text-[9px] text-teal-600 bg-teal-50 px-1.5 py-0.5 rounded font-bold">Admin Super Access</span>
-                        </div>
-                        <div class="space-y-1 text-xs">
-                            <a href="penempatan.html" class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-100 transition ${activePage === 'penempatan' ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-700'}">
-                                <div class="w-7 h-7 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-users"></i></div>
-                                <div class="flex-1"><p class="font-bold leading-tight">Pemberdayaan</p><p class="text-[10px] text-slate-400">Peserta UPTP & Penempatan Alumni</p></div>
-                            </a>
-                            <a href="pelatihan.html" class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-100 transition ${activePage === 'pelatihan' ? 'bg-teal-50 text-teal-700 font-bold' : 'text-slate-700'}">
-                                <div class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-graduation-cap"></i></div>
-                                <div class="flex-1"><p class="font-bold leading-tight">Penyelenggara</p><p class="text-[10px] text-slate-400">Program PBK, TMT, PBL</p></div>
-                            </a>
-                            <a href="produktivitas.html" class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-100 transition ${activePage === 'produktivitas' ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-slate-700'}">
-                                <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-arrow-trend-up"></i></div>
-                                <div class="flex-1"><p class="font-bold leading-tight">Produktivitas</p><p class="text-[10px] text-slate-400">Bimbingan UMKM & Green Job</p></div>
-                            </a>
-                            <a href="pelatihan_uptd.html" class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-100 transition ${activePage === 'pelatihan_uptd' ? 'bg-amber-50 text-amber-800 font-bold' : 'text-slate-700'}">
-                                <div class="w-7 h-7 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-map-location-dot"></i></div>
-                                <div class="flex-1"><p class="font-bold leading-tight">Pelatihan UPTD</p><p class="text-[10px] text-slate-400">Tata Usaha & 5 BLK Binaan Sultra</p></div>
-                            </a>
-                            <a href="sertifikasi.html" class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-100 transition ${activePage === 'sertifikasi' ? 'bg-amber-50 text-amber-800 font-bold' : 'text-slate-700'}">
-                                <div class="w-7 h-7 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-certificate"></i></div>
-                                <div class="flex-1"><p class="font-bold leading-tight">LSP BPVP Kendari</p><p class="text-[10px] text-slate-400">Sertifikasi Kompetensi BNSP</p></div>
-                            </a>
-                            <a href="keuangan.html" class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-100 transition ${activePage === 'keuangan' ? 'bg-emerald-50 text-emerald-800 font-bold' : 'text-slate-700'}">
-                                <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-money-check-dollar"></i></div>
-                                <div class="flex-1"><p class="font-bold leading-tight">Keuangan</p><p class="text-[10px] text-slate-400">SP2D & Realisasi Anggaran</p></div>
-                            </a>
-                            <a href="pengadaan.html" class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-100 transition ${['pengadaan', 'detail_pengadaan'].includes(activePage) ? 'bg-indigo-50 text-indigo-800 font-bold' : 'text-slate-700'}">
-                                <div class="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-800 flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-boxes-stacked"></i></div>
-                                <div class="flex-1"><p class="font-bold leading-tight">Pengadaan / Pokja</p><p class="text-[10px] text-slate-400">Logistik & Rincian Harga Bahan</p></div>
-                            </a>
-                        </div>
+        window.toggleTuDropdown = function(e) {
+            if (e) { e.preventDefault(); e.stopPropagation(); }
+            const submenu = document.getElementById('tu-submenu');
+            const chevron = document.getElementById('tu-chevron');
+            if (!submenu) return;
+            submenu.classList.toggle('hidden');
+            if (chevron) chevron.classList.toggle('rotate-180');
+        };
+
+        window.togglePokjaDropdown = function(e) {
+            if (e) { e.preventDefault(); e.stopPropagation(); }
+            const submenu = document.getElementById('pokja-submenu');
+            const chevron = document.getElementById('pokja-chevron');
+            if (!submenu) return;
+            submenu.classList.toggle('hidden');
+            if (chevron) chevron.classList.toggle('rotate-180');
+        };
+
+        const bidangPages = ['penempatan', 'pelatihan', 'produktivitas', 'pelatihan_uptd', 'sertifikasi', 'keuangan', 'pengadaan', 'detail_pengadaan', 'input_penyelenggara', 'input_pemberdayaan', 'input_lsp', 'input_produktivitas', 'input_pelatihan_uptd', 'perjalanan_dinas', 'input_perjalanan_dinas'];
+        const isBidangActive = bidangPages.includes(activePage);
+        const isTuActive = activePage === 'pelatihan_uptd' || activePage === 'input_pelatihan_uptd' || activePage === 'perjalanan_dinas' || activePage === 'input_perjalanan_dinas';
+        const isPokjaActive = activePage === 'pengadaan' || activePage === 'detail_pengadaan' || activePage === 'input';
+
+        // Role-Specific & Dynamic Sidebar Navigation
+        let menuItemsHtml = '';
+
+        if (user.role === 'pimpinan') {
+            menuItemsHtml = `
+                <!-- 1. DASHBOARD PIMPINAN -->
+                <a href="dashboard.php" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition group ${activePage === 'dashboard' ? 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-md shadow-indigo-600/30' : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'}">
+                    <div class="w-6 h-6 rounded-lg ${activePage === 'dashboard' ? 'bg-white/20 text-white' : 'bg-indigo-500/15 text-indigo-400 group-hover:bg-indigo-500/30 group-hover:text-indigo-300'} flex items-center justify-center shrink-0 transition">
+                        <i class="fa-solid fa-chart-pie text-xs"></i>
                     </div>
-                </div>
-            `;
-        } else if (user.role === 'pimpinan') {
-            roleNavHtml = `
-                <a href="dashboard.html" class="px-3.5 py-2 rounded-xl transition ${activePage === 'dashboard' ? 'bg-[#0E202C] text-teal-300 font-bold ring-1 ring-white/10' : 'text-slate-200 hover:bg-[#0E202C]/60 hover:text-white'}">
-                    <i class="fa-solid fa-chart-pie mr-1.5 text-teal-400"></i>
                     <span>Dashboard Pimpinan</span>
                 </a>
-                <a href="detail_pengadaan.html" class="px-3.5 py-2 rounded-xl transition ${activePage === 'detail_pengadaan' ? 'bg-[#0E202C] text-indigo-300 font-bold ring-1 ring-white/10' : 'text-slate-200 hover:bg-[#0E202C]/60 hover:text-white'}">
-                    <i class="fa-solid fa-calculator mr-1.5 text-indigo-400"></i>
-                    <span>Detail Pengadaan Bahan & Harga</span>
+
+                <!-- 2. PERJALANAN DINAS (SPD) PIMPINAN - MANDIRI -->
+                <a href="perjalanan_dinas.php" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition group ${activePage === 'perjalanan_dinas' || activePage === 'input_perjalanan_dinas' ? 'bg-gradient-to-r from-emerald-800 to-teal-900 text-white shadow-md shadow-emerald-900/30' : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'}">
+                    <div class="w-6 h-6 rounded-lg ${activePage === 'perjalanan_dinas' || activePage === 'input_perjalanan_dinas' ? 'bg-white/20 text-white' : 'bg-emerald-500/15 text-emerald-400 group-hover:bg-emerald-500/30 group-hover:text-emerald-300'} flex items-center justify-center shrink-0 transition">
+                        <i class="fa-solid fa-briefcase text-xs"></i>
+                    </div>
+                    <div class="flex-1 flex items-center justify-between">
+                        <span>Perjalanan Dinas (SPD)</span>
+                        <span class="px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-[9px] font-extrabold text-emerald-300">Mandiri</span>
+                    </div>
                 </a>
-            `;
-        } else if (user.role === 'penyelenggara') {
-            roleNavHtml = `
-                <a href="pelatihan.html" class="px-3.5 py-2 rounded-xl transition ${['pelatihan', 'input_penyelenggara'].includes(activePage) ? 'bg-[#0E202C] text-teal-300 font-bold ring-1 ring-white/10' : 'text-slate-200 hover:bg-[#0E202C]/60 hover:text-white'}">
-                    <i class="fa-solid fa-graduation-cap mr-1.5 text-teal-400"></i>
-                    <span>Penyelenggara (Program Pelatihan)</span>
-                </a>
-            `;
-        } else if (user.role === 'pemberdayaan') {
-            roleNavHtml = `
-                <a href="penempatan.html" class="px-3.5 py-2 rounded-xl transition ${['penempatan', 'input_pemberdayaan'].includes(activePage) ? 'bg-[#0E202C] text-blue-300 font-bold ring-1 ring-white/10' : 'text-slate-200 hover:bg-[#0E202C]/60 hover:text-white'}">
-                    <i class="fa-solid fa-users mr-1.5 text-blue-400"></i>
-                    <span>Pemberdayaan & Penempatan Peserta</span>
-                </a>
-            `;
-        } else if (user.role === 'lsp') {
-            roleNavHtml = `
-                <a href="sertifikasi.html" class="px-3.5 py-2 rounded-xl transition ${['sertifikasi', 'input_lsp'].includes(activePage) ? 'bg-[#0E202C] text-amber-300 font-bold ring-1 ring-white/10' : 'text-slate-200 hover:bg-[#0E202C]/60 hover:text-white'}">
-                    <i class="fa-solid fa-certificate mr-1.5 text-amber-400"></i>
-                    <span>LSP BPVP Kendari</span>
-                </a>
-            `;
-        } else if (user.role === 'produktivitas') {
-            roleNavHtml = `
-                <a href="produktivitas.html" class="px-3.5 py-2 rounded-xl transition ${['produktivitas', 'input_produktivitas'].includes(activePage) ? 'bg-[#0E202C] text-emerald-300 font-bold ring-1 ring-white/10' : 'text-slate-200 hover:bg-[#0E202C]/60 hover:text-white'}">
-                    <i class="fa-solid fa-arrow-trend-up mr-1.5 text-emerald-400"></i>
-                    <span>Produktivitas Industri</span>
+
+                <!-- 3. RINCIAN BAHAN -->
+                <a href="detail_pengadaan.php" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition group ${activePage === 'detail_pengadaan' ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md shadow-teal-500/20' : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'}">
+                    <div class="w-6 h-6 rounded-lg ${activePage === 'detail_pengadaan' ? 'bg-white/20 text-white' : 'bg-teal-500/15 text-teal-400 group-hover:bg-teal-500/30 group-hover:text-teal-300'} flex items-center justify-center shrink-0 transition">
+                        <i class="fa-solid fa-calculator text-xs"></i>
+                    </div>
+                    <span>Rincian Bahan Pelatihan</span>
                 </a>
             `;
         } else if (user.role === 'pengadaan') {
-            roleNavHtml = `
-                <a href="pengadaan.html" class="px-3.5 py-2 rounded-xl transition ${activePage === 'pengadaan' ? 'bg-[#0E202C] text-indigo-300 font-bold ring-1 ring-white/10' : 'text-slate-200 hover:bg-[#0E202C]/60 hover:text-white'}">
-                    <i class="fa-solid fa-boxes-stacked mr-1.5 text-indigo-400"></i>
-                    <span>Pengadaan / Pokja</span>
+            menuItemsHtml = `
+                <!-- 1. DATA PENGADAAN -->
+                <a href="pengadaan.php" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition group ${activePage === 'pengadaan' ? 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-md shadow-indigo-600/30' : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'}">
+                    <div class="w-6 h-6 rounded-lg ${activePage === 'pengadaan' ? 'bg-white/20 text-white' : 'bg-indigo-500/15 text-indigo-400 group-hover:bg-indigo-500/30 group-hover:text-indigo-300'} flex items-center justify-center shrink-0 transition">
+                        <i class="fa-solid fa-boxes-packing text-xs"></i>
+                    </div>
+                    <span>Data Pengadaan Pokja</span>
                 </a>
-                <a href="detail_pengadaan.html" class="px-3.5 py-2 rounded-xl transition ${activePage === 'detail_pengadaan' ? 'bg-[#0E202C] text-indigo-300 font-bold ring-1 ring-white/10' : 'text-slate-200 hover:bg-[#0E202C]/60 hover:text-white'}">
-                    <i class="fa-solid fa-calculator mr-1.5 text-indigo-400"></i>
-                    <span>Detail Bahan & Harga</span>
+
+                <!-- 2. REKAP SPK & NOTA PEMESANAN -->
+                <a href="input.php" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition group ${activePage === 'input' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'}">
+                    <div class="w-6 h-6 rounded-lg ${activePage === 'input' ? 'bg-white/20 text-white' : 'bg-blue-500/15 text-blue-400 group-hover:bg-blue-500/30 group-hover:text-blue-300'} flex items-center justify-center shrink-0 transition">
+                        <i class="fa-solid fa-file-contract text-xs"></i>
+                    </div>
+                    <span>Rekap SPK & Nota Pesanan</span>
+                </a>
+
+                <!-- 3. RINCIAN BAHAN -->
+                <a href="detail_pengadaan.php" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition group ${activePage === 'detail_pengadaan' ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md shadow-teal-500/20' : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'}">
+                    <div class="w-6 h-6 rounded-lg ${activePage === 'detail_pengadaan' ? 'bg-white/20 text-white' : 'bg-teal-500/15 text-teal-400 group-hover:bg-teal-500/30 group-hover:text-teal-300'} flex items-center justify-center shrink-0 transition">
+                        <i class="fa-solid fa-calculator text-xs"></i>
+                    </div>
+                    <span>Rincian Bahan & Harga</span>
                 </a>
             `;
-        } else if (user.role === 'umum') {
-            roleNavHtml = `
-                <a href="pelatihan_uptd.html" class="px-3.5 py-2 rounded-xl transition ${['pelatihan_uptd', 'input_pelatihan_uptd'].includes(activePage) ? 'bg-[#0E202C] text-amber-300 font-bold ring-1 ring-white/10' : 'text-slate-200 hover:bg-[#0E202C]/60 hover:text-white'}">
-                    <i class="fa-solid fa-map-location-dot mr-1.5 text-amber-400"></i>
-                    <span>Data Pelatihan 5 BLK UPTD</span>
+        } else if (user.role === 'penyelenggara') {
+            menuItemsHtml = `
+                <!-- 1. DATA PELATIHAN -->
+                <a href="pelatihan.php" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition group ${activePage === 'pelatihan' ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md shadow-teal-500/30' : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'}">
+                    <div class="w-6 h-6 rounded-lg ${activePage === 'pelatihan' ? 'bg-white/20 text-white' : 'bg-teal-500/15 text-teal-400 group-hover:bg-teal-500/30 group-hover:text-teal-300'} flex items-center justify-center shrink-0 transition">
+                        <i class="fa-solid fa-graduation-cap text-xs"></i>
+                    </div>
+                    <span>Data Pelatihan</span>
+                </a>
+
+                <!-- 2. INPUT PELATIHAN PER BATCH -->
+                <a href="input_penyelenggara.php" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition group ${activePage === 'input_penyelenggara' ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md shadow-teal-500/30' : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'}">
+                    <div class="w-6 h-6 rounded-lg ${activePage === 'input_penyelenggara' ? 'bg-white/20 text-white' : 'bg-teal-500/15 text-teal-400 group-hover:bg-teal-500/30 group-hover:text-teal-300'} flex items-center justify-center shrink-0 transition">
+                        <i class="fa-solid fa-calendar-plus text-xs"></i>
+                    </div>
+                    <span>Input Pelatihan (Per Batch)</span>
+                </a>
+            `;
+        } else if (user.role === 'pemberdayaan') {
+            menuItemsHtml = `
+                <!-- 1. PENEMPATAN ALUMNI -->
+                <a href="penempatan.php" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition group ${activePage === 'penempatan' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'}">
+                    <div class="w-6 h-6 rounded-lg ${activePage === 'penempatan' ? 'bg-white/20 text-white' : 'bg-blue-500/15 text-blue-400 group-hover:bg-blue-500/30 group-hover:text-blue-300'} flex items-center justify-center shrink-0 transition">
+                        <i class="fa-solid fa-users text-xs"></i>
+                    </div>
+                    <span>Penempatan Alumni</span>
+                </a>
+
+                <!-- 2. INPUT PESERTA BNBA -->
+                <a href="input_pemberdayaan.php" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition group ${activePage === 'input_pemberdayaan' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'}">
+                    <div class="w-6 h-6 rounded-lg ${activePage === 'input_pemberdayaan' ? 'bg-white/20 text-white' : 'bg-blue-500/15 text-blue-400 group-hover:bg-blue-500/30 group-hover:text-blue-300'} flex items-center justify-center shrink-0 transition">
+                        <i class="fa-solid fa-user-plus text-xs"></i>
+                    </div>
+                    <span>Input Peserta (BNBA)</span>
+                </a>
+            `;
+        } else if (user.role === 'produktivitas') {
+            menuItemsHtml = `
+                <!-- 1. DATA PENGUKURAN PRODUKTIVITAS -->
+                <a href="produktivitas.php" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition group ${activePage === 'produktivitas' ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-500/30' : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'}">
+                    <div class="w-6 h-6 rounded-lg ${activePage === 'produktivitas' ? 'bg-white/20 text-white' : 'bg-emerald-500/15 text-emerald-400 group-hover:bg-emerald-500/30 group-hover:text-emerald-300'} flex items-center justify-center shrink-0 transition">
+                        <i class="fa-solid fa-arrow-trend-up text-xs"></i>
+                    </div>
+                    <span>Data Produktivitas</span>
+                </a>
+
+                <!-- 2. INPUT DATA PRODUKTIVITAS -->
+                <a href="input_produktivitas.php" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition group ${activePage === 'input_produktivitas' ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-500/30' : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'}">
+                    <div class="w-6 h-6 rounded-lg ${activePage === 'input_produktivitas' ? 'bg-white/20 text-white' : 'bg-emerald-500/15 text-emerald-400 group-hover:bg-emerald-500/30 group-hover:text-emerald-300'} flex items-center justify-center shrink-0 transition">
+                        <i class="fa-solid fa-chart-line text-xs"></i>
+                    </div>
+                    <span>Input Produktivitas</span>
+                </a>
+            `;
+        } else if (user.role === 'tu') {
+            menuItemsHtml = `
+                <!-- 1. DATA PELATIHAN UPTD -->
+                <a href="pelatihan_uptd.php" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition group ${activePage === 'pelatihan_uptd' ? 'bg-gradient-to-r from-amber-600 to-orange-600 text-white shadow-md shadow-amber-500/30' : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'}">
+                    <div class="w-6 h-6 rounded-lg ${activePage === 'pelatihan_uptd' ? 'bg-white/20 text-white' : 'bg-amber-500/15 text-amber-400 group-hover:bg-amber-500/30 group-hover:text-amber-300'} flex items-center justify-center shrink-0 transition">
+                        <i class="fa-solid fa-map-location-dot text-xs"></i>
+                    </div>
+                    <span>Pelatihan UPTD</span>
+                </a>
+
+                <!-- 2. PERJALANAN DINAS (SPD) -->
+                <a href="perjalanan_dinas.php" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition group ${activePage === 'perjalanan_dinas' || activePage === 'input_perjalanan_dinas' ? 'bg-gradient-to-r from-emerald-700 to-teal-800 text-white shadow-md shadow-emerald-900/30' : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'}">
+                    <div class="w-6 h-6 rounded-lg ${activePage === 'perjalanan_dinas' || activePage === 'input_perjalanan_dinas' ? 'bg-white/20 text-white' : 'bg-emerald-500/15 text-emerald-400 group-hover:bg-emerald-500/30 group-hover:text-emerald-300'} flex items-center justify-center shrink-0 transition">
+                        <i class="fa-solid fa-briefcase text-xs"></i>
+                    </div>
+                    <span>Perjalanan Dinas (SPD)</span>
+                </a>
+
+                <!-- 3. INPUT PELATIHAN UPTD -->
+                <a href="input_pelatihan_uptd.php" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition group ${activePage === 'input_pelatihan_uptd' ? 'bg-gradient-to-r from-amber-600 to-orange-600 text-white shadow-md shadow-amber-500/30' : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'}">
+                    <div class="w-6 h-6 rounded-lg ${activePage === 'input_pelatihan_uptd' ? 'bg-white/20 text-white' : 'bg-amber-500/15 text-amber-400 group-hover:bg-amber-500/30 group-hover:text-amber-300'} flex items-center justify-center shrink-0 transition">
+                        <i class="fa-solid fa-pen-to-square text-xs"></i>
+                    </div>
+                    <span>Input Pelatihan UPTD</span>
+                </a>
+            `;
+        } else if (user.role === 'lsp') {
+            menuItemsHtml = `
+                <!-- 1. DATA SERTIFIKASI LSP -->
+                <a href="sertifikasi.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition group ${activePage === 'sertifikasi' ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-md shadow-orange-500/30' : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'}">
+                    <div class="w-6 h-6 rounded-lg ${activePage === 'sertifikasi' ? 'bg-white/20 text-white' : 'bg-orange-500/15 text-orange-400 group-hover:bg-orange-500/30 group-hover:text-orange-300'} flex items-center justify-center shrink-0 transition">
+                        <i class="fa-solid fa-award text-xs"></i>
+                    </div>
+                    <span>Data Sertifikasi LSP</span>
+                </a>
+
+                <!-- 2. INPUT SERTIFIKASI -->
+                <a href="input_lsp.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition group ${activePage === 'input_lsp' ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-md shadow-orange-500/30' : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'}">
+                    <div class="w-6 h-6 rounded-lg ${activePage === 'input_lsp' ? 'bg-white/20 text-white' : 'bg-orange-500/15 text-orange-400 group-hover:bg-orange-500/30 group-hover:text-orange-300'} flex items-center justify-center shrink-0 transition">
+                        <i class="fa-solid fa-id-card-clip text-xs"></i>
+                    </div>
+                    <span>Input Sertifikasi LSP</span>
                 </a>
             `;
         } else if (user.role === 'keuangan') {
-            roleNavHtml = `
-                <a href="keuangan.html" class="px-3.5 py-2 rounded-xl transition ${activePage === 'keuangan' ? 'bg-[#0E202C] text-emerald-300 font-bold ring-1 ring-white/10' : 'text-slate-200 hover:bg-[#0E202C]/60 hover:text-white'}">
-                    <i class="fa-solid fa-money-check-dollar mr-1.5 text-emerald-400"></i>
-                    <span>Keuangan & SP2D</span>
+            menuItemsHtml = `
+                <!-- 1. DATA KEUANGAN -->
+                <a href="keuangan.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition group ${activePage === 'keuangan' ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-500/30' : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'}">
+                    <div class="w-6 h-6 rounded-lg ${activePage === 'keuangan' ? 'bg-white/20 text-white' : 'bg-emerald-500/15 text-emerald-400 group-hover:bg-emerald-500/30 group-hover:text-emerald-300'} flex items-center justify-center shrink-0 transition">
+                        <i class="fa-solid fa-wallet text-xs"></i>
+                    </div>
+                    <span>Data Keuangan</span>
                 </a>
             `;
-        }
-
-        navContainer.innerHTML = `
-        <!-- TOP LOGO & APP BAR (STRICT ROLE ISOLATION, NO INPUT DATA BUTTON, CLEAN SIMPEL LOGO ONLY) -->
-        <header class="bg-[#1A3344] text-white sticky top-0 z-50 border-b border-slate-700/80 shadow-md">
-            <div class="w-full px-4 sm:px-6 lg:px-10">
-                <div class="flex items-center justify-between h-16">
-                    
-                    <!-- LEFT: CLEAN LOGO & SIMPEL ONLY -->
-                    <div class="flex items-center space-x-3">
-                        <a href="${user.homePage || 'portal.html'}" class="flex items-center gap-3 group">
-                            <img src="assets/logo kemnaker.png" 
-                                 onerror="this.src='https://bpvpkendari.kemnaker.go.id/storage/upload/setting/11749712002.png'" 
-                                 alt="Logo Kemnaker" 
-                                 class="h-9 w-9 object-contain rounded-xl p-1 bg-white ring-2 ring-white/20 shadow-xs transition-transform group-hover:scale-105">
-                            <div class="flex flex-col">
-                                <span class="text-lg sm:text-xl font-extrabold tracking-tight text-white font-heading leading-tight">
-                                    SIMPEL
-                                </span>
-                            </div>
-                        </a>
+        } else {
+            // ADMIN / DEFAULT FULL ACCESS (DROPDOWN BIDANG)
+            menuItemsHtml = `
+                <!-- 1. DASHBOARD UTAMA -->
+                <a href="dashboard.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition group ${activePage === 'dashboard' ? 'bg-gradient-to-r from-emerald-700 to-teal-800 text-white shadow-md shadow-emerald-900/30' : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'}">
+                    <div class="w-6 h-6 rounded-lg ${activePage === 'dashboard' ? 'bg-white/20 text-white' : 'bg-emerald-500/15 text-emerald-400 group-hover:bg-emerald-500/30 group-hover:text-emerald-300'} flex items-center justify-center shrink-0 transition">
+                        <i class="fa-solid fa-chart-pie text-xs"></i>
                     </div>
+                    <span>Dashboard Utama</span>
+                </a>
 
-                    <!-- CENTER: STRICT ROLE-SPECIFIC NAVIGATION -->
-                    <nav class="hidden md:flex items-center space-x-2 text-xs font-semibold">
-                        ${roleNavHtml}
-                    </nav>
+                <!-- 2. DROPDOWN MENU BIDANG -->
+                <div class="space-y-1">
+                    <button type="button" onclick="window.toggleBidangDropdown(event)" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition group ${isBidangActive ? 'bg-slate-800/80 text-white' : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'}">
+                        <div class="flex items-center gap-3">
+                            <div class="w-6 h-6 rounded-lg ${isBidangActive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-400 group-hover:text-white'} flex items-center justify-center shrink-0 transition">
+                                <i class="fa-solid fa-sitemap text-xs"></i>
+                            </div>
+                            <span>Bidang</span>
+                        </div>
+                        <i id="bidang-chevron" class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform duration-200 ${isBidangActive ? 'rotate-180' : ''}"></i>
+                    </button>
 
-                    <!-- RIGHT CONTROLS: ROLE PROFILE SWITCHER ONLY (NO INPUT DATA BUTTON) -->
-                    <div class="flex items-center gap-3">
+                    <div id="bidang-submenu" class="${isBidangActive ? '' : 'hidden'} space-y-1 pl-4 border-l-2 border-slate-800 ml-4 py-1">
                         
-                        <!-- Active Role Indicator & Switcher Modal Trigger -->
-                        <div class="relative group">
-                            <button type="button" class="flex items-center gap-2.5 p-1.5 pl-2.5 pr-3 rounded-xl bg-[#0E202C] hover:bg-slate-800 border border-white/15 text-white text-xs transition">
-                                <div class="h-7 w-7 rounded-lg ${user.badgeColor || 'bg-teal-500'} text-white flex items-center justify-center font-bold text-[11px] uppercase shadow-xs">
-                                    ${user.role.substring(0, 2).toUpperCase()}
+                        <!-- 1. Pemberdayaan -->
+                        <a href="penempatan.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold transition group ${activePage === 'penempatan' || activePage === 'input_pemberdayaan' ? 'bg-blue-600/20 text-blue-400 font-bold border-l-2 border-blue-500 -ml-[16px] pl-[14px]' : 'text-slate-400 hover:text-white hover:bg-slate-800/40'}">
+                            <div class="w-5 h-5 rounded-md bg-blue-500/15 text-blue-400 flex items-center justify-center shrink-0 group-hover:bg-blue-500/30 transition">
+                                <i class="fa-solid fa-users text-[10px]"></i>
+                            </div>
+                            <span>Pemberdayaan</span>
+                        </a>
+
+                        <!-- 2. Penyelenggara -->
+                        <a href="pelatihan.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold transition group ${activePage === 'pelatihan' || activePage === 'input_penyelenggara' ? 'bg-teal-600/20 text-teal-400 font-bold border-l-2 border-teal-500 -ml-[16px] pl-[14px]' : 'text-slate-400 hover:text-white hover:bg-slate-800/40'}">
+                            <div class="w-5 h-5 rounded-md bg-teal-500/15 text-teal-400 flex items-center justify-center shrink-0 group-hover:bg-teal-500/30 transition">
+                                <i class="fa-solid fa-graduation-cap text-[10px]"></i>
+                            </div>
+                            <span>Penyelenggara</span>
+                        </a>
+
+                        <!-- 3. Produktivitas -->
+                        <a href="produktivitas.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold transition group ${activePage === 'produktivitas' || activePage === 'input_produktivitas' ? 'bg-emerald-600/20 text-emerald-400 font-bold border-l-2 border-emerald-500 -ml-[16px] pl-[14px]' : 'text-slate-400 hover:text-white hover:bg-slate-800/40'}">
+                            <div class="w-5 h-5 rounded-md bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0 group-hover:bg-emerald-500/30 transition">
+                                <i class="fa-solid fa-arrow-trend-up text-[10px]"></i>
+                            </div>
+                            <span>Produktivitas</span>
+                        </a>
+
+                        <!-- 4. Umum / TU (Di dalam TU ada Pelatihan UPTD) -->
+                        <div class="space-y-0.5">
+                            <button type="button" onclick="window.toggleTuDropdown(event)" class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800/40 transition group">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-5 h-5 rounded-md bg-amber-500/15 text-amber-400 flex items-center justify-center shrink-0 group-hover:bg-amber-500/30 transition">
+                                        <i class="fa-solid fa-landmark text-[10px]"></i>
+                                    </div>
+                                    <span>Umum / TU</span>
                                 </div>
-                                <div class="hidden md:flex flex-col text-left">
-                                    <span class="font-bold leading-tight text-white truncate max-w-[130px]">${user.name}</span>
-                                    <span class="text-[10px] text-teal-300 font-semibold uppercase tracking-wider">${user.roleLabel || user.role}</span>
-                                </div>
-                                <i class="fa-solid fa-chevron-down text-[9px] text-slate-400"></i>
+                                <i id="tu-chevron" class="fa-solid fa-chevron-down text-[9px] text-slate-500 transition-transform duration-200 ${isTuActive ? 'rotate-180' : ''}"></i>
                             </button>
-
-                            <!-- Role Switcher Dropdown (Allows Quick Role Swapping for 9 Roles Demo) -->
-                            <div class="absolute right-0 top-full mt-2 w-72 rounded-2xl bg-white text-slate-800 border border-slate-200 shadow-2xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
-                                <div class="p-3 border-b border-slate-100 bg-slate-50 rounded-xl mb-2">
-                                    <p class="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider">Role Aktif Saat Ini:</p>
-                                    <p class="text-xs font-bold text-slate-900 mt-0.5">${user.name}</p>
-                                    <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold text-white ${user.badgeColor || 'bg-teal-500'}">
-                                        ${user.roleLabel || user.role}
-                                    </span>
-                                </div>
-
-                                <div class="px-2 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Ganti Role Pengguna (Demo):</div>
-                                <div class="max-h-56 overflow-y-auto space-y-1 pr-1 text-xs">
-                                    <button onclick="SimpelAuth.switchRole('admin@bpvpkendari.go.id')" class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-slate-100 flex items-center justify-between ${user.role === 'admin' ? 'bg-teal-50 font-bold text-teal-800' : ''}">
-                                        <span>1. Admin (Super Access)</span>
-                                    </button>
-                                    <button onclick="SimpelAuth.switchRole('pimpinan@bpvpkendari.go.id')" class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-slate-100 flex items-center justify-between ${user.role === 'pimpinan' ? 'bg-teal-50 font-bold text-teal-800' : ''}">
-                                        <span>2. Pimpinan (Dashboard)</span>
-                                    </button>
-                                    <button onclick="SimpelAuth.switchRole('penyelenggara@bpvpkendari.go.id')" class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-slate-100 flex items-center justify-between ${user.role === 'penyelenggara' ? 'bg-teal-50 font-bold text-teal-800' : ''}">
-                                        <span>3. Penyelenggara (Proposal)</span>
-                                    </button>
-                                    <button onclick="SimpelAuth.switchRole('pemberdayaan@bpvpkendari.go.id')" class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-slate-100 flex items-center justify-between ${user.role === 'pemberdayaan' ? 'bg-teal-50 font-bold text-teal-800' : ''}">
-                                        <span>4. Pemberdayaan (Peserta)</span>
-                                    </button>
-                                    <button onclick="SimpelAuth.switchRole('lsp@bpvpkendari.go.id')" class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-slate-100 flex items-center justify-between ${user.role === 'lsp' ? 'bg-teal-50 font-bold text-teal-800' : ''}">
-                                        <span>5. LSP (Sertifikasi BNSP)</span>
-                                    </button>
-                                    <button onclick="SimpelAuth.switchRole('produktivitas@bpvpkendari.go.id')" class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-slate-100 flex items-center justify-between ${user.role === 'produktivitas' ? 'bg-teal-50 font-bold text-teal-800' : ''}">
-                                        <span>6. Produktivitas (UMKM)</span>
-                                    </button>
-                                    <button onclick="SimpelAuth.switchRole('pengadaan@bpvpkendari.go.id')" class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-slate-100 flex items-center justify-between ${user.role === 'pengadaan' ? 'bg-teal-50 font-bold text-teal-800' : ''}">
-                                        <span>7. Pengadaan / Pokja</span>
-                                    </button>
-                                    <button onclick="SimpelAuth.switchRole('umum@bpvpkendari.go.id')" class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-slate-100 flex items-center justify-between ${user.role === 'umum' ? 'bg-teal-50 font-bold text-teal-800' : ''}">
-                                        <span>8. Umum / TU (UPTD)</span>
-                                    </button>
-                                    <button onclick="SimpelAuth.switchRole('keuangan@bpvpkendari.go.id')" class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-slate-100 flex items-center justify-between ${user.role === 'keuangan' ? 'bg-teal-50 font-bold text-teal-800' : ''}">
-                                        <span>9. Keuangan (Bayar/SP2D)</span>
-                                    </button>
-                                </div>
-
-                                <div class="border-t border-slate-100 mt-2 pt-2">
-                                    <button onclick="SimpelAuth.logout()" type="button" class="w-full flex items-center justify-center gap-2 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-xl transition">
-                                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                                        <span>Keluar (Logout)</span>
-                                    </button>
-                                </div>
+                            <div id="tu-submenu" class="${isTuActive ? '' : 'hidden'} space-y-1 pl-3.5 border-l border-slate-700 ml-4 py-0.5">
+                                <a href="pelatihan_uptd.php" class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition group ${activePage === 'pelatihan_uptd' || activePage === 'input_pelatihan_uptd' ? 'text-amber-300 font-bold bg-amber-500/20' : 'text-slate-400 hover:text-white'}">
+                                    <div class="w-4 h-4 rounded bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+                                        <i class="fa-solid fa-map-location-dot text-[9px]"></i>
+                                    </div>
+                                    <span>Pelatihan UPTD</span>
+                                </a>
+                                <a href="perjalanan_dinas.php" class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition group ${activePage === 'perjalanan_dinas' || activePage === 'input_perjalanan_dinas' ? 'text-emerald-300 font-bold bg-emerald-500/20' : 'text-slate-400 hover:text-white'}">
+                                    <div class="w-4 h-4 rounded bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                                        <i class="fa-solid fa-briefcase text-[9px]"></i>
+                                    </div>
+                                    <span>Perjalanan Dinas (SPD)</span>
+                                </a>
                             </div>
                         </div>
 
-                        <!-- Mobile Menu Button -->
-                        <button onclick="document.getElementById('mobile-nav-panel').classList.toggle('hidden')" type="button" class="md:hidden p-2 rounded-xl bg-[#0E202C] text-white">
-                            <i class="fa-solid fa-bars text-sm"></i>
+                        <!-- 5. LSP -->
+                        <a href="sertifikasi.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold transition group ${activePage === 'sertifikasi' || activePage === 'input_lsp' ? 'bg-orange-600/20 text-orange-400 font-bold border-l-2 border-orange-500 -ml-[16px] pl-[14px]' : 'text-slate-400 hover:text-white hover:bg-slate-800/40'}">
+                            <div class="w-5 h-5 rounded-md bg-orange-500/15 text-orange-400 flex items-center justify-center shrink-0 group-hover:bg-orange-500/30 transition">
+                                <i class="fa-solid fa-award text-[10px]"></i>
+                            </div>
+                            <span>LSP</span>
+                        </a>
+
+                        <!-- 6. Keuangan -->
+                        <a href="keuangan.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold transition group ${activePage === 'keuangan' ? 'bg-emerald-600/20 text-emerald-400 font-bold border-l-2 border-emerald-500 -ml-[16px] pl-[14px]' : 'text-slate-400 hover:text-white hover:bg-slate-800/40'}">
+                            <div class="w-5 h-5 rounded-md bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0 group-hover:bg-emerald-500/30 transition">
+                                <i class="fa-solid fa-wallet text-[10px]"></i>
+                            </div>
+                            <span>Keuangan</span>
+                        </a>
+
+                        <!-- 7. Pengadaan / Pokja (Dropdown dengan Rincian Bahan di dalamnya) -->
+                        <div class="space-y-0.5">
+                            <button type="button" onclick="window.togglePokjaDropdown(event)" class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800/40 transition group">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-5 h-5 rounded-md bg-indigo-500/15 text-indigo-400 flex items-center justify-center shrink-0 group-hover:bg-indigo-500/30 transition">
+                                        <i class="fa-solid fa-boxes-packing text-[10px]"></i>
+                                    </div>
+                                    <span>Pengadaan / Pokja</span>
+                                </div>
+                                <i id="pokja-chevron" class="fa-solid fa-chevron-down text-[9px] text-slate-500 transition-transform duration-200 ${isPokjaActive ? 'rotate-180' : ''}"></i>
+                            </button>
+                            <div id="pokja-submenu" class="${isPokjaActive ? '' : 'hidden'} space-y-1 pl-3.5 border-l border-slate-700 ml-4 py-0.5">
+                                <a href="pengadaan.html" class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition group ${activePage === 'pengadaan' ? 'text-indigo-300 font-bold bg-indigo-500/20' : 'text-slate-400 hover:text-white'}">
+                                    <div class="w-4 h-4 rounded bg-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0">
+                                        <i class="fa-solid fa-boxes-stacked text-[9px]"></i>
+                                    </div>
+                                    <span>Data Pengadaan</span>
+                                </a>
+                                <a href="detail_pengadaan.html" class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition group ${activePage === 'detail_pengadaan' ? 'text-indigo-300 font-bold bg-indigo-500/20' : 'text-slate-400 hover:text-white'}">
+                                    <div class="w-4 h-4 rounded bg-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0">
+                                        <i class="fa-solid fa-calculator text-[9px]"></i>
+                                    </div>
+                                    <span>Rincian Bahan</span>
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            `;
+        }
+
+        const userInitial = (user.name || 'Admin').charAt(0).toUpperCase();
+
+        navContainer.innerHTML = `
+        <!-- BACKDROP OVERLAY FOR MOBILE -->
+        <div id="simpel-sidebar-backdrop" onclick="document.getElementById('simpel-sidebar').classList.add('-translate-x-full'); this.classList.add('hidden')" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-40 lg:hidden hidden transition-opacity"></div>
+
+        <!-- MODERN SLEEK DARK SIDEBAR (PERSIS SEPERTI GAMBAR CONTOH) -->
+        <aside id="simpel-sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-[#0F172A] border-r border-slate-800 text-slate-200 flex flex-col justify-between transition-transform duration-300 -translate-x-full lg:translate-x-0 shadow-2xl">
+            
+            <!-- SIDEBAR HEADER / BRAND LOGO -->
+            <div>
+                <div class="h-20 flex items-center justify-between px-6 border-b border-slate-800/80">
+                    <a href="${user.homePage || 'portal.html'}" class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-500 to-emerald-400 flex items-center justify-center text-slate-950 font-extrabold text-lg shadow-md shadow-teal-500/20">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-lg font-extrabold font-heading text-white tracking-wider leading-none">
+                                SIMPEL
+                            </span>
+                            <span class="text-[10px] text-teal-400 font-semibold uppercase tracking-widest mt-1">
+                                BPVP KENDARI
+                            </span>
+                        </div>
+                    </a>
+
+                    <!-- Mobile Close button -->
+                    <button onclick="document.getElementById('simpel-sidebar').classList.add('-translate-x-full'); document.getElementById('simpel-sidebar-backdrop').classList.add('hidden')" class="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800">
+                        <i class="fa-solid fa-xmark text-sm"></i>
+                    </button>
+                </div>
+
+                <!-- SIDEBAR NAV ITEMS -->
+                <nav class="p-4 space-y-1.5 overflow-y-auto max-h-[calc(100vh-170px)]">
+                    ${menuItemsHtml}
+                </nav>
+            </div>
+
+            <!-- SIDEBAR USER PROFILE FOOTER (SESUAI GAMBAR CONTOH) -->
+            <div class="p-4 border-t border-slate-800/80 bg-slate-900/60">
+                <div class="flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="w-9 h-9 rounded-xl bg-blue-600 text-white font-extrabold text-sm flex items-center justify-center shrink-0 shadow-md shadow-blue-500/30">
+                            ${userInitial}
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <p class="text-xs font-bold text-white truncate">${user.name}</p>
+                            <span class="text-[9px] font-extrabold text-teal-300 uppercase tracking-wider block truncate">${user.roleLabel || user.role}</span>
+                        </div>
+                    </div>
+
+                    <!-- Role Switcher Trigger -->
+                    <div class="relative group">
+                        <button type="button" class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition" title="Ganti Role (Demo)">
+                            <i class="fa-solid fa-gear text-xs"></i>
                         </button>
 
+                        <div class="absolute bottom-full right-0 mb-2 w-64 rounded-2xl bg-white text-slate-800 border border-slate-200 shadow-2xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 text-xs">
+                            <div class="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">Ganti Role Pengguna:</div>
+                            <div class="max-h-48 overflow-y-auto space-y-1 p-1">
+                                <button onclick="SimpelAuth.switchRole('admin@bpvpkendari.go.id')" class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-slate-100 flex items-center justify-between">
+                                    <span>1. Admin (Super Access)</span>
+                                </button>
+                                <button onclick="SimpelAuth.switchRole('pimpinan@bpvpkendari.go.id')" class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-slate-100 flex items-center justify-between">
+                                    <span>2. Pimpinan (Dashboard)</span>
+                                </button>
+                                <button onclick="SimpelAuth.switchRole('penyelenggara@bpvpkendari.go.id')" class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-slate-100 flex items-center justify-between">
+                                    <span>3. Penyelenggara (Pelatihan)</span>
+                                </button>
+                                <button onclick="SimpelAuth.switchRole('pemberdayaan@bpvpkendari.go.id')" class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-slate-100 flex items-center justify-between">
+                                    <span>4. Pemberdayaan (Alumni)</span>
+                                </button>
+                                <button onclick="SimpelAuth.switchRole('lsp@bpvpkendari.go.id')" class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-slate-100 flex items-center justify-between">
+                                    <span>5. LSP (Sertifikasi)</span>
+                                </button>
+                                <button onclick="SimpelAuth.switchRole('produktivitas@bpvpkendari.go.id')" class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-slate-100 flex items-center justify-between">
+                                    <span>6. Produktivitas (UMKM)</span>
+                                </button>
+                                <button onclick="SimpelAuth.switchRole('pengadaan@bpvpkendari.go.id')" class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-slate-100 flex items-center justify-between">
+                                    <span>7. Pengadaan / Pokja</span>
+                                </button>
+                                <button onclick="SimpelAuth.switchRole('umum@bpvpkendari.go.id')" class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-slate-100 flex items-center justify-between">
+                                    <span>8. Umum / TU (UPTD)</span>
+                                </button>
+                                <button onclick="SimpelAuth.switchRole('keuangan@bpvpkendari.go.id')" class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-slate-100 flex items-center justify-between">
+                                    <span>9. Keuangan & SP2D</span>
+                                </button>
+                            </div>
+                            <div class="border-t border-slate-100 pt-1">
+                                <button onclick="SimpelAuth.logout()" class="w-full py-1.5 text-center text-rose-600 font-bold hover:bg-rose-50 rounded-lg">
+                                    Keluar (Logout)
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                 </div>
             </div>
+        </aside>
 
-            <!-- Mobile Navigation Panel (Role-Specific) -->
-            <div id="mobile-nav-panel" class="hidden md:hidden bg-[#0E202C] border-t border-slate-700/80 px-4 pt-3 pb-5 space-y-1 text-xs">
-                ${roleNavHtml}
-                <button onclick="SimpelAuth.logout()" class="w-full text-left px-3 py-2 text-rose-400 font-bold border-t border-slate-800 mt-2">Keluar (Logout)</button>
+        <!-- TOP MOBILE APP BAR TOGGLE -->
+        <div class="lg:hidden sticky top-0 z-40 bg-[#0F172A] text-white px-4 py-3 flex items-center justify-between border-b border-slate-800 shadow-md">
+            <button onclick="document.getElementById('simpel-sidebar').classList.remove('-translate-x-full'); document.getElementById('simpel-sidebar-backdrop').classList.remove('hidden')" class="p-2 rounded-xl bg-slate-800 text-white">
+                <i class="fa-solid fa-bars text-sm"></i>
+            </button>
+            <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-lg bg-teal-500 text-slate-950 font-black text-xs flex items-center justify-center">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <span class="font-bold text-sm tracking-wide">SIMPEL</span>
             </div>
-        </header>
+            <div class="w-7 h-7 rounded-lg bg-blue-600 text-white font-bold text-xs flex items-center justify-center">
+                ${userInitial}
+            </div>
+        </div>
         `;
+
+        // Universal Responsive Layout Engine: Fixes horizontal overflow across all screen sizes
+        if (!document.getElementById('simpel-responsive-layout-style')) {
+            const style = document.createElement('style');
+            style.id = 'simpel-responsive-layout-style';
+            style.textContent = `
+                @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap');
+                
+                html, body, button, input, select, textarea, p, span, h1, h2, h3, h4, h5, h6, a, div, label, table, th, td, .font-heading {
+                    font-family: 'Montserrat', sans-serif;
+                }
+
+                /* ENFORCE & PROTECT FONT AWESOME ICONS FROM BEING OVERRIDDEN */
+                i, [class*="fa-"], .fa, .fas, .far, .fal, .fad, .fab, .fa-solid, .fa-regular, .fa-brands {
+                    font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", "FontAwesome" !important;
+                    display: inline-block;
+                    font-style: normal;
+                    font-variant: normal;
+                    text-rendering: auto;
+                    line-height: 1;
+                    -webkit-font-smoothing: antialiased;
+                }
+                .fa-regular {
+                    font-weight: 400 !important;
+                }
+                .fa-solid, .fas {
+                    font-weight: 900 !important;
+                }
+                .fa-brands, .fab {
+                    font-weight: 400 !important;
+                    font-family: "Font Awesome 6 Brands" !important;
+                }
+                html, body {
+                    max-width: 100vw;
+                    overflow-x: hidden;
+                }
+                /* Sleek modern custom scrollbar */
+                ::-webkit-scrollbar {
+                    width: 6px;
+                    height: 6px;
+                }
+                ::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+                ::-webkit-scrollbar-thumb {
+                    background: #cbd5e1;
+                    border-radius: 9999px;
+                }
+                ::-webkit-scrollbar-thumb:hover {
+                    background: #94a3b8;
+                }
+                @media (min-width: 1024px) {
+                    body {
+                        padding-left: 16rem !important; /* 256px for sidebar */
+                        box-sizing: border-box !important;
+                        width: 100% !important;
+                    }
+                    main {
+                        margin-left: 0 !important;
+                        width: 100% !important;
+                        max-width: 100% !important;
+                        min-width: 0 !important;
+                        box-sizing: border-box !important;
+                    }
+                    footer {
+                        margin-left: 0 !important;
+                        width: 100% !important;
+                        min-width: 0 !important;
+                        box-sizing: border-box !important;
+                    }
+                }
+                @media print {
+                    body {
+                        padding-left: 0 !important;
+                    }
+                    #simpel-sidebar, #simpel-unified-header, #simpel-sidebar-backdrop {
+                        display: none !important;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        document.body.classList.add('overflow-x-hidden');
+        const mainEl = document.querySelector('main');
+        if (mainEl) {
+            mainEl.classList.remove('lg:ml-64');
+            mainEl.classList.add('min-w-0');
+        }
+        const footerEl = document.querySelector('footer');
+        if (footerEl) {
+            footerEl.classList.remove('lg:ml-64');
+        }
     }
 };
 

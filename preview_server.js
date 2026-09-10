@@ -12,6 +12,7 @@ const PORT = process.env.PORT || 8000;
 
 const MIME_TYPES = {
     '.html': 'text/html; charset=utf-8',
+    '.php': 'text/html; charset=utf-8',
     '.js': 'text/javascript; charset=utf-8',
     '.css': 'text/css; charset=utf-8',
     '.json': 'application/json; charset=utf-8',
@@ -26,10 +27,11 @@ const server = http.createServer((req, res) => {
     let pathname = parsedUrl.pathname;
 
     if (pathname === '/') {
-        pathname = '/index.html';
+        pathname = fs.existsSync(path.join(__dirname, 'index.php')) ? '/index.php' : '/index.html';
     } else if (!path.extname(pathname)) {
-        // If route like /dashboard or /pelatihan, look for .html file
-        if (fs.existsSync(path.join(__dirname, pathname + '.html'))) {
+        if (fs.existsSync(path.join(__dirname, pathname + '.php'))) {
+            pathname = pathname + '.php';
+        } else if (fs.existsSync(path.join(__dirname, pathname + '.html'))) {
             pathname = pathname + '.html';
         }
     }

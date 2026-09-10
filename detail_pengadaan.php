@@ -1,0 +1,631 @@
+<?php
+require_once __DIR__ . '/auth/auth_check.php';
+requireRoleAccess(['admin', 'pimpinan', 'pengadaan', 'penyelenggara']);
+$activePage = 'detail_pengadaan';
+?>
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-slate-50">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Rincian Pengadaan & Bahan - SIMPEL BPVP Kendari 2026</title>
+
+    <!-- Tailwind CSS & Google Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="simpel_auth.js"></script>
+
+    <style>
+        body, html, button, input, select, textarea, .font-heading {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        i, [class*="fa-"] {
+            font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", "FontAwesome" !important;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen bg-slate-50 flex flex-col overflow-x-hidden">
+
+    <!-- UNIFIED HEADER -->
+    <?php include __DIR__ . '/includes/header.php'; ?>
+    <?php include __DIR__ . '/includes/sidebar.php'; ?>
+
+    <!-- MAIN FULL-PAGE CONTAINER -->
+    <main class="flex-1 min-w-0 w-full px-4 sm:px-6 lg:px-8 xl:px-10 py-5 sm:py-6 space-y-6">
+
+        <!-- TOP HEADER & ACTIONS (DONEZO STYLE) -->
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-heading">
+                    Rincian Kebutuhan Bahan & Standar Harga
+                </h1>
+                <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                    Daftar alokasi kebutuhan bahan praktek workshop, APD & seragam siswa, modul pelatihan, dan uang saku per program kejuruan
+                </p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2.5">
+                <button onclick="window.print()" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs font-bold shadow-xs transition">
+                    <i class="fa-solid fa-print text-slate-500"></i>
+                    <span>Cetak Rincian</span>
+                </button>
+                <a href="input.php" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-bold shadow-sm transition">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span>Input SPK & Nota</span>
+                </a>
+                <a href="pengadaan.php" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                    <span>Modul Pokja</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- HERO STAT CARDS (DONEZO STYLE) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+            <!-- Card 1: Primary Emerald Highlight -->
+            <div class="rounded-3xl p-5 sm:p-6 text-white relative overflow-hidden shadow-sm flex flex-col justify-between" style="background-color: #134e38;">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <span class="text-[11px] font-semibold tracking-wider text-emerald-200 uppercase block">Total Item Terverifikasi</span>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-1 font-heading" id="stat-total-item">14 Item</h2>
+                    </div>
+                    <a href="#batch-tables-container" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center text-white text-sm transition">
+                        <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                    </a>
+                </div>
+                <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs">
+                    <span class="text-emerald-200">Tersebar di 8 Paket Pelatihan</span>
+                    <span class="px-2 py-0.5 rounded-full bg-emerald-700/80 text-[10px] font-bold text-white">100% Terdata</span>
+                </div>
+            </div>
+
+            <!-- Card 2: White Metric -->
+            <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-xs flex flex-col justify-between">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase block">Total Anggaran Bahan & Logistik</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-1 font-heading" id="hero-total-nilai">Rp 88.300.000</h2>
+                    </div>
+                    <span class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 text-sm">
+                        <i class="fa-solid fa-calculator text-xs"></i>
+                    </span>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                    <span id="hero-total-count">24 Item Bahan / Logistik</span>
+                    <span class="text-emerald-700 font-bold flex items-center gap-1">
+                        <i class="fa-solid fa-shield-check"></i> SBM PMK 2026
+                    </span>
+                </div>
+            </div>
+
+            <!-- Card 3: White Metric -->
+            <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-xs flex flex-col justify-between">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase block">Penyediaan Seragam & APD</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-emerald-700 tracking-tight mt-1 font-heading">100% Selesai</h2>
+                    </div>
+                    <span class="w-9 h-9 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center text-sm font-bold">
+                        8/8
+                    </span>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                    <span class="truncate">Wearpack, Kaos & Safety</span>
+                    <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold text-[10px]">Tersalurkan</span>
+                </div>
+            </div>
+
+            <!-- Card 4: White Metric -->
+            <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-xs flex flex-col justify-between">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase block">Bahan Praktek Workshop</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-1 font-heading">Siap Workshop</h2>
+                    </div>
+                    <span class="w-9 h-9 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm font-bold">
+                        <i class="fa-solid fa-boxes-stacked text-xs"></i>
+                    </span>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                    <span class="truncate">Elektroda, Kain, Kopi, Mesin</span>
+                    <span class="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 font-semibold text-[10px]">BAST Gudang</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- FILTER & DATA TABLE CARD -->
+        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6">
+
+            <!-- TABS PER BATCH -->
+            <div class="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">
+                <button type="button" onclick="setBatchFilter('all')" id="tab-batch-all"
+                    class="batch-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-slate-900 text-white shadow-xs">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <span>Semua Batch Pelatihan</span>
+                </button>
+                <button type="button" onclick="setBatchFilter('Batch 1')" id="tab-batch-1"
+                    class="batch-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-white text-slate-700 hover:bg-slate-100 border border-slate-200">
+                    <i class="fa-solid fa-calendar-check text-teal-600"></i>
+                    <span>Pelaksanaan Batch 1 (Vokasi Nasional)</span>
+                    <span class="px-2 py-0.5 rounded-full text-[10px] bg-teal-100 text-teal-800 font-extrabold">8
+                        Program</span>
+                </button>
+                <button type="button" onclick="setBatchFilter('Batch 2')" id="tab-batch-2"
+                    class="batch-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-white text-slate-700 hover:bg-slate-100 border border-slate-200">
+                    <i class="fa-solid fa-calendar-days text-indigo-600"></i>
+                    <span>Pelaksanaan Batch 2</span>
+                    <span class="px-2 py-0.5 rounded-full text-[10px] bg-indigo-100 text-indigo-800 font-extrabold">4
+                        Program</span>
+                </button>
+            </div>
+
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h3 class="text-base sm:text-lg font-bold font-heading text-slate-900" id="batch-section-title">
+                        Daftar Program & Rincian Bahan Pelatihan Per Batch</h3>
+                    <p class="text-xs text-slate-500">Klik baris program pelatihan untuk melihat rincian bahan praktek,
+                        seragam, modul dan uang saku siswa.</p>
+                </div>
+
+                <!-- Filters -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <select id="filter-batch" onchange="applyFilters(true)" class="hidden">
+                        <option value="all">Semua Batch</option>
+                        <option value="Batch 1">Batch 1</option>
+                        <option value="Batch 2">Batch 2</option>
+                    </select>
+
+                    <select id="filter-kategori" onchange="applyFilters()"
+                        class="px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-teal-500">
+                        <option value="all">Semua Kategori Bahan</option>
+                        <option value="Pakaian & Seragam">Pakaian & Seragam</option>
+                        <option value="Bahan Praktek">Bahan Praktek Workshop</option>
+                        <option value="Modul / ATK">Modul & ATK</option>
+                        <option value="Uang Saku Siswa">Uang Saku Siswa</option>
+                        <option value="Alat / Bahan Praktek">Alat Praktek</option>
+                    </select>
+
+                    <input type="text" id="search-input" onkeyup="applyFilters()"
+                        placeholder="Cari program / bahan / vendor..."
+                        class="px-3.5 py-2 rounded-xl text-xs border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-teal-500 min-w-[200px]">
+                </div>
+            </div>
+
+            <!-- Action buttons for Expand/Collapse All -->
+            <div class="flex items-center justify-between pt-1">
+                <span class="text-xs text-slate-500" id="filter-info-label">Menampilkan data program pelatihan
+                    terstruktur per-batch.</span>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="toggleAllGroups(true)"
+                        class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">
+                        <i class="fa-solid fa-angles-down mr-1"></i> Buka Semua Rincian
+                    </button>
+                    <button type="button" onclick="toggleAllGroups(false)"
+                        class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">
+                        <i class="fa-solid fa-angles-up mr-1"></i> Tutup Semua
+                    </button>
+                </div>
+            </div>
+
+            <!-- CONTAINER FOR BATCH TABLES -->
+            <div id="batch-tables-container" class="space-y-8">
+                <!-- Populated dynamically per Batch -->
+            </div>
+
+            <!-- GRAND TOTAL SUMMARY FOOTER (DONEZO STYLE) -->
+            <div class="rounded-3xl p-5 sm:p-6 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm" style="background-color: #134e38;">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-white font-bold">
+                        <i class="fa-solid fa-calculator text-lg"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-emerald-200 font-medium">Total Akumulasi Seluruh Program Terfilter</p>
+                        <p class="text-base font-bold text-white font-heading">Rencana Anggaran Pengadaan & Logistik Siswa TA 2026</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="text-[10px] text-emerald-200 uppercase tracking-wider block font-semibold">Total Anggaran:</span>
+                    <span class="text-2xl sm:text-3xl font-extrabold text-white font-heading" id="table-total-sum">Rp 0</span>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 mt-auto">
+        &copy; 2026 <strong>SIMPEL BPVP Kendari</strong> &bull; Sistem Informasi Manajemen Pelatihan Vokasi
+    </footer>
+
+    <script>
+        let expandedGroups = {};
+        let currentBatchFilter = 'all';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Sidebar rendered server-side by PHP
+            applyFilters();
+        });
+
+        function formatRupiah(num) {
+            return 'Rp ' + Number(num).toLocaleString('id-ID');
+        }
+
+        function setBatchFilter(batch) {
+            currentBatchFilter = batch;
+            const selectEl = document.getElementById('filter-batch');
+            if (selectEl) selectEl.value = batch;
+
+            // Update Tab Active Styling
+            document.querySelectorAll('.batch-tab-btn').forEach(btn => {
+                btn.className = 'batch-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-white text-slate-700 hover:bg-slate-100 border border-slate-200';
+            });
+
+            if (batch === 'all') {
+                const el = document.getElementById('tab-batch-all');
+                if (el) el.className = 'batch-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-slate-900 text-white shadow-xs';
+            } else if (batch === 'Batch 1') {
+                const el = document.getElementById('tab-batch-1');
+                if (el) el.className = 'batch-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-slate-900 text-white shadow-xs';
+            } else if (batch === 'Batch 2') {
+                const el = document.getElementById('tab-batch-2');
+                if (el) el.className = 'batch-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-slate-900 text-white shadow-xs';
+            }
+
+            applyFilters();
+        }
+
+        function toggleGroup(groupKey) {
+            expandedGroups[groupKey] = !expandedGroups[groupKey];
+            const contentRow = document.getElementById('group-content-' + groupKey);
+            const icon = document.getElementById('icon-' + groupKey);
+            const btnText = document.getElementById('btn-text-' + groupKey);
+
+            if (contentRow) {
+                if (expandedGroups[groupKey]) {
+                    contentRow.classList.remove('hidden');
+                    if (icon) icon.className = 'fa-solid fa-chevron-up text-xs transition-transform';
+                    if (btnText) btnText.textContent = 'Tutup';
+                } else {
+                    contentRow.classList.add('hidden');
+                    if (icon) icon.className = 'fa-solid fa-chevron-down text-xs transition-transform';
+                    if (btnText) btnText.textContent = 'Rincian';
+                }
+            }
+        }
+
+        function toggleAllGroups(open) {
+            const keys = Object.keys(expandedGroups);
+            keys.forEach(key => {
+                expandedGroups[key] = open;
+                const contentRow = document.getElementById('group-content-' + key);
+                const icon = document.getElementById('icon-' + key);
+                const btnText = document.getElementById('btn-text-' + key);
+                if (contentRow) {
+                    if (open) {
+                        contentRow.classList.remove('hidden');
+                        if (icon) icon.className = 'fa-solid fa-chevron-up text-xs transition-transform';
+                        if (btnText) btnText.textContent = 'Tutup';
+                    } else {
+                        contentRow.classList.add('hidden');
+                        if (icon) icon.className = 'fa-solid fa-chevron-down text-xs transition-transform';
+                        if (btnText) btnText.textContent = 'Rincian';
+                    }
+                }
+            });
+        }
+
+        function applyFilters(fromSelect = false) {
+            if (fromSelect) {
+                currentBatchFilter = document.getElementById('filter-batch').value;
+            }
+            const kategori = document.getElementById('filter-kategori').value;
+            const query = document.getElementById('search-input').value.toLowerCase();
+
+            const filtered = SIMPEL_DATA.procurements.filter(item => {
+                const matchBatch = (currentBatchFilter === 'all' || item.batch === currentBatchFilter);
+                const matchKategori = (kategori === 'all' || item.kategori === kategori);
+                const matchQuery = (
+                    item.item_name.toLowerCase().includes(query) ||
+                    item.program.toLowerCase().includes(query) ||
+                    item.spesifikasi.toLowerCase().includes(query) ||
+                    item.rekanan.toLowerCase().includes(query) ||
+                    (item.kejuruan && item.kejuruan.toLowerCase().includes(query)) ||
+                    (item.jenis_pelatihan && item.jenis_pelatihan.toLowerCase().includes(query))
+                );
+                return matchBatch && matchKategori && matchQuery;
+            });
+
+            renderBatchTables(filtered);
+        }
+
+        function renderBatchTables(items) {
+            const container = document.getElementById('batch-tables-container');
+            container.innerHTML = '';
+
+            let grandTotal = 0;
+
+            if (!items || items.length === 0) {
+                container.innerHTML = `
+                    <div class="py-12 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-300">
+                        <i class="fa-solid fa-inbox text-3xl text-slate-300 mb-2"></i>
+                        <p class="text-slate-500 font-medium text-sm">Tidak ada data rincian pengadaan yang sesuai dengan filter.</p>
+                    </div>
+                `;
+                const elTableSum = document.getElementById('table-total-sum');
+                const elHeroTotal = document.getElementById('hero-total-nilai');
+                const elStatTotal = document.getElementById('stat-total-item');
+                if (elTableSum) elTableSum.textContent = formatRupiah(0);
+                if (elHeroTotal) elHeroTotal.textContent = formatRupiah(0);
+                if (elStatTotal) elStatTotal.textContent = '0 Item';
+                return;
+            }
+
+            // Group by Batch first, then by Program
+            const batchMap = {};
+            items.forEach(item => {
+                grandTotal += item.total_harga;
+                const batchKey = item.batch || 'Batch Lainnya';
+                if (!batchMap[batchKey]) {
+                    batchMap[batchKey] = {
+                        name: batchKey,
+                        totalNilai: 0,
+                        programs: {}
+                    };
+                }
+                batchMap[batchKey].totalNilai += item.total_harga;
+
+                const progKey = item.program;
+                if (!batchMap[batchKey].programs[progKey]) {
+                    batchMap[batchKey].programs[progKey] = {
+                        program: item.program,
+                        batch: item.batch,
+                        kejuruan: item.kejuruan || 'Teknik',
+                        jenis_pelatihan: item.jenis_pelatihan || 'PBK Reguler',
+                        tgl_mulai: item.tgl_mulai || '01 April 2026',
+                        tgl_selesai: item.tgl_selesai || '28 April 2026',
+                        items: [],
+                        totalNilai: 0,
+                        allComplete: true
+                    };
+                }
+                batchMap[batchKey].programs[progKey].items.push(item);
+                batchMap[batchKey].programs[progKey].totalNilai += item.total_harga;
+                if (!item.status_pokja.includes('Lengkap') && !item.status_pokja.includes('Terbayar')) {
+                    batchMap[batchKey].programs[progKey].allComplete = false;
+                }
+            });
+
+            const elTableSum = document.getElementById('table-total-sum');
+            const elHeroTotal = document.getElementById('hero-total-nilai');
+            const elStatTotal = document.getElementById('stat-total-item');
+            const elHeroCount = document.getElementById('hero-total-count');
+
+            if (elTableSum) elTableSum.textContent = formatRupiah(grandTotal);
+            if (elHeroTotal) elHeroTotal.textContent = formatRupiah(grandTotal);
+            if (elStatTotal) elStatTotal.textContent = items.length + ' Item';
+            if (elHeroCount) elHeroCount.textContent = items.length + ' Item Bahan / Logistik';
+
+            // Render each Batch Section
+            for (const [batchName, batchData] of Object.entries(batchMap)) {
+                const programCount = Object.keys(batchData.programs).length;
+
+                let batchHeaderTitle = `PELAKSANAAN PELATIHAN VOKASI NASIONAL ${batchName.toUpperCase()}`;
+                let batchSubtitle = 'Pelatihan Vokasi BPVP Kendari TA 2026';
+                let badgeColor = 'bg-teal-500/20 text-teal-300 border-teal-400/30';
+
+                if (batchName === 'Batch 1') {
+                    batchHeaderTitle = '2. PELAKSANAAN PELATIHAN VOKASI NASIONAL BATCH 1';
+                    batchSubtitle = 'Jadwal Mulai: 01 April 2026 &bull; PBK Reguler & PBL &bull; 8 Jam Pelatihan (JP) per Hari';
+                    badgeColor = 'bg-rose-500/20 text-rose-300 border-rose-400/30';
+                } else if (batchName === 'Batch 2') {
+                    batchHeaderTitle = 'PELAKSANAAN PELATIHAN VOKASI BATCH 2';
+                    batchSubtitle = 'Pelaksanaan Tahap II &bull; Jadwal Mulai: 01 Juni 2026 &bull; PBK Reguler';
+                    badgeColor = 'bg-indigo-500/20 text-indigo-300 border-indigo-400/30';
+                }
+
+                const batchCard = document.createElement('div');
+                batchCard.className = 'rounded-2xl border border-slate-200 overflow-hidden shadow-xs bg-white';
+
+                // Batch Section Header
+                const batchHeaderHtml = `
+                    <div class="bg-gradient-to-r from-slate-900 via-[#1A3344] to-[#24475E] p-4 sm:p-5 text-white flex flex-col md:flex-row md:items-center justify-between gap-3">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2.5 py-0.5 rounded-md text-[11px] font-bold border ${badgeColor}">
+                                    ${batchName}
+                                </span>
+                                <h4 class="font-heading font-extrabold text-sm sm:text-base tracking-wide text-white">
+                                    ${batchHeaderTitle}
+                                </h4>
+                            </div>
+                            <p class="text-xs text-slate-300">${batchSubtitle}</p>
+                        </div>
+                        <div class="flex items-center gap-4 text-xs">
+                            <div class="text-right">
+                                <span class="text-[10px] text-slate-400 block uppercase font-bold">Total Anggaran ${batchName}:</span>
+                                <span class="font-extrabold text-teal-300 text-sm">${formatRupiah(batchData.totalNilai)}</span>
+                            </div>
+                            <span class="px-3 py-1 rounded-xl bg-white/10 text-white font-bold text-xs border border-white/15">
+                                ${programCount} Program
+                            </span>
+                        </div>
+                    </div>
+                `;
+
+                // Table for this batch (Fixed layout, fits 100% width without horizontal scroll)
+                const tableWrapper = document.createElement('div');
+                tableWrapper.className = 'w-full overflow-hidden';
+
+                const table = document.createElement('table');
+                table.className = 'w-full text-left text-xs text-slate-600';
+                table.innerHTML = `
+                    <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200 text-[11px] uppercase tracking-wider">
+                        <tr>
+                            <th class="py-3 px-3 text-center w-12">NO</th>
+                            <th class="py-3 px-4">Program Pelatihan</th>
+                            <th class="py-3 px-3 text-center w-40">Jadwal & Jenis</th>
+                            <th class="py-3 px-3 text-center w-24">Item Logistik</th>
+                            <th class="py-3 px-4 text-right w-36">Total Anggaran</th>
+                            <th class="py-3 px-3 text-center w-28">Status Pokja</th>
+                            <th class="py-3 px-3 text-center w-24">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100" id="tbody-${batchName.replace(/[^a-zA-Z0-9]/g, '_')}">
+                    </tbody>
+                `;
+
+                tableWrapper.appendChild(table);
+                batchCard.innerHTML = batchHeaderHtml;
+                batchCard.appendChild(tableWrapper);
+                container.appendChild(batchCard);
+
+                const batchTbody = table.querySelector('tbody');
+
+                let programIndex = 1;
+                for (const [pKey, group] of Object.entries(batchData.programs)) {
+                    const safeKey = `${batchName}___${pKey}`.replace(/[^a-zA-Z0-9]/g, '_');
+                    if (expandedGroups[safeKey] === undefined) {
+                        // Open first program of Batch 1 by default
+                        expandedGroups[safeKey] = (batchName === 'Batch 1' && programIndex === 1);
+                    }
+
+                    const isExpanded = expandedGroups[safeKey];
+
+                    const statusBadge = group.allComplete
+                        ? `<span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800 whitespace-nowrap"><i class="fa-solid fa-check mr-1"></i>Lengkap</span>`
+                        : `<span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-amber-100 text-amber-800 whitespace-nowrap"><i class="fa-solid fa-clock mr-1"></i>Proses</span>`;
+
+                    const programRow = document.createElement('tr');
+                    programRow.className = 'bg-white hover:bg-emerald-50/40 transition cursor-pointer border-t border-slate-100';
+                    programRow.setAttribute('onclick', `toggleGroup('${safeKey}')`);
+                    programRow.innerHTML = `
+                        <td class="py-3.5 px-3 text-center font-bold text-slate-400">${programIndex}</td>
+                        <td class="py-3.5 px-4">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-800 font-bold text-xs shrink-0">
+                                    <i class="fa-solid fa-graduation-cap"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="font-extrabold text-slate-900 text-xs sm:text-sm leading-snug break-words">${group.program}</p>
+                                    <span class="text-[10px] font-semibold text-slate-500">Kejuruan: <strong class="text-emerald-800">${group.kejuruan}</strong></span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-3.5 px-3 text-center">
+                            <div class="font-semibold text-slate-800 text-xs">${group.tgl_mulai} - ${group.tgl_selesai}</div>
+                            <span class="inline-block mt-0.5 px-2 py-0.5 rounded text-[10px] font-bold ${group.jenis_pelatihan === 'PBL' ? 'bg-purple-100 text-purple-800' : 'bg-slate-100 text-slate-700'}">
+                                ${group.jenis_pelatihan}
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-3 text-center">
+                            <span class="px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 text-xs font-bold border border-indigo-100 whitespace-nowrap">
+                                ${group.items.length} Item
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-4 text-right font-extrabold text-slate-900 text-xs sm:text-sm whitespace-nowrap">
+                            ${formatRupiah(group.totalNilai)}
+                        </td>
+                        <td class="py-3.5 px-3 text-center whitespace-nowrap">
+                            ${statusBadge}
+                        </td>
+                        <td class="py-3.5 px-3 text-center whitespace-nowrap">
+                            <button type="button" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-emerald-800 hover:text-white text-slate-700 text-xs font-bold transition shadow-2xs">
+                                <span id="btn-text-${safeKey}">${isExpanded ? 'Tutup' : 'Rincian'}</span>
+                                <i id="icon-${safeKey}" class="fa-solid ${isExpanded ? 'fa-chevron-up' : 'fa-chevron-down'} text-xs"></i>
+                            </button>
+                        </td>
+                    `;
+
+                    // Dropdown / Accordion Sub-Table for items (Fits 100% width, no horizontal scroll)
+                    const childRow = document.createElement('tr');
+                    childRow.id = 'group-content-' + safeKey;
+                    childRow.className = isExpanded ? 'bg-slate-50/70' : 'hidden bg-slate-50/70';
+
+                    let subTableRows = '';
+                    group.items.forEach((item, itemIdx) => {
+                        let badgePokja = '';
+                        if (item.status_pokja.includes('Lengkap') || item.status_pokja.includes('Terbayar')) {
+                            badgePokja = '<span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800 whitespace-nowrap"><i class="fa-solid fa-check mr-1"></i>' + item.status_pokja + '</span>';
+                        } else {
+                            badgePokja = '<span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-100 text-amber-800 animate-pulse whitespace-nowrap">' + item.status_pokja + '</span>';
+                        }
+
+                        subTableRows += `
+                            <tr class="hover:bg-white transition border-b border-slate-200/60 last:border-0">
+                                <td class="py-2.5 px-3 text-center text-slate-400 font-semibold text-[11px]">${itemIdx + 1}</td>
+                                <td class="py-2.5 px-3">
+                                    <p class="font-bold text-slate-800 text-xs leading-snug break-words">${item.item_name}</p>
+                                    <span class="text-[10px] text-slate-400 font-medium">${item.kategori}</span>
+                                </td>
+                                <td class="py-2.5 px-3 text-slate-600 text-[11px] leading-snug break-words">
+                                    ${item.spesifikasi}
+                                </td>
+                                <td class="py-2.5 px-2 text-center whitespace-nowrap">
+                                    <span class="font-bold text-slate-900 text-xs">${item.qty}</span>
+                                    <span class="text-[10px] text-slate-500 block">${item.satuan}</span>
+                                </td>
+                                <td class="py-2.5 px-3 text-right font-medium text-slate-700 text-xs whitespace-nowrap">
+                                    ${formatRupiah(item.harga_satuan)}
+                                </td>
+                                <td class="py-2.5 px-3 text-right font-extrabold text-slate-900 text-xs whitespace-nowrap">
+                                    ${formatRupiah(item.total_harga)}
+                                </td>
+                                <td class="py-2.5 px-3 text-slate-600 text-[11px] leading-snug break-words">
+                                    ${item.rekanan}
+                                </td>
+                                <td class="py-2.5 px-2 text-center">
+                                    ${badgePokja}
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    childRow.innerHTML = `
+                        <td colspan="7" class="p-0">
+                            <div class="p-4 sm:p-5 bg-gradient-to-b from-slate-100/90 to-slate-50 rounded-b-xl border-t border-slate-200 shadow-inner">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fa-solid fa-boxes-packing text-emerald-800 text-xs"></i>
+                                        <span class="font-bold text-xs text-slate-800">Rincian Komponen Bahan, Seragam & Uang Saku (${group.items.length} Item)</span>
+                                    </div>
+                                    <span class="text-[11px] font-semibold text-slate-500">Subtotal Program: <strong class="text-emerald-800">${formatRupiah(group.totalNilai)}</strong></span>
+                                </div>
+                                
+                                <div class="w-full bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+                                    <table class="w-full text-left text-xs text-slate-600">
+                                        <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200 text-[10px] uppercase">
+                                            <tr>
+                                                <th class="py-2 px-3 text-center w-8">No</th>
+                                                <th class="py-2 px-3 w-1/4">Nama Bahan / Logistik</th>
+                                                <th class="py-2 px-3 w-1/3">Spesifikasi Detail</th>
+                                                <th class="py-2 px-2 text-center w-20">Volume</th>
+                                                <th class="py-2 px-3 text-right w-28">Harga Satuan</th>
+                                                <th class="py-2 px-3 text-right w-32">Total Harga</th>
+                                                <th class="py-2 px-3 w-28">Rekanan</th>
+                                                <th class="py-2 px-2 text-center w-24">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${subTableRows}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </td>
+                    `;
+
+                    batchTbody.appendChild(programRow);
+                    batchTbody.appendChild(childRow);
+                    programIndex++;
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>

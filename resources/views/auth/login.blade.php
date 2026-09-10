@@ -63,8 +63,11 @@
                 <label class="block font-bold text-slate-700 mb-1.5">Kata Sandi (Password)</label>
                 <div class="relative">
                     <i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <input type="password" name="password" value="password" required placeholder="••••••••" 
-                           class="w-full pl-10 pr-3.5 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-500 focus:outline-none bg-slate-50/50 text-slate-800">
+                    <input type="password" id="blade-password" name="password" value="password" required placeholder="••••••••" 
+                           class="w-full pl-10 pr-11 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-500 focus:outline-none bg-slate-50/50 text-slate-800">
+                    <button type="button" onclick="toggleBladePassword()" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none">
+                        <i id="blade-eye-icon" class="fa-solid fa-eye text-sm"></i>
+                    </button>
                 </div>
             </div>
 
@@ -90,5 +93,21 @@
 
     </div>
 
+    <script>
+        function toggleBladePassword() {
+            const input = document.getElementById('blade-password');
+            const icon = document.getElementById('blade-eye-icon');
+            if (!input || !icon) return;
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+    </script>
 </body>
 </html>

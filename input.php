@@ -1,0 +1,1293 @@
+<?php
+require_once __DIR__ . '/auth/auth_check.php';
+requireRoleAccess(['admin', 'pengadaan']);
+$activePage = 'input';
+?>
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rekap SPK & Nota Pemesanan - Pokja Pengadaan SIMPEL BPVP Kendari</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="assets/js/simpel_adk.js"></script>
+    <script src="simpel_auth.js"></script>
+
+    <style>
+        html, body, button, input, select, textarea, p, span, h1, h2, h3, h4, h5, h6, a, div, label, table, th, td, .font-heading {
+            font-family: 'Montserrat', sans-serif;
+        }
+        i, [class*="fa-"], .fa, .fas, .far, .fal, .fad, .fab, .fa-solid, .fa-regular, .fa-brands {
+            font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", "FontAwesome" !important;
+        }
+        /* Custom subtle scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-50 flex flex-col antialiased">
+
+    <!-- UNIFIED SIDEBAR (SIMPEL AUTH) -->
+    <?php include __DIR__ . '/includes/header.php'; ?>
+    <?php include __DIR__ . '/includes/sidebar.php'; ?>
+
+    <!-- MAIN WORKSPACE -->
+    <main class="flex-1 min-w-0 w-full px-4 sm:px-6 lg:px-8 xl:px-10 py-5 sm:py-6 space-y-6">
+        
+        <!-- TOP PAGE TITLE CONTAINER -->
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs px-6 py-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight" id="main-header-title">
+                    Rekap Surat Perjanjian Kerja (SPK) & Nota Pemesanan
+                </h1>
+                <p class="text-[11px] text-slate-400 font-medium">
+                    SIMPEL BPVP Kendari &bull; Manajemen Kontrak & Pemesanan Barang/Jasa Terintegrasi dengan Rincian Bahan
+                </p>
+            </div>
+
+            <!-- WORKSPACE SUB-TABS (SPK vs NOTA PEMESANAN) -->
+            <div class="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 text-xs shrink-0">
+                <button onclick="switchWorkTab('spk')" id="tab-btn-spk" 
+                        class="px-4 py-2 rounded-xl font-bold bg-blue-600 text-white shadow-xs transition flex items-center gap-2">
+                    <i class="fa-solid fa-file-contract"></i>
+                    <span>Surat Perjanjian Kerja (SPK)</span>
+                    <span id="badge-count-spk" class="px-1.5 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-extrabold">6</span>
+                </button>
+                <button onclick="switchWorkTab('nota')" id="tab-btn-nota" 
+                        class="px-4 py-2 rounded-xl font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900 transition flex items-center gap-2">
+                    <i class="fa-solid fa-file-lines text-blue-600"></i>
+                    <span>Daftar Nota Pemesanan</span>
+                    <span id="badge-count-nota" class="px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-800 text-[10px] font-extrabold">5</span>
+                </button>
+                <a href="detail_pengadaan.php" class="px-3.5 py-2 rounded-xl font-bold bg-teal-50 text-teal-700 hover:bg-teal-100 border border-teal-200/80 transition flex items-center gap-1.5 whitespace-nowrap">
+                    <i class="fa-solid fa-calculator text-teal-600"></i>
+                    <span>Rincian Bahan & Harga</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- ADK EXCEL TOOLBAR CONTAINER -->
+        <div id="adk-toolbar-container"></div>
+
+        <!-- INTEGRATION NOTICE BANNER -->
+        <div class="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 rounded-2xl p-4 sm:p-5 text-white shadow-xs border border-blue-800/60 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex items-center gap-3.5">
+                <div class="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-blue-300 font-bold shrink-0">
+                    <i class="fa-solid fa-link text-base"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-xs sm:text-sm text-white">Sinkronisasi Dokumen Kontrak & Rincian Logistik Siswa</h3>
+                    <p class="text-[11px] text-blue-200/90 mt-0.5 max-w-3xl">
+                        Nilai kontrak pada SPK & Nota Pemesanan didetailkan secara itemized (baju siswa, modul, APD, bahan praktek & uang saku) di halaman <strong>Rincian Bahan</strong> dan dimonitor oleh Pimpinan Balai.
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                <a href="detail_pengadaan.php" class="px-3.5 py-2 rounded-xl bg-teal-500 hover:bg-teal-600 text-slate-950 font-extrabold text-xs shadow-xs transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>Buka Rincian Bahan</span>
+                </a>
+                <a href="pengadaan.php" class="px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white font-bold text-xs border border-white/20 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                    <span>Katalog Pokja</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- SECTION 1: DAFTAR SURAT PERJANJIAN KERJA (SPK) -->
+        <!-- ========================================================================= -->
+        <div id="section-spk" class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 sm:p-6 space-y-4">
+            
+            <!-- HEADER DAFTAR & TOOLBAR AKSI -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-slate-100">
+                
+                <!-- TITLE WITH BLUE DOCUMENT ICON -->
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-sm font-bold shadow-xs">
+                        <i class="fa-solid fa-file-contract"></i>
+                    </div>
+                    <h2 class="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
+                        Daftar Surat Perjanjian Kerja (SPK)
+                    </h2>
+                </div>
+
+                <!-- RIGHT TOOLBAR: FILTER TAHUN, EXCEL, TAMBAH SPK -->
+                <div class="flex flex-wrap items-center gap-2.5 text-xs">
+                    
+                    <!-- Dropdown Semua Tahun -->
+                    <div class="relative">
+                        <select id="filter-tahun-spk" onchange="filterSpkData()" class="appearance-none bg-slate-50 border border-slate-200 text-slate-700 font-semibold px-3 py-2 pr-8 rounded-xl focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer shadow-2xs">
+                            <option value="all">Semua Tahun</option>
+                            <option value="2026" selected>Tahun 2026</option>
+                            <option value="2025">Tahun 2025</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 pointer-events-none"></i>
+                    </div>
+
+                    <!-- Button Download Excel (Green) -->
+                    <button onclick="downloadExcelSpk()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition shadow-xs">
+                        <i class="fa-solid fa-file-excel text-xs"></i>
+                        <span>Download Excel</span>
+                    </button>
+
+                    <!-- Button Tambah SPK (Blue) -->
+                    <button onclick="openSpkModal()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition shadow-xs">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                        <span>Tambah SPK</span>
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- SEARCH BAR -->
+            <div class="pt-1">
+                <div class="relative w-full max-w-md">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                    <input type="text" id="search-spk" oninput="filterSpkData()" 
+                           placeholder="Cari berdasarkan Nomor SPM..." 
+                           class="w-full pl-9 pr-4 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-slate-50/40 text-slate-800 placeholder-slate-400 transition">
+                </div>
+            </div>
+
+            <!-- TABEL SPK DENGAN ICON CRUD SESUAI GAMBAR 2 -->
+            <div class="overflow-x-auto rounded-xl border border-slate-200/70">
+                <table class="w-full text-left text-xs text-slate-700 whitespace-nowrap">
+                    <thead class="bg-slate-50/80 text-slate-500 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200/80">
+                        <tr>
+                            <th class="py-3.5 px-4 font-bold">NO. SPM</th>
+                            <th class="py-3.5 px-4 font-bold">NO SPK</th>
+                            <th class="py-3.5 px-4 font-bold">TANGGAL KONTRAK</th>
+                            <th class="py-3.5 px-4 font-bold">NAMA PENYEDIA</th>
+                            <th class="py-3.5 px-4 font-bold">NILAI KONTRAK</th>
+                            <th class="py-3.5 px-4 font-bold">WAKTU PEKERJAAN</th>
+                            <th class="py-3.5 px-4 font-bold">PEJABAT PENGADAAN</th>
+                            <th class="py-3.5 px-4 text-center font-bold">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="spk-table-body" class="divide-y divide-slate-100">
+                        <!-- Content generated dynamically via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- FOOTER INFO & PAGINATION SUMMARY -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-500 pt-2">
+                <p id="spk-count-label">Menampilkan 6 kontrak kerja SPK</p>
+                <div class="flex items-center gap-1.5 text-xs">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 font-medium">
+                        <i class="fa-solid fa-circle-info text-blue-500 text-[10px]"></i>
+                        <span>Icon Aksi:</span>
+                        <span class="text-blue-600 font-bold"><i class="fa-solid fa-folder"></i> Detail</span> &bull;
+                        <span class="text-amber-600 font-bold"><i class="fa-solid fa-pen-to-square"></i> Edit</span> &bull;
+                        <span class="text-rose-600 font-bold"><i class="fa-solid fa-trash-can"></i> Hapus</span>
+                    </span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- SECTION 2: DAFTAR NOTA PEMESANAN (PERSIS SEPERTI GAMBAR DILAMPIRKAN USER) -->
+        <!-- ========================================================================= -->
+        <div id="section-nota" class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 sm:p-6 space-y-4 hidden">
+            
+            <!-- HEADER DAFTAR & TOOLBAR AKSI (PERSIS GAMBAR BARU) -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-slate-100">
+                
+                <!-- TITLE WITH BLUE DOCUMENT ICON -->
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-sm font-bold shadow-xs">
+                        <i class="fa-solid fa-file-lines"></i>
+                    </div>
+                    <h2 class="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
+                        Daftar Nota Pemesanan
+                    </h2>
+                </div>
+
+                <!-- RIGHT TOOLBAR: FILTER TAHUN, EXCEL, TAMBAH NOTA -->
+                <div class="flex flex-wrap items-center gap-2.5 text-xs">
+                    
+                    <!-- Dropdown Semua Tahun -->
+                    <div class="relative">
+                        <select id="filter-tahun-nota" onchange="filterNotaData()" class="appearance-none bg-slate-50 border border-slate-200 text-slate-700 font-semibold px-3 py-2 pr-8 rounded-xl focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer shadow-2xs">
+                            <option value="all" selected>Semua Tahun</option>
+                            <option value="2026">Tahun 2026</option>
+                            <option value="2025">Tahun 2025</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 pointer-events-none"></i>
+                    </div>
+
+                    <!-- Button Download Excel (Green) -->
+                    <button onclick="downloadExcelNota()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition shadow-xs">
+                        <i class="fa-solid fa-file-excel text-xs"></i>
+                        <span>Download Excel</span>
+                    </button>
+
+                    <!-- Button Tambah Nota (Blue) -->
+                    <button onclick="openNotaModal()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition shadow-xs">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                        <span>Tambah Nota</span>
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- SEARCH BAR (PERSIS SEPERTI GAMBAR) -->
+            <div class="pt-1">
+                <div class="relative w-full max-w-md">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                    <input type="text" id="search-nota" oninput="filterNotaData()" 
+                           placeholder="Cari berdasarkan Nomor SPM..." 
+                           class="w-full pl-9 pr-4 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-slate-50/40 text-slate-800 placeholder-slate-400 transition">
+                </div>
+            </div>
+
+            <!-- TABEL NOTA PEMESANAN (PERSIS SEPERTI GAMBAR) -->
+            <div class="overflow-x-auto rounded-xl border border-slate-200/70">
+                <table class="w-full text-left text-xs text-slate-700 whitespace-nowrap">
+                    <thead class="bg-slate-50/80 text-slate-500 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200/80">
+                        <tr>
+                            <th class="py-3.5 px-4 font-bold">NO. SPM</th>
+                            <th class="py-3.5 px-4 font-bold">NO NOTA PESANAN</th>
+                            <th class="py-3.5 px-4 font-bold">TANGGAL KONTRAK</th>
+                            <th class="py-3.5 px-4 font-bold">NAMA PENYEDIA</th>
+                            <th class="py-3.5 px-4 font-bold">NILAI KONTRAK</th>
+                            <th class="py-3.5 px-4 font-bold">WAKTU PEKERJAAN</th>
+                            <th class="py-3.5 px-4 text-center font-bold">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="nota-table-body" class="divide-y divide-slate-100">
+                        <!-- Content generated dynamically via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- FOOTER INFO & PAGINATION SUMMARY -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-500 pt-2">
+                <p id="nota-count-label">Menampilkan 5 data Nota Pemesanan</p>
+                <div class="flex items-center gap-1.5 text-xs">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 font-medium">
+                        <i class="fa-solid fa-circle-info text-blue-500 text-[10px]"></i>
+                        <span>Icon Aksi:</span>
+                        <span class="text-blue-600 font-bold"><i class="fa-solid fa-folder"></i> Detail</span> &bull;
+                        <span class="text-amber-600 font-bold"><i class="fa-solid fa-pen-to-square"></i> Edit</span> &bull;
+                        <span class="text-rose-600 font-bold"><i class="fa-solid fa-trash-can"></i> Hapus</span>
+                    </span>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-400">
+        &copy; 2026 SIMPEL BPVP Kendari &bull; Pusat Input Data Dokumen Pengadaan & Kontrak
+    </footer>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL FORM TAMBAH / EDIT SPK -->
+    <!-- ========================================================================= -->
+    <div id="spk-modal" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-xl w-full max-h-[92vh] overflow-y-auto border border-slate-200 shadow-2xl transition-all">
+            
+            <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-slate-50 to-white">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-file-pen"></i>
+                    </div>
+                    <div>
+                        <h3 id="spk-modal-title" class="text-base font-bold text-slate-900 tracking-tight">Tambah Surat Perjanjian Kerja (SPK)</h3>
+                        <p class="text-xs text-slate-400">Formulir kontrak kerja pengadaan bahan & logistik</p>
+                    </div>
+                </div>
+                <button onclick="closeSpkModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <form onsubmit="handleSaveSpk(event)" class="p-6 space-y-5 text-xs">
+                <input type="hidden" id="spk-id">
+
+                <div class="space-y-3">
+                    <div class="flex items-center gap-2 pb-1 border-b border-slate-100">
+                        <div class="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200/80 font-bold text-xs flex items-center justify-center shadow-2xs">1</div>
+                        <h4 class="font-bold text-slate-800 text-xs">Informasi Nomor Dokumen</h4>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Nomor SPM <span class="text-rose-500">*</span></label>
+                            <input type="text" id="no_spm" required placeholder="Contoh: 00044A" 
+                                   class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-slate-50/50 text-slate-800 transition">
+                        </div>
+
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Tanggal Kontrak <span class="text-rose-500">*</span></label>
+                            <input type="date" id="tgl_kontrak" required 
+                                   class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-slate-50/50 text-slate-800 transition">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Nomor SPK <span class="text-rose-500">*</span></label>
+                        <input type="text" id="no_spk" required placeholder="Contoh: 2.18/003.SPK/BPVP-KDI/PPK-KU/III/2026" 
+                               class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-slate-50/50 text-slate-800 transition">
+                    </div>
+                </div>
+
+                <div class="space-y-3 pt-2">
+                    <div class="flex items-center gap-2 pb-1 border-b border-slate-100">
+                        <div class="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200/80 font-bold text-xs flex items-center justify-center shadow-2xs">2</div>
+                        <h4 class="font-bold text-slate-800 text-xs">Data Rekanan & Pejabat Pengadaan</h4>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Nama Penyedia / Rekanan <span class="text-rose-500">*</span></label>
+                            <input type="text" id="nama_penyedia" required placeholder="Contoh: Cv. Dwi Sakti Pratama" 
+                                   class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-slate-50/50 text-slate-800 transition">
+                        </div>
+
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Pejabat Pengadaan <span class="text-rose-500">*</span></label>
+                            <input type="text" id="pejabat_pengadaan" required value="Agus Setiya" 
+                                   class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-slate-50/50 text-slate-800 transition">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-3 pt-2">
+                    <div class="flex items-center gap-2 pb-1 border-b border-slate-100">
+                        <div class="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200/80 font-bold text-xs flex items-center justify-center shadow-2xs">3</div>
+                        <h4 class="font-bold text-slate-800 text-xs">Nilai Kontrak & Masa Pelaksanaan</h4>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Nilai Kontrak (Rp) <span class="text-rose-500">*</span></label>
+                            <input type="text" id="nilai_kontrak" required placeholder="Contoh: 14.500.000" 
+                                   class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-slate-50/50 text-slate-800 transition font-bold">
+                        </div>
+
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Waktu Pekerjaan <span class="text-rose-500">*</span></label>
+                            <input type="text" id="waktu_pekerjaan" required placeholder="Contoh: 30 hari kelender" 
+                                   class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-slate-50/50 text-slate-800 transition">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex items-center justify-end gap-2.5 border-t border-slate-100">
+                    <button type="button" onclick="closeSpkModal()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition shadow-xs flex items-center gap-2">
+                        <i class="fa-solid fa-check"></i>
+                        <span>Simpan SPK</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL FORM TAMBAH / EDIT NOTA PEMESANAN -->
+    <!-- ========================================================================= -->
+    <div id="nota-modal" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-xl w-full max-h-[92vh] overflow-y-auto border border-slate-200 shadow-2xl transition-all">
+            
+            <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-slate-50 to-white">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-file-circle-plus"></i>
+                    </div>
+                    <div>
+                        <h3 id="nota-modal-title" class="text-base font-bold text-slate-900 tracking-tight">Tambah Nota Pemesanan</h3>
+                        <p class="text-xs text-slate-400">Pencatatan Surat Pesanan (SP) pengadaan barang/jasa & katering</p>
+                    </div>
+                </div>
+                <button onclick="closeNotaModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <form onsubmit="handleSaveNota(event)" class="p-6 space-y-5 text-xs">
+                <input type="hidden" id="nota-id">
+
+                <div class="space-y-3">
+                    <div class="flex items-center gap-2 pb-1 border-b border-slate-100">
+                        <div class="w-6 h-6 rounded-lg bg-blue-50 text-blue-600 border border-blue-200/80 font-bold text-xs flex items-center justify-center shadow-2xs">1</div>
+                        <h4 class="font-bold text-slate-800 text-xs">Nomor Dokumen & Waktu</h4>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Nomor SPM <span class="text-rose-500">*</span></label>
+                            <input type="text" id="nota_no_spm" required placeholder="Contoh: 00086A" 
+                                   class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-slate-50/50 text-slate-800 transition">
+                        </div>
+
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Tanggal Kontrak <span class="text-rose-500">*</span></label>
+                            <input type="date" id="nota_tgl_kontrak" required 
+                                   class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-slate-50/50 text-slate-800 transition">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Nomor Nota Pesanan <span class="text-rose-500">*</span></label>
+                        <input type="text" id="nota_no_nota" required placeholder="Contoh: 2.18/1130.SP/BPVP-KDI/PPK-KU/III/2026" 
+                               class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-slate-50/50 text-slate-800 transition">
+                    </div>
+                </div>
+
+                <div class="space-y-3 pt-2">
+                    <div class="flex items-center gap-2 pb-1 border-b border-slate-100">
+                        <div class="w-6 h-6 rounded-lg bg-blue-50 text-blue-600 border border-blue-200/80 font-bold text-xs flex items-center justify-center shadow-2xs">2</div>
+                        <h4 class="font-bold text-slate-800 text-xs">Penyedia & Nilai Kontrak</h4>
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Nama Penyedia / Vendor <span class="text-rose-500">*</span></label>
+                        <input type="text" id="nota_nama_penyedia" required placeholder="Contoh: Cv. Hana Catering Barokah" 
+                               class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-slate-50/50 text-slate-800 transition">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Nilai Kontrak (Rp) <span class="text-rose-500">*</span></label>
+                            <input type="text" id="nota_nilai_kontrak" required placeholder="Contoh: 28.750.000" 
+                                   class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-slate-50/50 text-slate-800 transition font-bold">
+                        </div>
+
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Waktu Pekerjaan <span class="text-rose-500">*</span></label>
+                            <input type="text" id="nota_waktu_pekerjaan" required placeholder="Contoh: 50 hari kalender" 
+                                   class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-slate-50/50 text-slate-800 transition">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex items-center justify-end gap-2.5 border-t border-slate-100">
+                    <button type="button" onclick="closeNotaModal()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition shadow-xs flex items-center gap-2">
+                        <i class="fa-solid fa-check"></i>
+                        <span>Simpan Nota Pesanan</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPT ENGINE -->
+    <script>
+        // =========================================================================
+        // DATA INITIALIZATION (SPK & NOTA PEMESANAN)
+        // =========================================================================
+        const INITIAL_SPK_DATA = [
+            {
+                id: 1,
+                no_spm: '00044A',
+                no_spk: '2.18/003.SPK/BPVP-KDI/PPK-KU/III/2026',
+                tgl_kontrak: '10/03/2026',
+                tgl_raw: '2026-03-10',
+                nama_penyedia: 'Cv. Dwi Sakti Pratama',
+                pejabat_pengadaan: 'Agus Setiya',
+                nilai_kontrak: 'Rp 14.500.000',
+                waktu_pekerjaan: '30 hari kelender'
+            },
+            {
+                id: 2,
+                no_spm: '00045A',
+                no_spk: '2.18/004.SPK/BPVP-KDI/PPK-KU/III/2026',
+                tgl_kontrak: '10/03/2026',
+                tgl_raw: '2026-03-10',
+                nama_penyedia: 'Cv. Sinar Terang Abadi',
+                pejabat_pengadaan: 'Agus Setiya',
+                nilai_kontrak: 'Rp 18.750.000',
+                waktu_pekerjaan: '45 hari kalender'
+            },
+            {
+                id: 3,
+                no_spm: '00052A',
+                no_spk: '2.18/008.SPK/BPVP-KDI/PPK-KU/III/2026',
+                tgl_kontrak: '15/03/2026',
+                tgl_raw: '2026-03-15',
+                nama_penyedia: 'PT. Bahari Logistik Sultra',
+                pejabat_pengadaan: 'Agus Setiya',
+                nilai_kontrak: 'Rp 24.800.000',
+                waktu_pekerjaan: '60 hari kalender'
+            },
+            {
+                id: 4,
+                no_spm: '00061A',
+                no_spk: '2.18/012.SPK/BPVP-KDI/PPK-KU/III/2026',
+                tgl_kontrak: '18/03/2026',
+                tgl_raw: '2026-03-18',
+                nama_penyedia: 'CV. Mandiri Sejahtera Mandiri',
+                pejabat_pengadaan: 'Agus Setiya',
+                nilai_kontrak: 'Rp 9.250.000',
+                waktu_pekerjaan: '20 hari kalender'
+            },
+            {
+                id: 5,
+                no_spm: '00078A',
+                no_spk: '2.18/019.SPK/BPVP-KDI/PPK-KU/III/2026',
+                tgl_kontrak: '22/03/2026',
+                tgl_raw: '2026-03-22',
+                nama_penyedia: 'PT. Cahaya Kendari Medika',
+                pejabat_pengadaan: 'Agus Setiya',
+                nilai_kontrak: 'Rp 32.100.000',
+                waktu_pekerjaan: '30 hari kalender'
+            },
+            {
+                id: 6,
+                no_spm: '00082A',
+                no_spk: '2.18/023.SPK/BPVP-KDI/PPK-KU/III/2026',
+                tgl_kontrak: '28/03/2026',
+                tgl_raw: '2026-03-28',
+                nama_penyedia: 'CV. Citra Karya Mandiri',
+                pejabat_pengadaan: 'Agus Setiya',
+                nilai_kontrak: 'Rp 16.450.000',
+                waktu_pekerjaan: '30 hari kalender'
+            }
+        ];
+
+        // Exact Data from User's Screenshot (Daftar Nota Pemesanan)
+        const INITIAL_NOTA_DATA = [
+            {
+                id: 101,
+                no_spm: '00086A',
+                no_nota: '2.18/1130.SP/BPVP-KDI/PPK-KU/III/2026',
+                tgl_kontrak: '30/03/2026',
+                tgl_raw: '2026-03-30',
+                nama_penyedia: 'Cv. Hana Catering Barokah',
+                nilai_kontrak: 'Rp 28.750.000',
+                waktu_pekerjaan: '50 hari kalender'
+            },
+            {
+                id: 102,
+                no_spm: '00094A',
+                no_nota: '2.18/1131.SP/BPVP-KDI/PPK-KU/III/2026',
+                tgl_kontrak: '30/03/2026',
+                tgl_raw: '2026-03-30',
+                nama_penyedia: 'Cv. Hana Catering Barokah',
+                nilai_kontrak: 'Rp 17.025.000',
+                waktu_pekerjaan: '55 hari kalender'
+            },
+            {
+                id: 103,
+                no_spm: '139A',
+                no_nota: '2.13/1653.SP/BPVP-KDI/PPK-KU/VI/2026',
+                tgl_kontrak: '22/06/2026',
+                tgl_raw: '2026-06-22',
+                nama_penyedia: 'CV Citta Karya Konstruksi',
+                nilai_kontrak: 'Rp 36.538.000',
+                waktu_pekerjaan: '8 Hari Kalender'
+            },
+            {
+                id: 104,
+                no_spm: '152A',
+                no_nota: '2.13/1654.SP/BPVP-KDI/PPK-KU/VI/2026',
+                tgl_kontrak: '22/06/2026',
+                tgl_raw: '2026-06-22',
+                nama_penyedia: 'CV Citta Karya Konstruksi',
+                nilai_kontrak: 'Rp 25.107.000',
+                waktu_pekerjaan: '8 Hari Kalender'
+            },
+            {
+                id: 105,
+                no_spm: '00153A',
+                no_nota: '2.18/1763.SP/BPVP-KDI/PPK-KU/VII/2026',
+                tgl_kontrak: '02/07/2026',
+                tgl_raw: '2026-07-02',
+                nama_penyedia: 'Cv. Klikindo Utama',
+                nilai_kontrak: 'Rp 23.976.000',
+                waktu_pekerjaan: '8 hari kalender'
+            }
+        ];
+
+        let currentActiveTab = 'spk'; // 'spk' or 'nota'
+
+        // LocalStorage Helpers
+        function getStoredSpkData() {
+            try {
+                const stored = localStorage.getItem('simpel_spk_records');
+                if (stored) return JSON.parse(stored);
+            } catch (e) {}
+            return [...INITIAL_SPK_DATA];
+        }
+
+        function saveStoredSpkData(data) {
+            localStorage.setItem('simpel_spk_records', JSON.stringify(data));
+        }
+
+        function getStoredNotaData() {
+            try {
+                const stored = localStorage.getItem('simpel_nota_records');
+                if (stored) return JSON.parse(stored);
+            } catch (e) {}
+            return [...INITIAL_NOTA_DATA];
+        }
+
+        function saveStoredNotaData(data) {
+            localStorage.setItem('simpel_nota_records', JSON.stringify(data));
+        }
+
+        // =========================================================================
+        // WORKSPACE TAB SWITCHER (SPK vs NOTA)
+        // =========================================================================
+        function switchWorkTab(tab) {
+            currentActiveTab = tab;
+            const secSpk = document.getElementById('section-spk');
+            const secNota = document.getElementById('section-nota');
+            const btnSpk = document.getElementById('tab-btn-spk');
+            const btnNota = document.getElementById('tab-btn-nota');
+            const titleEl = document.getElementById('main-header-title');
+
+            if (tab === 'spk') {
+                secSpk.classList.remove('hidden');
+                secNota.classList.add('hidden');
+                btnSpk.className = 'px-4 py-2 rounded-xl font-bold bg-blue-600 text-white shadow-xs transition flex items-center gap-2';
+                btnNota.className = 'px-4 py-2 rounded-xl font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900 transition flex items-center gap-2';
+                if (titleEl) titleEl.textContent = 'Rekap Surat Perjanjian Kerja (SPK)';
+                filterSpkData();
+            } else {
+                secSpk.classList.add('hidden');
+                secNota.classList.remove('hidden');
+                btnNota.className = 'px-4 py-2 rounded-xl font-bold bg-blue-600 text-white shadow-xs transition flex items-center gap-2';
+                btnSpk.className = 'px-4 py-2 rounded-xl font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900 transition flex items-center gap-2';
+                if (titleEl) titleEl.textContent = 'Daftar Nota Pemesanan (Surat Pesanan)';
+                filterNotaData();
+            }
+        }
+
+        // =========================================================================
+        // SPK MODULE LOGIC
+        // =========================================================================
+        function renderSpkTable(items) {
+            const tbody = document.getElementById('spk-table-body');
+            const countLabel = document.getElementById('spk-count-label');
+            const badgeCount = document.getElementById('badge-count-spk');
+            if (!tbody) return;
+
+            if (badgeCount) badgeCount.textContent = items.length;
+
+            if (items.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center py-8 text-slate-400 font-medium">
+                            <i class="fa-solid fa-folder-open text-2xl mb-2 text-slate-300 block"></i>
+                            Tidak ada data SPK yang sesuai pencarian.
+                        </td>
+                    </tr>
+                `;
+                if (countLabel) countLabel.textContent = 'Menampilkan 0 kontrak kerja';
+                return;
+            }
+
+            if (countLabel) countLabel.textContent = `Menampilkan ${items.length} kontrak kerja SPK`;
+
+            tbody.innerHTML = items.map(item => `
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                    <td class="py-3.5 px-4 font-bold text-slate-700">${item.no_spm}</td>
+                    <td class="py-3.5 px-4 font-bold text-blue-600 hover:text-blue-800 cursor-pointer" onclick="viewSpkDetail(${item.id})">
+                        ${item.no_spk}
+                    </td>
+                    <td class="py-3.5 px-4 text-slate-700 font-medium">
+                        <span class="inline-flex items-center gap-1.5">
+                            <i class="fa-regular fa-calendar text-slate-400 text-[11px]"></i>
+                            <span>${item.tgl_kontrak}</span>
+                        </span>
+                    </td>
+                    <td class="py-3.5 px-4 font-semibold text-slate-800">${item.nama_penyedia}</td>
+                    <td class="py-3.5 px-4 font-bold text-slate-900">${item.nilai_kontrak}</td>
+                    <td class="py-3.5 px-4 text-slate-600">${item.waktu_pekerjaan}</td>
+                    <td class="py-3.5 px-4 font-medium text-slate-700">${item.pejabat_pengadaan}</td>
+                    <td class="py-3.5 px-4 text-center">
+                        <div class="inline-flex items-center gap-1.5 p-1 bg-slate-50 border border-slate-200/80 rounded-xl shadow-2xs">
+                            <button onclick="viewSpkDetail(${item.id})" 
+                                    class="w-7 h-7 rounded-lg text-blue-600 bg-blue-50/70 hover:bg-blue-600 hover:text-white flex items-center justify-center transition shadow-2xs" 
+                                    title="Lihat Detail & Hubungan Bahan">
+                                <i class="fa-solid fa-folder-open text-xs"></i>
+                            </button>
+                            <button onclick="editSpkItem(${item.id})" 
+                                    class="w-7 h-7 rounded-lg text-amber-600 bg-amber-50/70 hover:bg-amber-500 hover:text-white flex items-center justify-center transition shadow-2xs" 
+                                    title="Edit Data SPK">
+                                <i class="fa-solid fa-pen-to-square text-xs"></i>
+                            </button>
+                            <button onclick="deleteSpkItem(${item.id})" 
+                                    class="w-7 h-7 rounded-lg text-rose-600 bg-rose-50/70 hover:bg-rose-600 hover:text-white flex items-center justify-center transition shadow-2xs" 
+                                    title="Hapus SPK">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterSpkData() {
+            const query = (document.getElementById('search-spk')?.value || '').toLowerCase().trim();
+            const year = document.getElementById('filter-tahun-spk')?.value || 'all';
+            const allData = getStoredSpkData();
+
+            const filtered = allData.filter(item => {
+                const matchQuery = !query || 
+                    item.no_spm.toLowerCase().includes(query) ||
+                    item.no_spk.toLowerCase().includes(query) ||
+                    item.nama_penyedia.toLowerCase().includes(query) ||
+                    item.pejabat_pengadaan.toLowerCase().includes(query);
+                
+                const matchYear = (year === 'all') || 
+                    item.tgl_kontrak.endsWith(year) ||
+                    item.no_spk.includes(year);
+
+                return matchQuery && matchYear;
+            });
+
+            renderSpkTable(filtered);
+        }
+
+        function openSpkModal() {
+            document.getElementById('spk-modal-title').textContent = 'Tambah Surat Perjanjian Kerja (SPK)';
+            document.getElementById('spk-id').value = '';
+            document.getElementById('no_spm').value = '';
+            document.getElementById('no_spk').value = '';
+            document.getElementById('tgl_kontrak').value = new Date().toISOString().split('T')[0];
+            document.getElementById('nama_penyedia').value = '';
+            document.getElementById('pejabat_pengadaan').value = 'Agus Setiya';
+            document.getElementById('nilai_kontrak').value = '';
+            document.getElementById('waktu_pekerjaan').value = '30 hari kelender';
+            document.getElementById('spk-modal').classList.remove('hidden');
+        }
+
+        function editSpkItem(id) {
+            const data = getStoredSpkData();
+            const item = data.find(d => d.id === id);
+            if (!item) return;
+
+            document.getElementById('spk-modal-title').textContent = 'Edit Surat Perjanjian Kerja (SPK)';
+            document.getElementById('spk-id').value = item.id;
+            document.getElementById('no_spm').value = item.no_spm;
+            document.getElementById('no_spk').value = item.no_spk;
+            document.getElementById('tgl_kontrak').value = item.tgl_raw || '2026-03-10';
+            document.getElementById('nama_penyedia').value = item.nama_penyedia;
+            document.getElementById('pejabat_pengadaan').value = item.pejabat_pengadaan;
+            document.getElementById('nilai_kontrak').value = item.nilai_kontrak.replace('Rp ', '');
+            document.getElementById('waktu_pekerjaan').value = item.waktu_pekerjaan;
+            document.getElementById('spk-modal').classList.remove('hidden');
+        }
+
+        function viewSpkDetail(id) {
+            const data = getStoredSpkData();
+            const item = data.find(d => d.id === id);
+            if (!item) return;
+
+            Swal.fire({
+                title: `<span class="text-base font-bold text-slate-800">Detail Kontrak SPK</span>`,
+                html: `
+                    <div class="text-left text-xs space-y-3 pt-2 text-slate-700">
+                        <div class="p-3 bg-blue-50/80 rounded-xl border border-blue-100">
+                            <span class="text-[10px] uppercase font-bold text-blue-600 block">Nomor SPK</span>
+                            <span class="font-extrabold text-blue-950 text-sm">${item.no_spk}</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                                <span class="text-[10px] text-slate-400 block font-semibold">Nomor SPM:</span>
+                                <span class="font-bold text-slate-800">${item.no_spm}</span>
+                            </div>
+                            <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                                <span class="text-[10px] text-slate-400 block font-semibold">Tanggal Kontrak:</span>
+                                <span class="font-bold text-slate-800">${item.tgl_kontrak}</span>
+                            </div>
+                        </div>
+                        <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                            <span class="text-[10px] text-slate-400 block font-semibold">Penyedia / Vendor:</span>
+                            <span class="font-bold text-slate-900">${item.nama_penyedia}</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="p-2.5 bg-emerald-50 rounded-xl border border-emerald-100">
+                                <span class="text-[10px] text-emerald-600 block font-semibold">Nilai Kontrak:</span>
+                                <span class="font-extrabold text-emerald-800">${item.nilai_kontrak}</span>
+                            </div>
+                            <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                                <span class="text-[10px] text-slate-400 block font-semibold">Waktu Pelaksanaan:</span>
+                                <span class="font-bold text-slate-800">${item.waktu_pekerjaan}</span>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-teal-50/80 rounded-xl border border-teal-200">
+                            <span class="text-[10px] text-teal-700 font-bold block mb-1">Rincian Kebutuhan Bahan Terkait:</span>
+                            <p class="text-[11px] text-slate-600">Komponen item seragam, APD, dan alat praktek untuk SPK ini terinci lengkap di modul Rincian Bahan.</p>
+                            <a href="detail_pengadaan.php" class="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-teal-700 hover:text-teal-900 underline">
+                                <span>Buka Rincian Bahan Pelatihan &rarr;</span>
+                            </a>
+                        </div>
+                    </div>
+                `,
+                confirmButtonText: 'Tutup',
+                confirmButtonColor: '#2563eb',
+                customClass: { popup: 'rounded-3xl' }
+            });
+        }
+
+        function deleteSpkItem(id) {
+            const data = getStoredSpkData();
+            const item = data.find(d => d.id === id);
+            if (!item) return;
+
+            Swal.fire({
+                title: 'Hapus Surat Perjanjian Kerja?',
+                html: `Apakah Anda yakin ingin menghapus SPK No: <b>${item.no_spk}</b>?<br><span class="text-xs text-slate-400">Data yang dihapus tidak dapat dikembalikan.</span>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: '<i class="fa-solid fa-trash-can mr-1"></i> Ya, Hapus',
+                cancelButtonText: 'Batal',
+                customClass: { popup: 'rounded-3xl' }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const updated = data.filter(d => d.id !== id);
+                    saveStoredSpkData(updated);
+                    filterSpkData();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil Dihapus!',
+                        text: 'Data SPK telah berhasil dihapus dari rekap.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                }
+            });
+        }
+
+        function handleSaveSpk(e) {
+            e.preventDefault();
+            const idVal = document.getElementById('spk-id').value;
+            const noSpm = document.getElementById('no_spm').value.trim();
+            const noSpk = document.getElementById('no_spk').value.trim();
+            const tglRaw = document.getElementById('tgl_kontrak').value;
+            const namaPenyedia = document.getElementById('nama_penyedia').value.trim();
+            const pejabatPengadaan = document.getElementById('pejabat_pengadaan').value.trim();
+            let nilaiKontrak = document.getElementById('nilai_kontrak').value.trim();
+            const waktuPekerjaan = document.getElementById('waktu_pekerjaan').value.trim();
+
+            const parts = tglRaw.split('-');
+            const formattedTgl = parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : tglRaw;
+
+            if (!nilaiKontrak.startsWith('Rp')) {
+                nilaiKontrak = 'Rp ' + nilaiKontrak;
+            }
+
+            const data = getStoredSpkData();
+
+            if (idVal) {
+                const idx = data.findIndex(d => d.id === parseInt(idVal));
+                if (idx !== -1) {
+                    data[idx] = {
+                        ...data[idx],
+                        no_spm: noSpm,
+                        no_spk: noSpk,
+                        tgl_kontrak: formattedTgl,
+                        tgl_raw: tglRaw,
+                        nama_penyedia: namaPenyedia,
+                        pejabat_pengadaan: pejabatPengadaan,
+                        nilai_kontrak: nilaiKontrak,
+                        waktu_pekerjaan: waktuPekerjaan
+                    };
+                }
+            } else {
+                const newId = Date.now();
+                data.unshift({
+                    id: newId,
+                    no_spm: noSpm,
+                    no_spk: noSpk,
+                    tgl_kontrak: formattedTgl,
+                    tgl_raw: tglRaw,
+                    nama_penyedia: namaPenyedia,
+                    pejabat_pengadaan: pejabatPengadaan,
+                    nilai_kontrak: nilaiKontrak,
+                    waktu_pekerjaan: waktuPekerjaan
+                });
+            }
+
+            saveStoredSpkData(data);
+            closeSpkModal();
+            filterSpkData();
+
+            Swal.fire({
+                icon: 'success',
+                title: idVal ? 'Perubahan Tersimpan!' : 'SPK Baru Berhasil Ditambahkan!',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        }
+
+        function closeSpkModal() {
+            document.getElementById('spk-modal').classList.add('hidden');
+        }
+
+        function downloadExcelSpk() {
+            const data = getStoredSpkData();
+            let csv = "NO. SPM;NO SPK;TANGGAL KONTRAK;NAMA PENYEDIA;NILAI KONTRAK;WAKTU PEKERJAAN;PEJABAT PENGADAAN\n";
+            data.forEach(item => {
+                csv += `"${item.no_spm}";"${item.no_spk}";"${item.tgl_kontrak}";"${item.nama_penyedia}";"${item.nilai_kontrak}";"${item.waktu_pekerjaan}";"${item.pejabat_pengadaan}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Daftar_SPK_BPVP_Kendari_${new Date().getFullYear()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Unduhan Dimulai!',
+                text: 'File spreadsheet Excel/CSV SPK sedang diunduh.',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        }
+
+        // =========================================================================
+        // NOTA PEMESANAN MODULE LOGIC (PERSIS SEPERTI GAMBAR DILAMPIRKAN)
+        // =========================================================================
+        function renderNotaTable(items) {
+            const tbody = document.getElementById('nota-table-body');
+            const countLabel = document.getElementById('nota-count-label');
+            const badgeCount = document.getElementById('badge-count-nota');
+            if (!tbody) return;
+
+            if (badgeCount) badgeCount.textContent = items.length;
+
+            if (items.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-8 text-slate-400 font-medium">
+                            <i class="fa-solid fa-file-circle-xmark text-2xl mb-2 text-slate-300 block"></i>
+                            Tidak ada data Nota Pemesanan yang sesuai pencarian.
+                        </td>
+                    </tr>
+                `;
+                if (countLabel) countLabel.textContent = 'Menampilkan 0 data Nota Pemesanan';
+                return;
+            }
+
+            if (countLabel) countLabel.textContent = `Menampilkan ${items.length} data Nota Pemesanan`;
+
+            tbody.innerHTML = items.map(item => `
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                    <td class="py-4 px-4 font-semibold text-slate-700 text-xs">${item.no_spm}</td>
+                    <td class="py-4 px-4 font-bold text-blue-600 hover:text-blue-800 cursor-pointer text-xs" onclick="viewNotaDetail(${item.id})">
+                        ${item.no_nota}
+                    </td>
+                    <td class="py-4 px-4 text-slate-800 font-semibold text-xs">
+                        <span class="inline-flex items-center gap-1.5">
+                            <i class="fa-regular fa-calendar text-slate-900 text-xs"></i>
+                            <span>${item.tgl_kontrak}</span>
+                        </span>
+                    </td>
+                    <td class="py-4 px-4 text-slate-700 text-xs">${item.nama_penyedia}</td>
+                    <td class="py-4 px-4 font-bold text-slate-900 text-xs">${item.nilai_kontrak}</td>
+                    <td class="py-4 px-4 text-slate-600 text-xs">${item.waktu_pekerjaan}</td>
+                    <td class="py-4 px-4 text-center">
+                        <div class="inline-flex items-center gap-1.5 p-1 bg-slate-50 border border-slate-200/80 rounded-xl shadow-2xs">
+                            <button onclick="viewNotaDetail(${item.id})" 
+                                    class="w-7 h-7 rounded-lg text-blue-600 bg-blue-50/70 hover:bg-blue-600 hover:text-white flex items-center justify-center transition shadow-2xs" 
+                                    title="Lihat Detail & Hubungan Rincian Bahan">
+                                <i class="fa-solid fa-folder-open text-xs"></i>
+                            </button>
+                            <button onclick="editNotaItem(${item.id})" 
+                                    class="w-7 h-7 rounded-lg text-amber-600 bg-amber-50/70 hover:bg-amber-500 hover:text-white flex items-center justify-center transition shadow-2xs" 
+                                    title="Edit Nota Pemesanan">
+                                <i class="fa-solid fa-pen-to-square text-xs"></i>
+                            </button>
+                            <button onclick="deleteNotaItem(${item.id})" 
+                                    class="w-7 h-7 rounded-lg text-rose-600 bg-rose-50/70 hover:bg-rose-600 hover:text-white flex items-center justify-center transition shadow-2xs" 
+                                    title="Hapus Nota">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterNotaData() {
+            const query = (document.getElementById('search-nota')?.value || '').toLowerCase().trim();
+            const year = document.getElementById('filter-tahun-nota')?.value || 'all';
+            const allData = getStoredNotaData();
+
+            const filtered = allData.filter(item => {
+                const matchQuery = !query || 
+                    item.no_spm.toLowerCase().includes(query) ||
+                    item.no_nota.toLowerCase().includes(query) ||
+                    item.nama_penyedia.toLowerCase().includes(query) ||
+                    item.nilai_kontrak.toLowerCase().includes(query);
+                
+                const matchYear = (year === 'all') || 
+                    item.tgl_kontrak.endsWith(year) ||
+                    item.no_nota.includes(year);
+
+                return matchQuery && matchYear;
+            });
+
+            renderNotaTable(filtered);
+        }
+
+        function openNotaModal() {
+            document.getElementById('nota-modal-title').textContent = 'Tambah Nota Pemesanan';
+            document.getElementById('nota-id').value = '';
+            document.getElementById('nota_no_spm').value = '';
+            document.getElementById('nota_no_nota').value = '';
+            document.getElementById('nota_tgl_kontrak').value = new Date().toISOString().split('T')[0];
+            document.getElementById('nota_nama_penyedia').value = '';
+            document.getElementById('nota_nilai_kontrak').value = '';
+            document.getElementById('nota_waktu_pekerjaan').value = '8 hari kalender';
+            document.getElementById('nota-modal').classList.remove('hidden');
+        }
+
+        function editNotaItem(id) {
+            const data = getStoredNotaData();
+            const item = data.find(d => d.id === id);
+            if (!item) return;
+
+            document.getElementById('nota-modal-title').textContent = 'Edit Nota Pemesanan';
+            document.getElementById('nota-id').value = item.id;
+            document.getElementById('nota_no_spm').value = item.no_spm;
+            document.getElementById('nota_no_nota').value = item.no_nota;
+            document.getElementById('nota_tgl_kontrak').value = item.tgl_raw || '2026-03-30';
+            document.getElementById('nota_nama_penyedia').value = item.nama_penyedia;
+            document.getElementById('nota_nilai_kontrak').value = item.nilai_kontrak.replace('Rp ', '');
+            document.getElementById('nota_waktu_pekerjaan').value = item.waktu_pekerjaan;
+            document.getElementById('nota-modal').classList.remove('hidden');
+        }
+
+        function viewNotaDetail(id) {
+            const data = getStoredNotaData();
+            const item = data.find(d => d.id === id);
+            if (!item) return;
+
+            Swal.fire({
+                title: `<span class="text-base font-bold text-slate-800">Detail Nota Pemesanan</span>`,
+                html: `
+                    <div class="text-left text-xs space-y-3 pt-2 text-slate-700">
+                        <div class="p-3 bg-blue-50/80 rounded-xl border border-blue-100">
+                            <span class="text-[10px] uppercase font-bold text-blue-600 block">Nomor Nota Pesanan</span>
+                            <span class="font-extrabold text-blue-950 text-sm">${item.no_nota}</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                                <span class="text-[10px] text-slate-400 block font-semibold">Nomor SPM:</span>
+                                <span class="font-bold text-slate-800">${item.no_spm}</span>
+                            </div>
+                            <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                                <span class="text-[10px] text-slate-400 block font-semibold">Tanggal Kontrak:</span>
+                                <span class="font-bold text-slate-800">${item.tgl_kontrak}</span>
+                            </div>
+                        </div>
+                        <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                            <span class="text-[10px] text-slate-400 block font-semibold">Penyedia / Vendor:</span>
+                            <span class="font-bold text-slate-900">${item.nama_penyedia}</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="p-2.5 bg-emerald-50 rounded-xl border border-emerald-100">
+                                <span class="text-[10px] text-emerald-600 block font-semibold">Nilai Kontrak:</span>
+                                <span class="font-extrabold text-emerald-800">${item.nilai_kontrak}</span>
+                            </div>
+                            <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                                <span class="text-[10px] text-slate-400 block font-semibold">Waktu Pelaksanaan:</span>
+                                <span class="font-bold text-slate-800">${item.waktu_pekerjaan}</span>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-teal-50/80 rounded-xl border border-teal-200">
+                            <span class="text-[10px] text-teal-700 font-bold block mb-1">Rincian Barang & Bahan Pesanan:</span>
+                            <p class="text-[11px] text-slate-600">Pesanan barang/konsumsi ini masuk dalam itemized belanja bahan praktek atau logistik pada halaman Rincian Bahan.</p>
+                            <a href="detail_pengadaan.php" class="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-teal-700 hover:text-teal-900 underline">
+                                <span>Buka Rincian Bahan Pelatihan &rarr;</span>
+                            </a>
+                        </div>
+                    </div>
+                `,
+                confirmButtonText: 'Tutup',
+                confirmButtonColor: '#2563eb',
+                customClass: { popup: 'rounded-3xl' }
+            });
+        }
+
+        function deleteNotaItem(id) {
+            const data = getStoredNotaData();
+            const item = data.find(d => d.id === id);
+            if (!item) return;
+
+            Swal.fire({
+                title: 'Hapus Nota Pemesanan?',
+                html: `Apakah Anda yakin ingin menghapus Nota No: <b>${item.no_nota}</b>?<br><span class="text-xs text-slate-400">Data yang dihapus tidak dapat dikembalikan.</span>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: '<i class="fa-solid fa-trash-can mr-1"></i> Ya, Hapus',
+                cancelButtonText: 'Batal',
+                customClass: { popup: 'rounded-3xl' }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const updated = data.filter(d => d.id !== id);
+                    saveStoredNotaData(updated);
+                    filterNotaData();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil Dihapus!',
+                        text: 'Data Nota Pemesanan telah berhasil dihapus.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                }
+            });
+        }
+
+        function handleSaveNota(e) {
+            e.preventDefault();
+            const idVal = document.getElementById('nota-id').value;
+            const noSpm = document.getElementById('nota_no_spm').value.trim();
+            const noNota = document.getElementById('nota_no_nota').value.trim();
+            const tglRaw = document.getElementById('nota_tgl_kontrak').value;
+            const namaPenyedia = document.getElementById('nota_nama_penyedia').value.trim();
+            let nilaiKontrak = document.getElementById('nota_nilai_kontrak').value.trim();
+            const waktuPekerjaan = document.getElementById('nota_waktu_pekerjaan').value.trim();
+
+            const parts = tglRaw.split('-');
+            const formattedTgl = parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : tglRaw;
+
+            if (!nilaiKontrak.startsWith('Rp')) {
+                nilaiKontrak = 'Rp ' + nilaiKontrak;
+            }
+
+            const data = getStoredNotaData();
+
+            if (idVal) {
+                const idx = data.findIndex(d => d.id === parseInt(idVal));
+                if (idx !== -1) {
+                    data[idx] = {
+                        ...data[idx],
+                        no_spm: noSpm,
+                        no_nota: noNota,
+                        tgl_kontrak: formattedTgl,
+                        tgl_raw: tglRaw,
+                        nama_penyedia: namaPenyedia,
+                        nilai_kontrak: nilaiKontrak,
+                        waktu_pekerjaan: waktuPekerjaan
+                    };
+                }
+            } else {
+                const newId = Date.now();
+                data.unshift({
+                    id: newId,
+                    no_spm: noSpm,
+                    no_nota: noNota,
+                    tgl_kontrak: formattedTgl,
+                    tgl_raw: tglRaw,
+                    nama_penyedia: namaPenyedia,
+                    nilai_kontrak: nilaiKontrak,
+                    waktu_pekerjaan: waktuPekerjaan
+                });
+            }
+
+            saveStoredNotaData(data);
+            closeNotaModal();
+            filterNotaData();
+
+            Swal.fire({
+                icon: 'success',
+                title: idVal ? 'Perubahan Tersimpan!' : 'Nota Pemesanan Berhasil Ditambahkan!',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        }
+
+        function closeNotaModal() {
+            document.getElementById('nota-modal').classList.add('hidden');
+        }
+
+        function downloadExcelNota() {
+            const data = getStoredNotaData();
+            let csv = "NO. SPM;NO NOTA PESANAN;TANGGAL KONTRAK;NAMA PENYEDIA;NILAI KONTRAK;WAKTU PEKERJAAN\n";
+            data.forEach(item => {
+                csv += `"${item.no_spm}";"${item.no_nota}";"${item.tgl_kontrak}";"${item.nama_penyedia}";"${item.nilai_kontrak}";"${item.waktu_pekerjaan}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Daftar_Nota_Pemesanan_BPVP_Kendari_${new Date().getFullYear()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Unduhan Dimulai!',
+                text: 'File spreadsheet Excel/CSV Nota Pemesanan sedang diunduh.',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        }
+
+        function triggerModuleImport(moduleKey) {
+            SimpelADK.openImportModal(moduleKey, (rows) => {
+                if (rows && rows.length > 0) {
+                    const stored = getStoredSpkData();
+                    rows.forEach((r, idx) => {
+                        stored.unshift({
+                            id: Date.now() + idx,
+                            tahun: "2026",
+                            no_spk: r["Nomor SPK / Nota"] || `SPK.0${idx+1}/BPVP-KDI/2026`,
+                            tgl_spk: r["Tanggal SPK"] || new Date().toISOString().slice(0, 10),
+                            paket_pengadaan: r["Nama Paket Pengadaan"] || "Paket Bahan Pelatihan ADK",
+                            nama_perusahaan: r["Penyedia / Rekanan"] || "CV Rekanan ADK",
+                            nilai_kontrak: parseFloat(r["Nilai Kontrak (Rp)"]) || 25000000,
+                            waktu_pelaksanaan: r["Jangka Waktu (Hari)"] || "30 Hari Kalender",
+                            status: "Aktif"
+                        });
+                    });
+                    localStorage.setItem('simpel_spk_data', JSON.stringify(stored));
+                    filterSpkData();
+                }
+            });
+        }
+
+        // Initialize on DOM Ready
+        document.addEventListener('DOMContentLoaded', () => {
+            // Render ADK Toolbar
+            const container = document.getElementById('adk-toolbar-container');
+            if (container && typeof SimpelADK !== 'undefined') {
+                container.innerHTML = SimpelADK.renderToolbarHTML('pengadaan', 'ADK Pokja Pengadaan: Template, Import & Export SPK / Nota Pemesanan');
+            }
+
+            // Sidebar rendered server-side by PHP
+            filterSpkData();
+            filterNotaData();
+        });
+    </script>
+</body>
+</html>

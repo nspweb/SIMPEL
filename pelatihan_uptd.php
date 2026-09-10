@@ -1,0 +1,489 @@
+<?php
+require_once __DIR__ . '/auth/auth_check.php';
+requireRoleAccess(['admin', 'pimpinan', 'tu']);
+$activePage = 'pelatihan_uptd';
+?>
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Pelatihan UPTD Binaan - SIMPEL BPVP Kendari</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="simpel_auth.js"></script>
+    <style>
+        body, html, button, input, select, textarea, .font-heading { font-family: 'Montserrat', sans-serif; }
+        i, [class*="fa-"] { font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", "FontAwesome" !important; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-50 flex flex-col antialiased">
+
+    <!-- UNIFIED SIDEBAR (SIMPEL AUTH) -->
+    <?php include __DIR__ . '/includes/header.php'; ?>
+    <?php include __DIR__ . '/includes/sidebar.php'; ?>
+
+    <!-- MAIN WORKSPACE -->
+    <main class="flex-1 min-w-0 w-full px-4 sm:px-6 lg:px-8 xl:px-10 py-5 sm:py-6 space-y-6">
+        
+        <!-- PAGE HEADER & ACTIONS -->
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight font-heading">
+                    Dashboard Pelatihan 5 BLK UPTD Binaan
+                </h1>
+                <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
+                    Data agregat peserta pelatihan, profil gender, sebaran tingkat pendidikan, dan kelompok usia BLK binaan TA 2026.
+                </p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2.5 text-xs">
+                <a href="input_pelatihan_uptd.php" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-bold shadow-xs transition">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    <span>Input Pelatihan UPTD</span>
+                </a>
+                <button onclick="downloadReport()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 font-bold shadow-xs transition">
+                    <i class="fa-solid fa-file-excel text-emerald-600"></i>
+                    <span>Ekspor Data 5 BLK</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 4 KPI HERO METRIC CARDS -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+            
+            <!-- CARD 1: TOTAL PESERTA UPTD (HERO AMBER/SLATE ACCENT) -->
+            <div class="rounded-3xl p-6 bg-gradient-to-br from-amber-950 via-slate-900 to-amber-900 text-white shadow-md flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold text-amber-200 tracking-wide uppercase">Total Peserta 5 BLK</span>
+                    <span class="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center text-white text-xs">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </span>
+                </div>
+                <div class="my-4">
+                    <span class="text-4xl sm:text-5xl font-black font-heading tracking-tight">96 Orang</span>
+                </div>
+                <div class="flex items-center gap-2 text-[11px] font-semibold text-amber-100 bg-black/20 px-3 py-1 rounded-xl w-fit">
+                    <i class="fa-solid fa-landmark text-amber-300"></i>
+                    <span>6 Paket Pelatihan Berjalan</span>
+                </div>
+            </div>
+
+            <!-- CARD 2: GENDER L / P -->
+            <div class="rounded-3xl p-6 bg-white border border-slate-200/90 shadow-xs flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-500 tracking-wide uppercase">Komposisi Gender</span>
+                    <span class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 text-xs">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </span>
+                </div>
+                <div class="my-4">
+                    <span class="text-3xl sm:text-4xl font-black text-slate-900 font-heading tracking-tight">63 L / 33 P</span>
+                </div>
+                <div class="flex items-center gap-2 text-[11px] font-semibold text-blue-700 bg-blue-50 px-3 py-1 rounded-xl w-fit">
+                    <i class="fa-solid fa-venus-mars text-blue-600"></i>
+                    <span>65,6% Pria &bull; 34,4% Wanita</span>
+                </div>
+            </div>
+
+            <!-- CARD 3: PENDIDIKAN DOMINAN -->
+            <div class="rounded-3xl p-6 bg-white border border-slate-200/90 shadow-xs flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-500 tracking-wide uppercase">Tingkat Pendidikan</span>
+                    <span class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 text-xs">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </span>
+                </div>
+                <div class="my-4">
+                    <span class="text-4xl sm:text-5xl font-black text-slate-900 font-heading tracking-tight">67 Orang</span>
+                </div>
+                <div class="flex items-center gap-2 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-xl w-fit">
+                    <i class="fa-solid fa-graduation-cap text-emerald-600"></i>
+                    <span>69,8% Lulusan SMA/SMK</span>
+                </div>
+            </div>
+
+            <!-- CARD 4: WILAYAH BINAAN -->
+            <div class="rounded-3xl p-6 bg-white border border-slate-200/90 shadow-xs flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-500 tracking-wide uppercase">Cakupan Wilayah Binaan</span>
+                    <span class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 text-xs">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </span>
+                </div>
+                <div class="my-4">
+                    <span class="text-4xl sm:text-5xl font-black text-slate-900 font-heading tracking-tight">5 Wilayah</span>
+                </div>
+                <div class="flex items-center gap-2 text-[11px] font-semibold text-purple-700 bg-purple-50 px-3 py-1 rounded-xl w-fit">
+                    <i class="fa-solid fa-map-location-dot text-purple-600"></i>
+                    <span>Kolaka, Kolut, Konsel, Konut, Buton</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- MIDDLE SECTION: SEBARAN WILAYAH UPTD & KELOMPOK USIA -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            
+            <!-- DISTRIBUSI KUOTA 5 BLK BINAAN -->
+            <div class="lg:col-span-6 bg-white rounded-3xl p-6 border border-slate-200/90 shadow-xs space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="font-black text-slate-900 text-sm sm:text-base tracking-tight font-heading">
+                            Distribusi Peserta per BLK Binaan
+                        </h3>
+                        <p class="text-xs text-slate-400">Alokasi paket pelatihan kejuruan binaan daerah</p>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-xl text-[10px] font-extrabold bg-amber-50 text-amber-800">96 Peserta</span>
+                </div>
+
+                <div class="space-y-3 pt-2 text-xs">
+                    <div>
+                        <div class="flex items-center justify-between mb-1 font-semibold text-slate-700">
+                            <span>BLK Kolaka (2 Paket: Otomotif & Garmen)</span>
+                            <span class="font-extrabold text-slate-900">32 Siswa (33,3%)</span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                            <div class="bg-amber-600 h-full rounded-full" style="width: 33.3%"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex items-center justify-between mb-1 font-semibold text-slate-700">
+                            <span>BLK Kolaka Utara (1 Paket: Pengolahan Kopi & Kakao)</span>
+                            <span class="font-extrabold text-slate-900">16 Siswa (16,7%)</span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                            <div class="bg-teal-600 h-full rounded-full" style="width: 16.7%"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex items-center justify-between mb-1 font-semibold text-slate-700">
+                            <span>BLK Konawe Selatan (1 Paket: Listrik Bangunan)</span>
+                            <span class="font-extrabold text-slate-900">16 Siswa (16,7%)</span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                            <div class="bg-blue-600 h-full rounded-full" style="width: 16.7%"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex items-center justify-between mb-1 font-semibold text-slate-700">
+                            <span>BLK Konawe Utara (1 Paket: Operator Excavator)</span>
+                            <span class="font-extrabold text-slate-900">16 Siswa (16,7%)</span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                            <div class="bg-purple-600 h-full rounded-full" style="width: 16.7%"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex items-center justify-between mb-1 font-semibold text-slate-700">
+                            <span>BLK Buton (1 Paket: Pemandu Wisata & Homestay)</span>
+                            <span class="font-extrabold text-slate-900">16 Siswa (16,7%)</span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                            <div class="bg-emerald-600 h-full rounded-full" style="width: 16.7%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RENTANG KELOMPOK USIA ANGKATAN KERJA -->
+            <div class="lg:col-span-6 bg-white rounded-3xl p-6 border border-slate-200/90 shadow-xs space-y-3">
+                <div class="flex items-center justify-between pb-1 border-b border-slate-100">
+                    <div>
+                        <h3 class="font-black text-slate-900 text-sm sm:text-base tracking-tight font-heading">
+                            Profil Usia Peserta Pelatihan
+                        </h3>
+                        <p class="text-xs text-slate-400">Prioritas penyiapan angkatan kerja produktif muda</p>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-xl text-[10px] font-extrabold bg-blue-50 text-blue-700">Usia Produktif</span>
+                </div>
+
+                <div class="space-y-3 pt-2 text-xs">
+                    <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                        <div>
+                            <p class="font-bold text-slate-900">Usia 17 - 24 Tahun (Fresh Graduate)</p>
+                            <span class="text-[10px] text-slate-500">Pencari kerja pertama kali / lulusan baru</span>
+                        </div>
+                        <span class="font-black text-blue-700 text-base">51 Orang (53,1%)</span>
+                    </div>
+
+                    <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                        <div>
+                            <p class="font-bold text-slate-900">Usia 25 - 28 Tahun</p>
+                            <span class="text-[10px] text-slate-500">Peningkatan keterampilan kerja (Up-skilling)</span>
+                        </div>
+                        <span class="font-black text-teal-700 text-base">27 Orang (28,1%)</span>
+                    </div>
+
+                    <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                        <div>
+                            <p class="font-bold text-slate-900">Usia 29 - 34 Tahun</p>
+                            <span class="text-[10px] text-slate-500">Alih profesi / Wirausaha mandiri</span>
+                        </div>
+                        <span class="font-black text-purple-700 text-base">12 Orang (12,5%)</span>
+                    </div>
+
+                    <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                        <div>
+                            <p class="font-bold text-slate-900">Usia 35 - 40 Tahun</p>
+                            <span class="text-[10px] text-slate-500">Pemberdayaan masyarakat produktif</span>
+                        </div>
+                        <span class="font-black text-amber-700 text-base">6 Orang (6,3%)</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- UPTD SELECTOR TABS -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs whitespace-nowrap">
+            <button onclick="filterUptd('all', this)" class="uptd-tab px-4 py-2 rounded-xl text-xs font-bold bg-[#1A3344] text-white shadow-xs transition">Semua BLK (5 Wilayah)</button>
+            <button onclick="filterUptd('Kolaka', this)" class="uptd-tab px-4 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 transition">BLK Kolaka</button>
+            <button onclick="filterUptd('Kolaka Utara', this)" class="uptd-tab px-4 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 transition">BLK Kolaka Utara</button>
+            <button onclick="filterUptd('Konawe Selatan', this)" class="uptd-tab px-4 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 transition">BLK Konawe Selatan</button>
+            <button onclick="filterUptd('Konawe Utara', this)" class="uptd-tab px-4 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 transition">BLK Konawe Utara</button>
+            <button onclick="filterUptd('Buton', this)" class="uptd-tab px-4 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 transition">BLK Buton</button>
+        </div>
+
+        <!-- DATA TABLE -->
+        <div class="bg-white rounded-3xl border border-slate-200/90 overflow-hidden shadow-xs">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-slate-600">
+                    <thead class="bg-slate-50 text-slate-600 font-bold border-b border-slate-200 uppercase tracking-wider text-[10px]">
+                        <tr>
+                            <th rowspan="2" class="py-2.5 px-3 text-center border-r border-slate-200">NO</th>
+                            <th rowspan="2" class="py-2.5 px-4 border-r border-slate-200">KEJURUAN</th>
+                            <th rowspan="2" class="py-2.5 px-4 border-r border-slate-200">PROGRAM PELATIHAN</th>
+                            <th rowspan="2" class="py-2.5 px-3 text-center bg-slate-100 text-slate-900 border-r border-slate-200">JUMLAH</th>
+                            <th colspan="2" class="py-2 px-3 text-center bg-blue-50/50 text-blue-900 border-b border-r border-slate-200">GENDER</th>
+                            <th colspan="5" class="py-2 px-3 text-center bg-purple-50/50 text-purple-900 border-b border-r border-slate-200">PENDIDIKAN</th>
+                            <th rowspan="2" class="py-2.5 px-3 text-center bg-amber-50 text-amber-900 border-r border-slate-200">DISABILITAS</th>
+                            <th colspan="5" class="py-2 px-3 text-center bg-teal-50/50 text-teal-900 border-b border-slate-200">KELOMPOK USIA</th>
+                        </tr>
+                        <tr>
+                            <th class="py-1.5 px-2.5 text-center text-pink-700 bg-pink-50/40">P</th>
+                            <th class="py-1.5 px-2.5 text-center text-blue-700 bg-blue-50/40 border-r border-slate-200">L</th>
+                            <th class="py-1.5 px-2 text-center">S1/D4</th>
+                            <th class="py-1.5 px-2 text-center">D3</th>
+                            <th class="py-1.5 px-2 text-center font-bold text-slate-800">SMA/K</th>
+                            <th class="py-1.5 px-2 text-center">SMP</th>
+                            <th class="py-1.5 px-2 text-center border-r border-slate-200">SD</th>
+                            <th class="py-1.5 px-2 text-center">17-24</th>
+                            <th class="py-1.5 px-2 text-center">25-28</th>
+                            <th class="py-1.5 px-2 text-center">29-34</th>
+                            <th class="py-1.5 px-2 text-center">35-40</th>
+                            <th class="py-1.5 px-2 text-center">41+</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 font-medium" id="uptd-tbody">
+                        
+                        <tr class="hover:bg-slate-50/80 transition" data-uptd="Kolaka">
+                            <td class="py-3 px-3 text-center font-bold text-slate-400">1</td>
+                            <td class="py-3 px-4 text-slate-600">Otomotif</td>
+                            <td class="py-3 px-4 font-bold text-slate-900">
+                                <span>Servis Sepeda Motor Konvensional</span>
+                                <span class="block text-[10px] text-slate-400 font-normal">BLK Kolaka</span>
+                            </td>
+                            <td class="py-3 px-3 text-center font-extrabold text-slate-900 bg-slate-50">16</td>
+                            <td class="py-3 px-2.5 text-center text-pink-600 font-bold">0</td>
+                            <td class="py-3 px-2.5 text-center text-blue-600 font-bold">16</td>
+                            <td class="py-3 px-2 text-center">2</td>
+                            <td class="py-3 px-2 text-center">1</td>
+                            <td class="py-3 px-2 text-center font-bold text-slate-800">11</td>
+                            <td class="py-3 px-2 text-center">2</td>
+                            <td class="py-3 px-2 text-center">0</td>
+                            <td class="py-3 px-3 text-center font-bold text-amber-700 bg-amber-50/30">0</td>
+                            <td class="py-3 px-2 text-center">9</td>
+                            <td class="py-3 px-2 text-center">4</td>
+                            <td class="py-3 px-2 text-center">2</td>
+                            <td class="py-3 px-2 text-center">1</td>
+                            <td class="py-3 px-2 text-center">0</td>
+                        </tr>
+
+                        <tr class="hover:bg-slate-50/80 transition" data-uptd="Kolaka">
+                            <td class="py-3 px-3 text-center font-bold text-slate-400">2</td>
+                            <td class="py-3 px-4 text-slate-600">Garmen Apparel</td>
+                            <td class="py-3 px-4 font-bold text-slate-900">
+                                <span>Menjahit Busana Wanita</span>
+                                <span class="block text-[10px] text-slate-400 font-normal">BLK Kolaka</span>
+                            </td>
+                            <td class="py-3 px-3 text-center font-extrabold text-slate-900 bg-slate-50">16</td>
+                            <td class="py-3 px-2.5 text-center text-pink-600 font-bold">16</td>
+                            <td class="py-3 px-2.5 text-center text-blue-600 font-bold">0</td>
+                            <td class="py-3 px-2 text-center">3</td>
+                            <td class="py-3 px-2 text-center">2</td>
+                            <td class="py-3 px-2 text-center font-bold text-slate-800">9</td>
+                            <td class="py-3 px-2 text-center">2</td>
+                            <td class="py-3 px-2 text-center">0</td>
+                            <td class="py-3 px-3 text-center font-bold text-amber-700 bg-amber-50/30">1</td>
+                            <td class="py-3 px-2 text-center">7</td>
+                            <td class="py-3 px-2 text-center">5</td>
+                            <td class="py-3 px-2 text-center">3</td>
+                            <td class="py-3 px-2 text-center">1</td>
+                            <td class="py-3 px-2 text-center">0</td>
+                        </tr>
+
+                        <tr class="hover:bg-slate-50/80 transition" data-uptd="Kolaka Utara">
+                            <td class="py-3 px-3 text-center font-bold text-slate-400">3</td>
+                            <td class="py-3 px-4 text-slate-600">Pertanian</td>
+                            <td class="py-3 px-4 font-bold text-slate-900">
+                                <span>Pengolahan Hasil Kakao & Kopi</span>
+                                <span class="block text-[10px] text-slate-400 font-normal">BLK Kolaka Utara</span>
+                            </td>
+                            <td class="py-3 px-3 text-center font-extrabold text-slate-900 bg-slate-50">16</td>
+                            <td class="py-3 px-2.5 text-center text-pink-600 font-bold">10</td>
+                            <td class="py-3 px-2.5 text-center text-blue-600 font-bold">6</td>
+                            <td class="py-3 px-2 text-center">4</td>
+                            <td class="py-3 px-2 text-center">1</td>
+                            <td class="py-3 px-2 text-center font-bold text-slate-800">10</td>
+                            <td class="py-3 px-2 text-center">1</td>
+                            <td class="py-3 px-2 text-center">0</td>
+                            <td class="py-3 px-3 text-center font-bold text-amber-700 bg-amber-50/30">0</td>
+                            <td class="py-3 px-2 text-center">8</td>
+                            <td class="py-3 px-2 text-center">4</td>
+                            <td class="py-3 px-2 text-center">2</td>
+                            <td class="py-3 px-2 text-center">2</td>
+                            <td class="py-3 px-2 text-center">0</td>
+                        </tr>
+
+                        <tr class="hover:bg-slate-50/80 transition" data-uptd="Konawe Selatan">
+                            <td class="py-3 px-3 text-center font-bold text-slate-400">4</td>
+                            <td class="py-3 px-4 text-slate-600">Teknik Listrik</td>
+                            <td class="py-3 px-4 font-bold text-slate-900">
+                                <span>Instalasi Listrik Bangunan</span>
+                                <span class="block text-[10px] text-slate-400 font-normal">BLK Konawe Selatan</span>
+                            </td>
+                            <td class="py-3 px-3 text-center font-extrabold text-slate-900 bg-slate-50">16</td>
+                            <td class="py-3 px-2.5 text-center text-pink-600 font-bold">1</td>
+                            <td class="py-3 px-2.5 text-center text-blue-600 font-bold">15</td>
+                            <td class="py-3 px-2 text-center">2</td>
+                            <td class="py-3 px-2 text-center">0</td>
+                            <td class="py-3 px-2 text-center font-bold text-slate-800">12</td>
+                            <td class="py-3 px-2 text-center">2</td>
+                            <td class="py-3 px-2 text-center">0</td>
+                            <td class="py-3 px-3 text-center font-bold text-amber-700 bg-amber-50/30">0</td>
+                            <td class="py-3 px-2 text-center">10</td>
+                            <td class="py-3 px-2 text-center">3</td>
+                            <td class="py-3 px-2 text-center">2</td>
+                            <td class="py-3 px-2 text-center">1</td>
+                            <td class="py-3 px-2 text-center">0</td>
+                        </tr>
+
+                        <tr class="hover:bg-slate-50/80 transition" data-uptd="Konawe Utara">
+                            <td class="py-3 px-3 text-center font-bold text-slate-400">5</td>
+                            <td class="py-3 px-4 text-slate-600">Alat Berat</td>
+                            <td class="py-3 px-4 font-bold text-slate-900">
+                                <span>Operator Excavator Kelas 1</span>
+                                <span class="block text-[10px] text-slate-400 font-normal">BLK Konawe Utara</span>
+                            </td>
+                            <td class="py-3 px-3 text-center font-extrabold text-slate-900 bg-slate-50">16</td>
+                            <td class="py-3 px-2.5 text-center text-pink-600 font-bold">0</td>
+                            <td class="py-3 px-2.5 text-center text-blue-600 font-bold">16</td>
+                            <td class="py-3 px-2 text-center">1</td>
+                            <td class="py-3 px-2 text-center">1</td>
+                            <td class="py-3 px-2 text-center font-bold text-slate-800">13</td>
+                            <td class="py-3 px-2 text-center">1</td>
+                            <td class="py-3 px-2 text-center">0</td>
+                            <td class="py-3 px-3 text-center font-bold text-amber-700 bg-amber-50/30">0</td>
+                            <td class="py-3 px-2 text-center">8</td>
+                            <td class="py-3 px-2 text-center">6</td>
+                            <td class="py-3 px-2 text-center">2</td>
+                            <td class="py-3 px-2 text-center">0</td>
+                            <td class="py-3 px-2 text-center">0</td>
+                        </tr>
+
+                        <tr class="hover:bg-slate-50/80 transition" data-uptd="Buton">
+                            <td class="py-3 px-3 text-center font-bold text-slate-400">6</td>
+                            <td class="py-3 px-4 text-slate-600">Pariwisata</td>
+                            <td class="py-3 px-4 font-bold text-slate-900">
+                                <span>Pemandu Wisata Selam & Homestay</span>
+                                <span class="block text-[10px] text-slate-400 font-normal">BLK Buton</span>
+                            </td>
+                            <td class="py-3 px-3 text-center font-extrabold text-slate-900 bg-slate-50">16</td>
+                            <td class="py-3 px-2.5 text-center text-pink-600 font-bold">6</td>
+                            <td class="py-3 px-2.5 text-center text-blue-600 font-bold">10</td>
+                            <td class="py-3 px-2 text-center">4</td>
+                            <td class="py-3 px-2 text-center">2</td>
+                            <td class="py-3 px-2 text-center font-bold text-slate-800">10</td>
+                            <td class="py-3 px-2 text-center">0</td>
+                            <td class="py-3 px-2 text-center">0</td>
+                            <td class="py-3 px-3 text-center font-bold text-amber-700 bg-amber-50/30">1</td>
+                            <td class="py-3 px-2 text-center">9</td>
+                            <td class="py-3 px-2 text-center">5</td>
+                            <td class="py-3 px-2 text-center">1</td>
+                            <td class="py-3 px-2 text-center">1</td>
+                            <td class="py-3 px-2 text-center">0</td>
+                        </tr>
+
+                    </tbody>
+                    <tfoot class="bg-slate-50 font-bold text-slate-800 border-t border-slate-200">
+                        <tr>
+                            <td colspan="3" class="py-3 px-4 text-right uppercase tracking-wider text-[10px]">Total 5 BLK UPTD:</td>
+                            <td class="py-3 px-3 text-center font-extrabold text-slate-900 bg-slate-100">96</td>
+                            <td class="py-3 px-2.5 text-center text-pink-700">33</td>
+                            <td class="py-3 px-2.5 text-center text-blue-700">63</td>
+                            <td class="py-3 px-2.5 text-center">16</td>
+                            <td class="py-3 px-2.5 text-center">7</td>
+                            <td class="py-3 px-2.5 text-center font-extrabold text-slate-900">67</td>
+                            <td class="py-3 px-2.5 text-center">6</td>
+                            <td class="py-3 px-2.5 text-center">0</td>
+                            <td class="py-3 px-3 text-center text-amber-800">2</td>
+                            <td class="py-3 px-2 text-center">51</td>
+                            <td class="py-3 px-2 text-center">27</td>
+                            <td class="py-3 px-2 text-center">12</td>
+                            <td class="py-3 px-2 text-center">6</td>
+                            <td class="py-3 px-2 text-center">0</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 py-5 text-center text-xs text-slate-500 mt-auto">
+        &copy; 2026 <strong>Balai Pelatihan Vokasi dan Produktivitas (BPVP) Kendari</strong> &bull; Subbag Tata Usaha (Pembina UPTD)
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Sidebar rendered server-side by PHP
+        });
+
+        function filterUptd(uptd, btn) {
+            const buttons = document.querySelectorAll('.uptd-tab');
+            buttons.forEach(b => {
+                b.className = "uptd-tab px-4 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 transition";
+            });
+            btn.className = "uptd-tab px-4 py-2 rounded-xl text-xs font-bold bg-[#1A3344] text-white shadow-xs transition";
+
+            const rows = document.querySelectorAll('#uptd-tbody tr');
+            rows.forEach(r => {
+                if (uptd === 'all' || r.dataset.uptd === uptd) {
+                    r.style.display = '';
+                } else {
+                    r.style.display = 'none';
+                }
+            });
+        }
+
+        function downloadReport() {
+            Swal.fire({
+                icon: 'success',
+                title: 'Unduh Rekap 5 BLK UPTD',
+                text: 'Data demografi peserta 5 BLK binaan sedang diekspor ke Excel.',
+                confirmButtonColor: '#d97706'
+            });
+        }
+    </script>
+</body>
+</html>

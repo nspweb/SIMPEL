@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Penyelenggara Pelatihan - SIMPEL BPVP Kendari</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="simpel_auth.js"></script>
+    <style>
+        body, html, button, input, select, textarea, .font-heading { font-family: 'Montserrat', sans-serif; }
+        i, [class*="fa-"] { font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", "FontAwesome" !important; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-50 flex flex-col antialiased">
+
+    <!-- UNIFIED SIDEBAR (SIMPEL AUTH) -->
+    <div id="simpel-unified-header"></div>
+
+    <!-- MAIN WORKSPACE -->
+    <main class="flex-1 min-w-0 w-full px-4 sm:px-6 lg:px-8 xl:px-10 py-5 sm:py-6 space-y-6">
+        
+        <!-- PAGE HEADER & ACTIONS -->
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight font-heading">
+                    Dashboard Penyelenggara Pelatihan
+                </h1>
+                <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
+                    Pengelolaan paket pelatihan per batch, jadwal pelaksanaan workshop, utilisasi kurikulum, dan jam pelatihan (JP).
+                </p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2.5 text-xs">
+                <a href="input_penyelenggara.html" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white font-bold shadow-xs transition">
+                    <i class="fa-solid fa-calendar-plus text-xs"></i>
+                    <span>Input Pelatihan (Per Batch)</span>
+                </a>
+                <a href="detail_pengadaan.html" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 font-bold shadow-xs transition">
+                    <i class="fa-solid fa-calculator text-teal-600"></i>
+                    <span>Rincian Bahan Pelatihan</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- 4 KPI HERO METRIC CARDS -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+            
+            <!-- CARD 1: TOTAL PAKET PELATIHAN (HERO TEAL ACCENT) -->
+            <div class="rounded-3xl p-6 bg-gradient-to-br from-teal-900 to-teal-700 text-white shadow-md flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold text-teal-200 tracking-wide uppercase">Total Paket Pelatihan</span>
+                    <span class="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center text-white text-xs">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </span>
+                </div>
+                <div class="my-4">
+                    <span class="text-4xl sm:text-5xl font-black font-heading tracking-tight">24 Paket</span>
+                </div>
+                <div class="flex items-center gap-2 text-[11px] font-semibold text-teal-100 bg-black/20 px-3 py-1 rounded-xl w-fit">
+                    <i class="fa-solid fa-graduation-cap text-teal-300"></i>
+                    <span>Kapasitas 384 Siswa Vokasi</span>
+                </div>
+            </div>
+
+            <!-- CARD 2: KELAS SEDANG BERJALAN -->
+            <div class="rounded-3xl p-6 bg-white border border-slate-200/90 shadow-xs flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-500 tracking-wide uppercase">Kelas Sedang Berjalan</span>
+                    <span class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 text-xs">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </span>
+                </div>
+                <div class="my-4">
+                    <span class="text-4xl sm:text-5xl font-black text-slate-900 font-heading tracking-tight">12 Kelas</span>
+                </div>
+                <div class="flex items-center gap-2 text-[11px] font-semibold text-blue-700 bg-blue-50 px-3 py-1 rounded-xl w-fit">
+                    <i class="fa-solid fa-chalkboard-user text-blue-600"></i>
+                    <span>Batch 1 & Batch 2 Aktif</span>
+                </div>
+            </div>
+
+            <!-- CARD 3: JAM PELATIHAN (JP) -->
+            <div class="rounded-3xl p-6 bg-white border border-slate-200/90 shadow-xs flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-500 tracking-wide uppercase">Realisasi Jam Pelatihan</span>
+                    <span class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 text-xs">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </span>
+                </div>
+                <div class="my-4">
+                    <span class="text-4xl sm:text-5xl font-black text-slate-900 font-heading tracking-tight">1.840 JP</span>
+                </div>
+                <div class="flex items-center gap-2 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-xl w-fit">
+                    <i class="fa-solid fa-clock text-emerald-600"></i>
+                    <span>Standar 8 JP / Hari Kerja</span>
+                </div>
+            </div>
+
+            <!-- CARD 4: TINGKAT KEHADIRAN -->
+            <div class="rounded-3xl p-6 bg-white border border-slate-200/90 shadow-xs flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-500 tracking-wide uppercase">Tingkat Kehadiran Siswa</span>
+                    <span class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 text-xs">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </span>
+                </div>
+                <div class="my-4">
+                    <span class="text-4xl sm:text-5xl font-black text-slate-900 font-heading tracking-tight">98,4%</span>
+                </div>
+                <div class="flex items-center gap-2 text-[11px] font-semibold text-teal-700 bg-teal-50 px-3 py-1 rounded-xl w-fit">
+                    <i class="fa-solid fa-user-check text-teal-600"></i>
+                    <span>Presensi Digital Terpantau</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- MIDDLE SECTION: METODE PELATIHAN & STATUS WORKSHOP -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            
+            <!-- DISTRIBUSI METODE PELATIHAN -->
+            <div class="lg:col-span-6 bg-white rounded-3xl p-6 border border-slate-200/90 shadow-xs space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="font-black text-slate-900 text-sm sm:text-base tracking-tight font-heading">
+                            Distribusi Metode Pelatihan Vokasi
+                        </h3>
+                        <p class="text-xs text-slate-400">Klasifikasi program berdasarkan skema pembelajaran</p>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-xl text-[10px] font-extrabold bg-teal-50 text-teal-700">24 Paket</span>
+                </div>
+
+                <div class="space-y-3 pt-2 text-xs">
+                    <div>
+                        <div class="flex items-center justify-between mb-1 font-semibold text-slate-700">
+                            <span>Pelatihan Berbasis Kompetensi (PBK Reguler)</span>
+                            <span class="font-extrabold text-slate-900">16 Paket (66,7%)</span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                            <div class="bg-teal-600 h-full rounded-full" style="width: 66.7%"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex items-center justify-between mb-1 font-semibold text-slate-700">
+                            <span>Project Based Learning (PBL Kolaboratif)</span>
+                            <span class="font-extrabold text-slate-900">5 Paket (20,8%)</span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                            <div class="bg-purple-600 h-full rounded-full" style="width: 20.8%"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex items-center justify-between mb-1 font-semibold text-slate-700">
+                            <span>Tailor Made Training (TMT Kerjasama Industri)</span>
+                            <span class="font-extrabold text-slate-900">3 Paket (12,5%)</span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                            <div class="bg-amber-600 h-full rounded-full" style="width: 12.5%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KESIAPAN WORKSHOP & RUANG PRAKTEK -->
+            <div class="lg:col-span-6 bg-white rounded-3xl p-6 border border-slate-200/90 shadow-xs space-y-3">
+                <div class="flex items-center justify-between pb-1 border-b border-slate-100">
+                    <div>
+                        <h3 class="font-black text-slate-900 text-sm sm:text-base tracking-tight font-heading">
+                            Kesiapan Sarana Workshop & Lab
+                        </h3>
+                        <p class="text-xs text-slate-400">Kelayakan fasilitas praktek dan peralatan keselamatan K3</p>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-xl text-[10px] font-extrabold bg-emerald-50 text-emerald-700">100% Siap</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs pt-1">
+                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                        <div>
+                            <p class="font-bold text-slate-900">Lab Komputer & Jaringan</p>
+                            <span class="text-[10px] text-slate-500">2 Ruang &bull; 32 PC i7</span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Siap</span>
+                    </div>
+
+                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                        <div>
+                            <p class="font-bold text-slate-900">Workshop Pengelasan</p>
+                            <span class="text-[10px] text-slate-500">16 Booth &bull; SMAW 3G</span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Siap</span>
+                    </div>
+
+                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                        <div>
+                            <p class="font-bold text-slate-900">Workshop Otomotif Mobil/Motor</p>
+                            <span class="text-[10px] text-slate-500">Scanner Injeksi & Pit Stop</span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Siap</span>
+                    </div>
+
+                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                        <div>
+                            <p class="font-bold text-slate-900">Workshop Garmen & Salon</p>
+                            <span class="text-[10px] text-slate-500">Mesin Jahit Highspeed & Kit</span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Siap</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- TABLE SECTION: DETAIL JADWAL & STATUS PROGRAM -->
+        <div class="bg-white rounded-3xl border border-slate-200/90 shadow-xs p-6 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-100">
+                <div>
+                    <h3 class="text-base font-black text-slate-900 font-heading">
+                        Daftar Program Pelatihan Vokasi UPTP TA 2026
+                    </h3>
+                    <p class="text-xs text-slate-500">Monitoring status pelaksanaan dari pembukaan hingga kelulusan UJK</p>
+                </div>
+                <div class="relative max-w-xs w-full">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                    <input type="text" placeholder="Cari program kejuruan..." 
+                           class="w-full pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 text-xs bg-slate-50 focus:outline-none focus:ring-1 focus:ring-teal-500">
+                </div>
+            </div>
+
+            <div class="w-full overflow-hidden rounded-2xl border border-slate-200/70">
+                <table class="w-full text-left text-xs text-slate-700">
+                    <thead class="bg-slate-50 text-slate-600 font-bold border-b border-slate-200 uppercase tracking-wider text-[10px]">
+                        <tr>
+                            <th class="py-3 px-3 text-center w-12">No</th>
+                            <th class="py-3 px-4">Program Pelatihan</th>
+                            <th class="py-3 px-4">Kejuruan</th>
+                            <th class="py-3 px-3 text-center">Metode</th>
+                            <th class="py-3 px-3 text-center">Peserta</th>
+                            <th class="py-3 px-3 text-center">L / P</th>
+                            <th class="py-3 px-4 text-center">Jadwal Pelaksanaan</th>
+                            <th class="py-3 px-3 text-center">Lulus UJK</th>
+                            <th class="py-3 px-3 text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3.5 px-3 text-center font-bold text-slate-400">1</td>
+                            <td class="py-3.5 px-4 font-bold text-slate-900">Junior Web Developer <span class="text-slate-400 font-normal">&bull; Batch 1</span></td>
+                            <td class="py-3.5 px-4 text-slate-600">TIK</td>
+                            <td class="py-3.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">PBK</span></td>
+                            <td class="py-3.5 px-3 text-center font-extrabold text-slate-800">16</td>
+                            <td class="py-3.5 px-3 text-center"><span class="text-blue-600 font-bold">9</span> / <span class="text-pink-600 font-bold">7</span></td>
+                            <td class="py-3.5 px-4 text-center text-slate-500">02 Feb – 20 Mar 2026</td>
+                            <td class="py-3.5 px-3 text-center font-bold text-emerald-600">16</td>
+                            <td class="py-3.5 px-3 text-center"><span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800">Selesai</span></td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3.5 px-3 text-center font-bold text-slate-400">2</td>
+                            <td class="py-3.5 px-4 font-bold text-slate-900">Plate Welder SMAW 3G UP <span class="text-slate-400 font-normal">&bull; Batch 1</span></td>
+                            <td class="py-3.5 px-4 text-slate-600">Las & Manufaktur</td>
+                            <td class="py-3.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">PBK</span></td>
+                            <td class="py-3.5 px-3 text-center font-extrabold text-slate-800">16</td>
+                            <td class="py-3.5 px-3 text-center"><span class="text-blue-600 font-bold">16</span> / <span class="text-pink-600 font-bold">0</span></td>
+                            <td class="py-3.5 px-4 text-center text-slate-500">05 Feb – 28 Mar 2026</td>
+                            <td class="py-3.5 px-3 text-center font-bold text-emerald-600">15</td>
+                            <td class="py-3.5 px-3 text-center"><span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800">Selesai</span></td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3.5 px-3 text-center font-bold text-slate-400">3</td>
+                            <td class="py-3.5 px-4 font-bold text-slate-900">Teknisi Servis Motor Injeksi <span class="text-slate-400 font-normal">&bull; Batch 1</span></td>
+                            <td class="py-3.5 px-4 text-slate-600">Otomotif</td>
+                            <td class="py-3.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">PBK</span></td>
+                            <td class="py-3.5 px-3 text-center font-extrabold text-slate-800">16</td>
+                            <td class="py-3.5 px-3 text-center"><span class="text-blue-600 font-bold">15</span> / <span class="text-pink-600 font-bold">1</span></td>
+                            <td class="py-3.5 px-4 text-center text-slate-500">15 Feb – 10 Apr 2026</td>
+                            <td class="py-3.5 px-3 text-center font-bold text-emerald-600">16</td>
+                            <td class="py-3.5 px-3 text-center"><span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800">Selesai</span></td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3.5 px-3 text-center font-bold text-slate-400">4</td>
+                            <td class="py-3.5 px-4 font-bold text-slate-900">Barista & Tata Hidang Kopi <span class="text-slate-400 font-normal">&bull; Batch 1</span></td>
+                            <td class="py-3.5 px-4 text-slate-600">Pariwisata</td>
+                            <td class="py-3.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">PBK</span></td>
+                            <td class="py-3.5 px-3 text-center font-extrabold text-slate-800">16</td>
+                            <td class="py-3.5 px-3 text-center"><span class="text-blue-600 font-bold">7</span> / <span class="text-pink-600 font-bold">9</span></td>
+                            <td class="py-3.5 px-4 text-center text-slate-500">20 Apr – 30 Mei 2026</td>
+                            <td class="py-3.5 px-3 text-center font-bold text-emerald-600">16</td>
+                            <td class="py-3.5 px-3 text-center"><span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800">Selesai</span></td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3.5 px-3 text-center font-bold text-slate-400">5</td>
+                            <td class="py-3.5 px-4 font-bold text-slate-900">Menjahit Pakaian <span class="text-slate-400 font-normal">&bull; Batch 2</span></td>
+                            <td class="py-3.5 px-4 text-slate-600">Garmen</td>
+                            <td class="py-3.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">PBK</span></td>
+                            <td class="py-3.5 px-3 text-center font-extrabold text-slate-800">16</td>
+                            <td class="py-3.5 px-3 text-center"><span class="text-blue-600 font-bold">2</span> / <span class="text-pink-600 font-bold">14</span></td>
+                            <td class="py-3.5 px-4 text-center text-slate-500">18 Mei – 04 Jul 2026</td>
+                            <td class="py-3.5 px-3 text-center font-bold text-slate-400">–</td>
+                            <td class="py-3.5 px-3 text-center"><span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-blue-100 text-blue-800 animate-pulse">Berjalan</span></td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3.5 px-3 text-center font-bold text-slate-400">6</td>
+                            <td class="py-3.5 px-4 font-bold text-slate-900">Digital Office Administration <span class="text-slate-400 font-normal">&bull; Batch 2</span></td>
+                            <td class="py-3.5 px-4 text-slate-600">Bisnis & Manajemen</td>
+                            <td class="py-3.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800">PBL</span></td>
+                            <td class="py-3.5 px-3 text-center font-extrabold text-slate-800">16</td>
+                            <td class="py-3.5 px-3 text-center"><span class="text-blue-600 font-bold">5</span> / <span class="text-pink-600 font-bold">11</span></td>
+                            <td class="py-3.5 px-4 text-center text-slate-500">01 Agu – 15 Sep 2026</td>
+                            <td class="py-3.5 px-3 text-center font-bold text-slate-400">–</td>
+                            <td class="py-3.5 px-3 text-center"><span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-amber-100 text-amber-800">Persiapan</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 py-5 text-center text-xs text-slate-500 mt-auto">
+        &copy; 2026 <strong>Balai Pelatihan Vokasi dan Produktivitas (BPVP) Kendari</strong> &bull; Seksi Penyelenggara Pelatihan
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            SimpelAuth.renderNavbar('pelatihan');
+        });
+    </script>
+</body>
+</html>
