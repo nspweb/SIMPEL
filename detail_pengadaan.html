@@ -128,28 +128,39 @@
                 </div>
             </div>
 
+            <!-- Action buttons for Expand/Collapse All -->
+            <div class="flex items-center justify-between pt-2">
+                <span class="text-xs text-slate-500">Klik baris program pelatihan untuk melihat rincian bahan/logistik.</span>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="toggleAllGroups(true)" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">
+                        <i class="fa-solid fa-angles-down mr-1"></i> Buka Semua
+                    </button>
+                    <button type="button" onclick="toggleAllGroups(false)" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">
+                        <i class="fa-solid fa-angles-up mr-1"></i> Tutup Semua
+                    </button>
+                </div>
+            </div>
+
             <!-- Table -->
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto rounded-2xl border border-slate-200">
                 <table class="w-full text-left text-xs text-slate-600">
-                    <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+                    <thead class="bg-slate-100/80 text-slate-700 font-bold border-b border-slate-200 text-[11px] uppercase tracking-wider">
                         <tr>
-                            <th class="py-3.5 px-4">No</th>
-                            <th class="py-3.5 px-4">Program Pelatihan & Batch</th>
-                            <th class="py-3.5 px-4">Nama Bahan / Alat / Logistik</th>
-                            <th class="py-3.5 px-4">Spesifikasi Detail</th>
-                            <th class="py-3.5 px-3 text-center">Volume / Qty</th>
-                            <th class="py-3.5 px-4 text-right">Harga Satuan (Rp)</th>
-                            <th class="py-3.5 px-4 text-right">Total Harga (Rp)</th>
-                            <th class="py-3.5 px-4">Rekanan / Vendor</th>
-                            <th class="py-3.5 px-4 text-center">Status Pokja</th>
+                            <th class="py-3.5 px-4 w-12 text-center">No</th>
+                            <th class="py-3.5 px-4">Program Pelatihan & Kejuruan</th>
+                            <th class="py-3.5 px-4 text-center">Batch Pelatihan</th>
+                            <th class="py-3.5 px-4 text-center">Total Item Bahan</th>
+                            <th class="py-3.5 px-4 text-right">Total Anggaran (Rp)</th>
+                            <th class="py-3.5 px-4 text-center">Status Kelengkapan</th>
+                            <th class="py-3.5 px-4 text-center w-28">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100" id="procurement-tbody">
-                        <!-- Populated by JS -->
+                        <!-- Populated by JS as grouped accordion -->
                     </tbody>
-                    <tfoot class="bg-slate-50 font-bold text-slate-800 border-t border-slate-200">
+                    <tfoot class="bg-slate-50 font-bold text-slate-800 border-t-2 border-slate-300">
                         <tr>
-                            <td colspan="6" class="py-3.5 px-4 text-right text-xs">Total Akumulasi Filter:</td>
+                            <td colspan="4" class="py-3.5 px-4 text-right text-xs">Total Akumulasi Semua Program Terfilter:</td>
                             <td class="py-3.5 px-4 text-right text-sm text-teal-700 font-extrabold" id="table-total-sum">Rp 0</td>
                             <td colspan="2"></td>
                         </tr>
@@ -167,13 +178,55 @@
     </footer>
 
     <script>
+        let expandedGroups = {};
+
         document.addEventListener('DOMContentLoaded', () => {
             SimpelAuth.renderNavbar('detail_pengadaan');
-            renderProcurementTable(SIMPEL_DATA.procurements);
+            applyFilters();
         });
 
         function formatRupiah(num) {
             return 'Rp ' + Number(num).toLocaleString('id-ID');
+        }
+
+        function toggleGroup(groupKey) {
+            expandedGroups[groupKey] = !expandedGroups[groupKey];
+            const contentRow = document.getElementById('group-content-' + groupKey);
+            const icon = document.getElementById('icon-' + groupKey);
+            const btnText = document.getElementById('btn-text-' + groupKey);
+            
+            if (contentRow) {
+                if (expandedGroups[groupKey]) {
+                    contentRow.classList.remove('hidden');
+                    if (icon) icon.className = 'fa-solid fa-chevron-up text-xs transition-transform';
+                    if (btnText) btnText.textContent = 'Tutup';
+                } else {
+                    contentRow.classList.add('hidden');
+                    if (icon) icon.className = 'fa-solid fa-chevron-down text-xs transition-transform';
+                    if (btnText) btnText.textContent = 'Rincian';
+                }
+            }
+        }
+
+        function toggleAllGroups(open) {
+            const keys = Object.keys(expandedGroups);
+            keys.forEach(key => {
+                expandedGroups[key] = open;
+                const contentRow = document.getElementById('group-content-' + key);
+                const icon = document.getElementById('icon-' + key);
+                const btnText = document.getElementById('btn-text-' + key);
+                if (contentRow) {
+                    if (open) {
+                        contentRow.classList.remove('hidden');
+                        if (icon) icon.className = 'fa-solid fa-chevron-up text-xs transition-transform';
+                        if (btnText) btnText.textContent = 'Tutup';
+                    } else {
+                        contentRow.classList.add('hidden');
+                        if (icon) icon.className = 'fa-solid fa-chevron-down text-xs transition-transform';
+                        if (btnText) btnText.textContent = 'Rincian';
+                    }
+                }
+            });
         }
 
         function applyFilters() {
@@ -188,74 +241,193 @@
                     item.item_name.toLowerCase().includes(query) || 
                     item.program.toLowerCase().includes(query) || 
                     item.spesifikasi.toLowerCase().includes(query) ||
-                    item.rekanan.toLowerCase().includes(query)
+                    item.rekanan.toLowerCase().includes(query) ||
+                    (item.kejuruan && item.kejuruan.toLowerCase().includes(query))
                 );
                 return matchBatch && matchKategori && matchQuery;
             });
 
-            renderProcurementTable(filtered);
+            renderGroupedProcurementTable(filtered);
         }
 
-        function renderProcurementTable(data) {
+        function renderGroupedProcurementTable(items) {
             const tbody = document.getElementById('procurement-tbody');
             tbody.innerHTML = '';
 
-            let totalSum = 0;
+            let grandTotal = 0;
 
-            if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="9" class="py-8 text-center text-slate-400">Tidak ada data rincian bahan yang sesuai filter.</td></tr>`;
-                document.getElementById('table-total-sum').textContent = formatRupiah(0);
+            if (!items || items.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-10 text-center text-slate-400 font-medium">Tidak ada data rincian bahan yang sesuai filter.</td></tr>`;
+                if (document.getElementById('table-total-sum')) document.getElementById('table-total-sum').textContent = formatRupiah(0);
+                if (document.getElementById('hero-total-nilai')) document.getElementById('hero-total-nilai').textContent = formatRupiah(0);
+                if (document.getElementById('stat-total-item')) document.getElementById('stat-total-item').textContent = '0 Item';
                 return;
             }
 
-            data.forEach((item, index) => {
-                totalSum += item.total_harga;
-
-                let badgePokja = '';
-                if (item.status_pokja.includes('Lengkap') || item.status_pokja.includes('Terbayar')) {
-                    badgePokja = '<span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800"><i class="fa-solid fa-check mr-1"></i>' + item.status_pokja + '</span>';
-                } else {
-                    badgePokja = '<span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-amber-100 text-amber-800 animate-pulse">' + item.status_pokja + '</span>';
+            // Group by Program + Batch
+            const grouped = {};
+            items.forEach(item => {
+                grandTotal += item.total_harga;
+                const key = `${item.program}___${item.batch}`;
+                if (!grouped[key]) {
+                    grouped[key] = {
+                        program: item.program,
+                        batch: item.batch,
+                        kejuruan: item.kejuruan || 'Teknik',
+                        items: [],
+                        totalNilai: 0,
+                        allComplete: true
+                    };
                 }
-
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-50/80 transition';
-                tr.innerHTML = `
-                    <td class="py-3.5 px-4 font-semibold text-slate-500">${index + 1}</td>
-                    <td class="py-3.5 px-4">
-                        <p class="font-bold text-slate-900">${item.program}</p>
-                        <span class="text-[10px] font-semibold text-teal-700 bg-teal-50 px-2 py-0.5 rounded inline-block mt-0.5">${item.batch} &bull; ${item.kejuruan}</span>
-                    </td>
-                    <td class="py-3.5 px-4">
-                        <p class="font-bold text-slate-800">${item.item_name}</p>
-                        <span class="text-[10px] text-slate-400 font-medium">${item.kategori}</span>
-                    </td>
-                    <td class="py-3.5 px-4 text-slate-600 text-[11px] max-w-xs">
-                        ${item.spesifikasi}
-                    </td>
-                    <td class="py-3.5 px-3 text-center">
-                        <span class="font-extrabold text-slate-900 text-xs">${item.qty}</span>
-                        <span class="text-[10px] text-slate-500 block">${item.satuan}</span>
-                    </td>
-                    <td class="py-3.5 px-4 text-right font-semibold text-slate-700">
-                        ${formatRupiah(item.harga_satuan)}
-                    </td>
-                    <td class="py-3.5 px-4 text-right font-extrabold text-slate-900 text-xs">
-                        ${formatRupiah(item.total_harga)}
-                    </td>
-                    <td class="py-3.5 px-4 text-slate-600 text-[11px]">
-                        ${item.rekanan}
-                    </td>
-                    <td class="py-3.5 px-4 text-center">
-                        ${badgePokja}
-                    </td>
-                `;
-                tbody.appendChild(tr);
+                grouped[key].items.push(item);
+                grouped[key].totalNilai += item.total_harga;
+                if (!item.status_pokja.includes('Lengkap') && !item.status_pokja.includes('Terbayar')) {
+                    grouped[key].allComplete = false;
+                }
             });
 
-            document.getElementById('table-total-sum').textContent = formatRupiah(totalSum);
-            document.getElementById('hero-total-nilai').textContent = formatRupiah(totalSum);
-            document.getElementById('stat-total-item').textContent = data.length + ' Item';
+            const elTableSum = document.getElementById('table-total-sum');
+            const elHeroTotal = document.getElementById('hero-total-nilai');
+            const elStatTotal = document.getElementById('stat-total-item');
+
+            if (elTableSum) elTableSum.textContent = formatRupiah(grandTotal);
+            if (elHeroTotal) elHeroTotal.textContent = formatRupiah(grandTotal);
+            if (elStatTotal) elStatTotal.textContent = items.length + ' Item';
+
+            let groupIndex = 1;
+            for (const [key, group] of Object.entries(grouped)) {
+                const safeKey = key.replace(/[^a-zA-Z0-9]/g, '_');
+                if (expandedGroups[safeKey] === undefined) {
+                    expandedGroups[safeKey] = (groupIndex === 1);
+                }
+
+                const isExpanded = expandedGroups[safeKey];
+
+                const statusBadge = group.allComplete
+                    ? `<span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800"><i class="fa-solid fa-check mr-1"></i>Lengkap Diterima</span>`
+                    : `<span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-amber-100 text-amber-800"><i class="fa-solid fa-clock mr-1"></i>Sebagian Proses</span>`;
+
+                const programRow = document.createElement('tr');
+                programRow.className = 'bg-white hover:bg-teal-50/40 transition cursor-pointer border-t border-slate-200';
+                programRow.setAttribute('onclick', `toggleGroup('${safeKey}')`);
+                programRow.innerHTML = `
+                    <td class="py-4 px-4 text-center font-bold text-slate-500">${groupIndex}</td>
+                    <td class="py-4 px-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-700 font-bold text-sm shadow-2xs">
+                                <i class="fa-solid fa-graduation-cap"></i>
+                            </div>
+                            <div>
+                                <p class="font-extrabold text-slate-900 text-sm">${group.program}</p>
+                                <span class="text-[10px] font-semibold text-teal-700 bg-teal-50 px-2 py-0.5 rounded inline-block mt-0.5 border border-teal-100">
+                                    Kejuruan ${group.kejuruan}
+                                </span>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-4 px-4 text-center font-bold text-slate-700">
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold">${group.batch}</span>
+                    </td>
+                    <td class="py-4 px-4 text-center">
+                        <span class="px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 text-xs font-extrabold border border-indigo-100">
+                            ${group.items.length} Item Logistik
+                        </span>
+                    </td>
+                    <td class="py-4 px-4 text-right font-extrabold text-slate-900 text-sm">
+                        ${formatRupiah(group.totalNilai)}
+                    </td>
+                    <td class="py-4 px-4 text-center">
+                        ${statusBadge}
+                    </td>
+                    <td class="py-4 px-4 text-center">
+                        <button type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-teal-600 hover:text-white text-slate-700 text-xs font-bold transition shadow-2xs">
+                            <span id="btn-text-${safeKey}">${isExpanded ? 'Tutup' : 'Rincian'}</span>
+                            <i id="icon-${safeKey}" class="fa-solid ${isExpanded ? 'fa-chevron-up' : 'fa-chevron-down'} text-xs"></i>
+                        </button>
+                    </td>
+                `;
+
+                const childRow = document.createElement('tr');
+                childRow.id = 'group-content-' + safeKey;
+                childRow.className = isExpanded ? 'bg-slate-50/70' : 'hidden bg-slate-50/70';
+
+                let subTableRows = '';
+                group.items.forEach((item, itemIdx) => {
+                    let badgePokja = '';
+                    if (item.status_pokja.includes('Lengkap') || item.status_pokja.includes('Terbayar')) {
+                        badgePokja = '<span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800"><i class="fa-solid fa-check mr-1"></i>' + item.status_pokja + '</span>';
+                    } else {
+                        badgePokja = '<span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-100 text-amber-800 animate-pulse">' + item.status_pokja + '</span>';
+                    }
+
+                    subTableRows += `
+                        <tr class="hover:bg-white transition border-b border-slate-200/60 last:border-0">
+                            <td class="py-2.5 px-3 text-center text-slate-400 font-semibold text-[11px]">${itemIdx + 1}</td>
+                            <td class="py-2.5 px-3 font-bold text-slate-800 text-xs">
+                                ${item.item_name}
+                                <span class="text-[10px] text-slate-400 font-medium block">${item.kategori}</span>
+                            </td>
+                            <td class="py-2.5 px-3 text-slate-600 text-[11px] max-w-xs">
+                                ${item.spesifikasi}
+                            </td>
+                            <td class="py-2.5 px-3 text-center">
+                                <span class="font-bold text-slate-900 text-xs">${item.qty}</span>
+                                <span class="text-[10px] text-slate-500 block">${item.satuan}</span>
+                            </td>
+                            <td class="py-2.5 px-3 text-right font-medium text-slate-700 text-xs">
+                                ${formatRupiah(item.harga_satuan)}
+                            </td>
+                            <td class="py-2.5 px-3 text-right font-extrabold text-slate-900 text-xs">
+                                ${formatRupiah(item.total_harga)}
+                            </td>
+                            <td class="py-2.5 px-3 text-slate-600 text-[11px]">
+                                ${item.rekanan}
+                            </td>
+                            <td class="py-2.5 px-3 text-center">
+                                ${badgePokja}
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                childRow.innerHTML = `
+                    <td colspan="7" class="p-0">
+                        <div class="p-4 sm:p-5 bg-gradient-to-b from-slate-100/90 to-slate-50 rounded-b-2xl border-t border-slate-200 shadow-inner">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-solid fa-boxes-packing text-teal-700 text-xs"></i>
+                                    <span class="font-bold text-xs text-slate-800">Rincian Komponen Bahan & Biaya (${group.items.length} Item)</span>
+                                </div>
+                                <span class="text-[11px] font-semibold text-slate-500">Subtotal: <strong class="text-teal-800">${formatRupiah(group.totalNilai)}</strong></span>
+                            </div>
+                            
+                            <div class="overflow-x-auto bg-white rounded-xl border border-slate-200 shadow-2xs">
+                                <table class="w-full text-left text-xs text-slate-600">
+                                    <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200 text-[10px] uppercase">
+                                        <tr>
+                                            <th class="py-2 px-3 text-center w-8">No</th>
+                                            <th class="py-2 px-3">Nama Bahan / Alat / Logistik</th>
+                                            <th class="py-2 px-3">Spesifikasi Detail</th>
+                                            <th class="py-2 px-3 text-center">Volume / Qty</th>
+                                            <th class="py-2 px-3 text-right">Harga Satuan (Rp)</th>
+                                            <th class="py-2 px-3 text-right">Total Harga (Rp)</th>
+                                            <th class="py-2 px-3">Rekanan / Vendor</th>
+                                            <th class="py-2 px-3 text-center">Status Pokja</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${subTableRows}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </td>
+                `;
+
+                tbody.appendChild(programRow);
+                tbody.appendChild(childRow);
+                groupIndex++;
+            }
         }
     </script>
 </body>
